@@ -1,0 +1,139 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
+import api from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { Check } from "lucide-react";
+
+const plans = [
+  {
+    name: "1 Tháng",
+    price: 9000,
+    priceLabel: "9,000đ",
+    slug: "1-month",
+    popular: false,
+    features: ["Bot Zalo cá nhân", "Ghi chi tiêu AI", "Dashboard đầy đủ", "Hỗ trợ ảnh hóa đơn"],
+  },
+  {
+    name: "6 Tháng",
+    price: 49000,
+    priceLabel: "49,000đ",
+    slug: "6-month",
+    popular: true,
+    save: "Tiết kiệm 9%",
+    features: ["Mọi tính năng gói 1 tháng", "Ưu tiên hỗ trợ", "Nhập PDF", "Báo cáo nâng cao"],
+  },
+  {
+    name: "1 Năm",
+    price: 89000,
+    priceLabel: "89,000đ",
+    slug: "1-year",
+    popular: false,
+    save: "Tiết kiệm 26%",
+    features: ["Mọi tính năng gói 6 tháng", "Hỗ trợ ưu tiên cao", "Tính năng mới sớm nhất"],
+  },
+];
+
+export default function PricingPage() {
+  const [loading, setLoading] = useState<string | null>(null);
+  const { user, refreshUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSelect = async (slug: string) => {
+    if (!user) {
+      navigate("/register");
+      return;
+    }
+
+    setLoading(slug);
+    try {
+      const { data } = await api.post("/subscriptions", { planSlug: slug });
+
+      // DEV mode: backend auto-approves payment, navigate directly
+      if (data.payment?.status === "PAID") {
+        toast.success("Đăng ký gói thành công!");
+        await refreshUser();
+        navigate("/dashboard/settings");
+        return;
+      }
+
+      // Production: redirect to Sepay checkout page
+      if (data.checkoutData?.checkoutUrl) {
+        const { checkoutUrl, ...params } = data.checkoutData;
+
+        // Build a form and submit it to Sepay (POST redirect)
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = checkoutUrl;
+        for (const [key, value] of Object.entries(params)) {
+          if (value == null) continue;
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = String(value);
+          form.appendChild(input);
+        }
+        document.body.appendChild(form);
+        form.submit();
+        return;
+      }
+
+      // Fallback: unexpected response
+      toast.error("Không thể xử lý thanh toán. Vui lòng thử lại.");
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Không thể đăng ký gói");
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  return (
+    <div className="min-h-svh py-16">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="mb-12 text-center">
+          <h1 className="font-heading text-4xl font-bold">Chọn gói phù hợp</h1>
+          <p className="mt-4 text-muted-foreground">
+            Bắt đầu sử dụng Penny với gói phù hợp nhu cầu của bạn
+          </p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-3">
+          {plans.map((plan) => (
+            <Card
+              key={plan.slug}
+              className={plan.popular ? "border-primary shadow-lg scale-105" : ""}
+            >
+              <CardHeader>
+                {plan.popular && <Badge className="mb-2 w-fit">Phổ biến nhất</Badge>}
+                <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                <p className="text-4xl font-bold">{plan.priceLabel}</p>
+                {plan.save && <p className="text-sm text-primary font-medium">{plan.save}</p>}
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-2">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm">
+                      <Check className="size-4 text-primary" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  className="w-full"
+                  variant={plan.popular ? "default" : "outline"}
+                  disabled={loading === plan.slug}
+                  onClick={() => handleSelect(plan.slug)}
+                >
+                  {loading === plan.slug ? "Đang xử lý..." : "Chọn gói này"}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

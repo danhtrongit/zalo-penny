@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SubStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PayStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum TxSource {
+  TEXT
+  IMAGE
+  PDF
+}
+
+enum BudgetType {
+  WEEKLY
+  MONTHLY
+}
+
+enum PersonaStyle {
+  FRIEND
+  ASSISTANT
+  HOMEMAKER
+  COACH
+  COMEDIAN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String?
+  passwordHash String
+  name         String
+  phone        String   @unique
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  subscription Subscription?
+  botConfig    BotConfig?
+  transactions Transaction[]
+  budgets      Budget[]
+  receipts     Receipt[]
+  persona      Persona?
+}
+
+model Plan {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  durationDays Int
+  price        Int
+  description  String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  planId        String
+  status        SubStatus @default(PENDING)
+  startDate     DateTime?
+  endDate       DateTime?
+  invoiceNumber String    @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id])
+  plan    Plan     @relation(fields: [planId], references: [id])
+  payment Payment?
+}
+
+model Payment {
+  id             String    @id @default(cuid())
+  subscriptionId String    @unique
+  amount         Int
+  method         String?
+  transactionId  String?
+  status         PayStatus @default(PENDING)
+  paidAt         DateTime?
+  rawResponse    Json?
+  createdAt      DateTime  @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+}
+
+model BotConfig {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  botToken    String
+  isActive    Boolean   @default(false)
+  connectedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int
+  description String
+  category    String
+  date        DateTime @default(now())
+  source      TxSource @default(TEXT)
+  receiptId   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id])
+  receipt Receipt? @relation(fields: [receiptId], references: [id])
+}
+
+model Budget {
+  id        String     @id @default(cuid())
+  userId    String
+  type      BudgetType
+  amount    Int
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, type])
+}
+
+model Receipt {
+  id        String   @id @default(cuid())
+  userId    String
+  fileUrl   String
+  fileType  String
+  hash      String?
+  createdAt DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+}
+
+model Persona {
+  id          String       @id @default(cuid())
+  userId      String       @unique
+  style       PersonaStyle @default(FRIEND)
+  tease       Int          @default(3)
+  serious     Int          @default(3)
+  frugal      Int          @default(3)
+  emoji       Int          @default(3)
+  displayName String?
+  gender      String?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model ZaloUser {
+  id          String   @id @default(cuid())
+  zaloUserId  String
+  botConfigId String
+  userId      String
+  displayName String?
+  isOnboarded Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@unique([zaloUserId, botConfigId])
+}
+
+model ConversationState {
+  id            String   @id @default(cuid())
+  zaloUserId    String
+  botConfigId   String
+  state         Json     @default("{}")
+  lastMessageAt DateTime @default(now())
+
+  @@unique([zaloUserId, botConfigId])
+}
