@@ -42,7 +42,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <AuthProvider>
             <BrowserRouter>

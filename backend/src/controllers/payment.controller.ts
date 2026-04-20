@@ -2,22 +2,34 @@ import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { env } from "../config/env";
 
+// SePay authorized IP addresses (from docs)
+const SEPAY_IPS = [
+  "172.236.138.20",
+  "172.233.83.68",
+  "171.244.35.2",
+  "151.158.108.68",
+  "151.158.109.79",
+  "103.255.238.139",
+];
+
 export const handleIPN = async (req: Request, res: Response) => {
-  // --- Authorization verification (skip only in dev) ---
+  // Log incoming IPN for debugging
+  console.log("IPN received:", JSON.stringify(req.body));
+
+  // --- IP whitelist verification (skip in dev) ---
   if (!env.isDev) {
-    const authHeader = req.headers["authorization"] as string | undefined;
-    if (!authHeader) {
-      console.warn("IPN rejected: missing Authorization header");
-      res.status(401).json({ error: "Missing authorization" });
-      return;
-    }
+    const clientIp =
+      (req.headers["x-real-ip"] as string) ||
+      (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+      req.socket.remoteAddress ||
+      "";
 
-    const expectedToken = env.sepay.secretKey;
-    const receivedToken = authHeader.replace(/^Bearer\s+/i, "");
+    // Strip IPv6 prefix if present
+    const cleanIp = clientIp.replace(/^::ffff:/, "");
 
-    if (receivedToken !== expectedToken) {
-      console.warn("IPN rejected: invalid authorization token");
-      res.status(401).json({ error: "Invalid authorization" });
+    if (!SEPAY_IPS.includes(cleanIp)) {
+      console.warn(`IPN rejected: unauthorized IP ${cleanIp}`);
+      res.status(403).json({ error: "Unauthorized IP" });
       return;
     }
   }
@@ -37,6 +49,7 @@ export const handleIPN = async (req: Request, res: Response) => {
     });
 
     if (!subscription) {
+      console.warn(`IPN: subscription not found for invoice ${invoiceNumber}`);
       res.status(404).json({ error: "Subscription not found" });
       return;
     }
@@ -72,6 +85,8 @@ export const handleIPN = async (req: Request, res: Response) => {
         rawResponse: data,
       },
     });
+
+    console.log(`IPN: subscription ${subscription.id} activated for invoice ${invoiceNumber}`);
   }
 
   res.json({ success: true });
