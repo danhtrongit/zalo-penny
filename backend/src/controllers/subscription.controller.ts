@@ -63,9 +63,11 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
       data: { status: "PAID", paidAt: now, method: "DEV_AUTO" },
     });
 
+    const { invoiceNumber: _devInv, ...devSafeSubscription } = subscription;
+
     res.status(201).json({
       subscription: {
-        ...subscription,
+        ...devSafeSubscription,
         status: "ACTIVE",
         startDate: now,
         endDate,
