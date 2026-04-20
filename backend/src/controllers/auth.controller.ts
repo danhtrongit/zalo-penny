@@ -5,16 +5,22 @@ import { AuthRequest } from "../middlewares/auth.middleware";
 
 const PHONE_REGEX = /^0\d{9,10}$/;
 
+/** Strip invisible Unicode chars (RTL marks, zero-width spaces, etc.) and whitespace */
+function cleanPhone(raw: string): string {
+  return raw.replace(/[^\d]/g, "");  // keep only digits
+}
+
 export const register = async (req: AuthRequest, res: Response) => {
-  const { phone, password, name, email } = req.body;
+  const { password, name, email } = req.body;
+  const phone = req.body.phone ? cleanPhone(String(req.body.phone)) : "";
 
   if (!phone || !password || !name) {
-    res.status(400).json({ error: "Phone, password, and name are required" });
+    res.status(400).json({ error: "Số điện thoại, mật khẩu và tên là bắt buộc" });
     return;
   }
 
   if (!PHONE_REGEX.test(phone)) {
-    res.status(400).json({ error: "Invalid phone number. Must start with 0 and be 10-11 digits" });
+    res.status(400).json({ error: "Số điện thoại không hợp lệ (bắt đầu bằng 0, 10-11 chữ số)" });
     return;
   }
 
@@ -36,10 +42,11 @@ export const register = async (req: AuthRequest, res: Response) => {
 };
 
 export const login = async (req: AuthRequest, res: Response) => {
-  const { phone, password } = req.body;
+  const { password } = req.body;
+  const phone = req.body.phone ? cleanPhone(String(req.body.phone)) : "";
 
   if (!phone || !password) {
-    res.status(400).json({ error: "Phone and password are required" });
+    res.status(400).json({ error: "Số điện thoại và mật khẩu là bắt buộc" });
     return;
   }
 

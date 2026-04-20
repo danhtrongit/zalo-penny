@@ -21,15 +21,18 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
+    // Strip non-digit chars (handles RTL marks, spaces, dashes etc from paste)
+    const cleanedPhone = phone.replace(/[^\d]/g, "");
+
     // Phone validation: starts with 0, 10-11 digits
-    if (!/^0\d{9,10}$/.test(phone)) {
+    if (!/^0\d{9,10}$/.test(cleanedPhone)) {
       setError("Số điện thoại không hợp lệ (bắt đầu bằng 0, 10-11 chữ số)");
       return;
     }
 
     setLoading(true);
     try {
-      await register(phone, password, name, email || undefined);
+      await register(cleanedPhone, password, name, email || undefined);
       navigate("/pricing");
     } catch (err: any) {
       setError(err.response?.data?.error || "Đăng ký thất bại");
