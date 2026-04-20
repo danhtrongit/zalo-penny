@@ -66,10 +66,13 @@ export const handleZaloWebhook = async (req: Request, res: Response) => {
     },
   });
 
-  if (!botConfig || !botConfig.isActive) {
+  if (!botConfig) {
     res.status(404).json({ message: "Bot not found" });
     return;
   }
+
+  // Allow webhook even when isActive=false (bot may be in verification state)
+  // The message handler checks for verification codes before requiring isActive
 
   const payload = parseWebhookPayload(req.body);
   const event =

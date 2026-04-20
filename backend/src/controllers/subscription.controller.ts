@@ -29,6 +29,8 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
   const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
   if (existing) {
+    // Delete payment first (FK constraint), then subscription
+    await prisma.payment.deleteMany({ where: { subscriptionId: existing.id } });
     await prisma.subscription.delete({ where: { id: existing.id } });
   }
 

@@ -51,6 +51,7 @@ export async function handleMessage(
       !verification.verified
     ) {
       verification.verified = true;
+      console.log("Bot verification matched!", { verifyId, code: text, userId });
       // Send confirmation message back to the user
       try {
         await zaloApi.sendMessage(botToken, chatId, "Xác minh thành công! ✅ Quay lại trang web để hoàn tất kết nối.");
@@ -59,6 +60,17 @@ export async function handleMessage(
       }
       return;
     }
+  }
+
+  // Check if bot is active - if not, only verification codes are processed above
+  const botConfigCheck = await prisma.botConfig.findFirst({
+    where: { botToken, userId },
+    select: { isActive: true },
+  });
+  if (botConfigCheck && !botConfigCheck.isActive) {
+    // Bot is in verification state, ignore non-verification messages
+    console.log("Bot not active yet, ignoring non-verification message:", { text: text.slice(0, 50) });
+    return;
   }
 
   const botConfig = await prisma.botConfig.findFirst({
