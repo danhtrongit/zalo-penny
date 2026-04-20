@@ -78,7 +78,7 @@ export default function SettingsPage() {
 
     pollingRef.current = setInterval(async () => {
       try {
-        const { data } = await api.get(`/bot/verify-connect?verifyId=${verifyId}`);
+        const { data } = await api.post("/bot/verify", { verifyId });
         if (data.verified) {
           if (pollingRef.current) {
             clearInterval(pollingRef.current);
@@ -106,7 +106,7 @@ export default function SettingsPage() {
         // Verification flow
         const newVerifyState: VerifyState = {
           verifyId: data.verifyId,
-          code: data.code,
+          code: data.verifyCode,
           polling: true,
         };
         setVerifyState(newVerifyState);
