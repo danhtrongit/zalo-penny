@@ -81,39 +81,49 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
   // Don't expose invoiceNumber to the client – it's used server-side only for IPN matching
   const { invoiceNumber: _inv, ...safeSubscription } = subscription;
 
-  // Build signed string for SePay signature
-  const checkoutFields = {
+  // Build checkout fields exactly matching SePay docs
+  const checkoutFields: Record<string, string> = {
     merchant: env.sepay.merchantId,
-    operation: "PURCHASE",
-    payment_method: "",
-    order_amount: String(plan.price),
     currency: "VND",
-    order_invoice_number: invoiceNumber,
+    order_amount: String(plan.price),
+    operation: "PURCHASE",
     order_description: `Penny - ${plan.name}`,
+    order_invoice_number: invoiceNumber,
     customer_id: req.userId!,
     success_url: `${env.frontendUrl}/payment/success`,
     error_url: `${env.frontendUrl}/payment/error`,
     cancel_url: `${env.frontendUrl}/pricing`,
   };
 
-  const signedString = [
-    `merchant=${checkoutFields.merchant}`,
-    `operation=${checkoutFields.operation}`,
-    `payment_method=${checkoutFields.payment_method}`,
-    `order_amount=${checkoutFields.order_amount}`,
-    `currency=${checkoutFields.currency}`,
-    `order_invoice_number=${checkoutFields.order_invoice_number}`,
-    `order_description=${checkoutFields.order_description}`,
-    `customer_id=${checkoutFields.customer_id}`,
-    `success_url=${checkoutFields.success_url}`,
-    `error_url=${checkoutFields.error_url}`,
-    `cancel_url=${checkoutFields.cancel_url}`,
-  ].join(",");
+  // Generate signature per SePay docs:
+  // Only sign fields that exist in checkoutFields AND are in the allowed sign list
+  const signableFields = [
+    "merchant",
+    "operation",
+    "payment_method",
+    "order_amount",
+    "currency",
+    "order_invoice_number",
+    "order_description",
+    "customer_id",
+    "success_url",
+    "error_url",
+    "cancel_url",
+  ];
+
+  const signedParts: string[] = [];
+  for (const field of signableFields) {
+    if (!(field in checkoutFields)) continue;
+    signedParts.push(`${field}=${checkoutFields[field] ?? ""}`);
+  }
+  const signedString = signedParts.join(",");
 
   const signature = crypto
     .createHmac("sha256", env.sepay.secretKey)
     .update(signedString, "utf8")
     .digest("base64");
+
+  checkoutFields.signature = signature;
 
   const checkoutUrl =
     env.sepay.env === "sandbox"
@@ -124,8 +134,6 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
     subscription: safeSubscription,
     checkoutData: {
       ...checkoutFields,
-      order_amount: plan.price,
-      signature,
       checkoutUrl,
     },
   });
