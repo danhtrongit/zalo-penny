@@ -1,7 +1,11 @@
 function normalize(text: string): string {
+  // Vietnamese đ/Đ are precomposed (U+0111 / U+0110) and NFD doesn't decompose
+  // them, so we map them explicitly after the standard diacritic strip.
   return text
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
     .toLowerCase();
 }
 

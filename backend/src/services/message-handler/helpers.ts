@@ -12,9 +12,14 @@ export function cleanThinkingArtifacts(text: string): string {
 }
 
 function normalizeForCheck(value: string): string {
+  // NFD + diacritic strip handles tone marks (ếằ → ea), but does NOT decompose
+  // Vietnamese đ/Đ (U+0111 / U+0110) since they are precomposed letters with
+  // no combining-mark form. We map them explicitly so word matching works.
   return value
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
     .toLowerCase();
 }
 
@@ -27,8 +32,8 @@ export function shouldAwaitFollowUp(response: string): boolean {
 }
 
 export function isOptionAgnosticReply(text: string): boolean {
-  const normalized = text.trim().toLowerCase();
-  return /(?:dai di|n[aà]o c[uũ]ng d[uư][oợ]c|bat ky|cu check|cu lam|chon dai|sao cung duoc|check thu|check dai)/i.test(
+  const normalized = normalizeForCheck(text);
+  return /(?:dai di|nao cung duoc|bat ky|cu check|cu lam|chon dai|sao cung duoc|check thu|check dai)/.test(
     normalized
   );
 }
