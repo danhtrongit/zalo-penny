@@ -25,6 +25,15 @@ enum PayStatus {
   FAILED
 }
 
+enum SubscriptionAuditReason {
+  REPLACED
+  CANCELLED
+  EXPIRED
+  REFUNDED
+  ADMIN_REMOVED
+  OTHER
+}
+
 enum TxSource {
   TEXT
   IMAGE
@@ -192,4 +201,34 @@ model ConversationState {
   lastMessageAt DateTime @default(now())
 
   @@unique([zaloUserId, botConfigId])
+}
+
+model SubscriptionAudit {
+  id                    String                  @id @default(cuid())
+  // Snapshot of the original subscription. We do NOT FK back to Subscription
+  // because the source row is deleted at archive time.
+  originalSubscriptionId String
+  userId                String
+  planId                String
+  invoiceNumber         String
+  status                SubStatus
+  startDate             DateTime?
+  endDate               DateTime?
+  // Payment snapshot
+  paymentStatus         PayStatus?
+  paymentMethod         String?
+  paymentTransactionId  String?
+  paymentPaidAt         DateTime?
+  paymentAmount         Int?
+  paymentRawResponse    Json?
+  // Original create time of the subscription row that's being archived
+  originalCreatedAt     DateTime
+  // Why this row was archived
+  reason                SubscriptionAuditReason
+  notes                 String?
+  archivedAt            DateTime                @default(now())
+
+  @@index([userId])
+  @@index([originalSubscriptionId])
+  @@index([invoiceNumber])
 }

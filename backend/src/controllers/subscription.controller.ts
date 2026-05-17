@@ -8,6 +8,7 @@ import {
   buildCheckoutFields,
   signCheckoutFields,
 } from "../services/payment.service";
+import { archiveSubscription } from "../services/subscription-archive.service";
 
 function generateInvoiceNumber(): string {
   return `INV-${Date.now()}-${Math.random()
@@ -32,10 +33,13 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
   const invoiceNumber = generateInvoiceNumber();
 
   if (existing) {
-    await prisma.$transaction([
-      prisma.payment.deleteMany({ where: { subscriptionId: existing.id } }),
-      prisma.subscription.delete({ where: { id: existing.id } }),
-    ]);
+    // Archive (don't hard-delete) so we keep the full subscription/payment
+    // history for accounting, support, and audit purposes.
+    await archiveSubscription({
+      subscriptionId: existing.id,
+      reason: "REPLACED",
+      notes: `Replaced by new subscription for plan ${plan.slug}`,
+    });
   }
 
   const subscription = await prisma.subscription.create({
