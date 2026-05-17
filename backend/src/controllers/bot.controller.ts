@@ -145,16 +145,23 @@ export const botStatus = async (req: AuthRequest, res: Response) => {
     select: { id: true, isActive: true, connectedAt: true, createdAt: true },
   });
 
-  const running = botManager.isBotRunning(req.userId!);
+  const mode = botManager.getBotRuntimeMode();
+  // "running" semantics depend on the runtime mode:
+  //   - polling: there's an in-process poll loop (instances Map)
+  //   - webhook: Zalo is configured to POST here, reflected by config.isActive
+  // (polling-mode startBot also flips isActive via DB elsewhere, but the
+  // in-process Map is the source of truth there since the loop may crash.)
+  const running =
+    mode === "webhook"
+      ? !!config?.isActive
+      : botManager.isBotRunning(req.userId!);
 
   res.json({
     config,
     running,
     polling: running, // backward compat
-    mode: botManager.getBotRuntimeMode(),
+    mode,
     webhookUrl:
-      config && botManager.getBotRuntimeMode() === "webhook"
-        ? botManager.getBotWebhookUrl(config.id)
-        : null,
+      config && mode === "webhook" ? botManager.getBotWebhookUrl(config.id) : null,
   });
 };
