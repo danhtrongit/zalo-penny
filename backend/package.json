@@ -26,6 +26,8 @@
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "@prisma/pg-worker": "^6.9.0",
+    "@sentry/node": "^10.53.1",
+    "@sentry/profiling-node": "^10.53.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

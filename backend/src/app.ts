@@ -1,12 +1,14 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import * as Sentry from "@sentry/node";
 import routes from "./routes";
 import webhookRoute from "./routes/webhook.route";
 import { notFoundHandler, errorHandler } from "./middlewares/error.middleware";
 import { requestId } from "./middlewares/request-id.middleware";
 import { httpLogger } from "./middlewares/http-logger.middleware";
 import { generalLimiter } from "./middlewares/rate-limit.middleware";
+import { sentryEnabled } from "./observability/sentry";
 import { env } from "./config/env";
 import { REQUEST_BODY_LIMIT } from "./config/constants";
 
@@ -47,6 +49,15 @@ app.use("/api/webhooks", webhookRoute);
 app.use("/api", generalLimiter, routes);
 
 app.use(notFoundHandler);
+
+// Sentry's Express error handler runs BEFORE our errorHandler so 5xx errors
+// are captured (it also tags them with the current request's trace context).
+// Sentry's handler always calls next(err), so our errorHandler still shapes
+// the response.
+if (sentryEnabled) {
+  Sentry.setupExpressErrorHandler(app);
+}
+
 app.use(errorHandler);
 
 export default app;

@@ -1,3 +1,10 @@
+// dotenv via env.ts will fire on first import, but Sentry needs raw env
+// before our config layer loads — so we load dotenv up-front and then bring
+// Sentry in. Order matters: Sentry's auto-instrumentation patches http/express
+// prototypes, so it has to run BEFORE app/prisma/etc.
+import "dotenv/config";
+import { Sentry, sentryEnabled } from "./observability/sentry";
+
 import http from "http";
 import app from "./app";
 import { env } from "./config/env";
@@ -52,6 +59,14 @@ async function shutdown(signal: string) {
     logger.error({ err }, "Error closing redis");
   }
 
+  if (sentryEnabled) {
+    try {
+      await Sentry.close(2_000);
+    } catch (err) {
+      logger.error({ err }, "Error closing sentry");
+    }
+  }
+
   clearTimeout(force);
   process.exit(0);
 }
@@ -61,16 +76,23 @@ process.on("SIGINT", () => void shutdown("SIGINT"));
 
 process.on("unhandledRejection", (reason) => {
   logger.error({ reason }, "Unhandled promise rejection");
+  if (sentryEnabled) Sentry.captureException(reason);
 });
 
 process.on("uncaughtException", (err) => {
   logger.fatal({ err }, "Uncaught exception");
+  if (sentryEnabled) Sentry.captureException(err);
   void shutdown("uncaughtException");
 });
 
 server.listen(env.port, async () => {
   logger.info(
-    { port: env.port, nodeEnv: env.nodeEnv, mode: env.zalo.mode },
+    {
+      port: env.port,
+      nodeEnv: env.nodeEnv,
+      mode: env.zalo.mode,
+      sentry: sentryEnabled,
+    },
     "Server listening"
   );
 

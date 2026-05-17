@@ -23,6 +23,9 @@ const rawSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(120),
   REDIS_URL: z.string().optional(),
+  SENTRY_DSN: z.string().url().optional(),
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
+  SENTRY_PROFILES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0),
 });
 
 const parsed = rawSchema.safeParse(process.env);
@@ -73,6 +76,11 @@ export const env = {
     max: raw.RATE_LIMIT_MAX,
   },
   redisUrl: raw.REDIS_URL,
+  sentry: {
+    dsn: raw.SENTRY_DSN,
+    tracesSampleRate: raw.SENTRY_TRACES_SAMPLE_RATE,
+    profilesSampleRate: raw.SENTRY_PROFILES_SAMPLE_RATE,
+  },
   sepay: {
     merchantId: raw.SEPAY_MERCHANT_ID,
     secretKey: raw.SEPAY_SECRET_KEY,
