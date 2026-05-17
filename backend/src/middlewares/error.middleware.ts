@@ -15,7 +15,7 @@ export class HttpError extends Error {
 }
 
 export const notFoundHandler = (_req: Request, res: Response) => {
-  res.status(404).json({ error: "Not Found" });
+  res.status(404).json({ error: "Không tìm thấy đường dẫn" });
 };
 
 export const errorHandler = (
@@ -26,7 +26,7 @@ export const errorHandler = (
 ) => {
   if (err instanceof ZodError) {
     res.status(400).json({
-      error: "ValidationError",
+      error: "Dữ liệu không hợp lệ",
       issues: err.issues.map((issue) => ({
         path: issue.path.join("."),
         message: issue.message,
@@ -47,7 +47,7 @@ export const errorHandler = (
   logger.error({ err: error, reqId: req.id, path: req.path }, "Unhandled error");
 
   res.status(500).json({
-    error: "Internal Server Error",
+    error: "Đã có lỗi xảy ra, vui lòng thử lại sau",
     ...(env.isProduction ? {} : { message: error.message }),
   });
 };

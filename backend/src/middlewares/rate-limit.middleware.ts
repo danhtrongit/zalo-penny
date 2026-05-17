@@ -4,7 +4,7 @@ import { env } from "../config/env";
 const baseConfig: Partial<Options> = {
   standardHeaders: "draft-7",
   legacyHeaders: false,
-  message: { error: "Too many requests, please retry later." },
+  message: { error: "Quá nhiều yêu cầu, vui lòng thử lại sau ít phút" },
 };
 
 export const generalLimiter = rateLimit({
@@ -17,7 +17,7 @@ export const authLimiter = rateLimit({
   ...baseConfig,
   windowMs: 15 * 60 * 1000,
   max: 20,
-  message: { error: "Too many auth attempts, please retry in 15 minutes." },
+  message: { error: "Bạn đã thử đăng nhập quá nhiều lần, vui lòng đợi 15 phút" },
 });
 
 export const paymentLimiter = rateLimit({

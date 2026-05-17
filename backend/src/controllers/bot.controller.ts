@@ -15,14 +15,14 @@ export const connectBot = async (req: AuthRequest, res: Response) => {
     where: { userId: req.userId! },
   });
   if (!sub || sub.status !== "ACTIVE") {
-    throw new HttpError(403, "Active subscription required");
+    throw new HttpError(403, "Cần có gói đang hoạt động để kết nối bot");
   }
 
   let botInfo;
   try {
     botInfo = await zaloApi.getMe(botToken);
   } catch (err) {
-    throw new HttpError(400, "Failed to connect bot", {
+    throw new HttpError(400, "Kết nối bot thất bại, kiểm tra lại bot token", {
       details: err instanceof Error ? err.message : String(err),
     });
   }
@@ -40,7 +40,7 @@ export const connectBot = async (req: AuthRequest, res: Response) => {
 
   const started = await botManager.startBot(req.userId!, botToken, botConfig.id);
   if (!started) {
-    throw new HttpError(500, "Failed to start bot runtime");
+    throw new HttpError(500, "Không khởi động được bot");
   }
 
   const { verifyId, code, expiresAt } = verification.createPendingVerification({
@@ -70,17 +70,17 @@ export const verifyBotOwnership = async (req: AuthRequest, res: Response) => {
   const pending = verification.getVerification(verifyId);
 
   if (!pending) {
-    throw new HttpError(404, "Verification not found or expired");
+    throw new HttpError(404, "Phiên xác minh không tồn tại hoặc đã hết hạn");
   }
 
   if (pending.userId !== req.userId) {
-    throw new HttpError(403, "Unauthorized");
+    throw new HttpError(403, "Bạn không có quyền truy cập");
   }
 
   if (pending.expiresAt < new Date()) {
     verification.removeVerification(verifyId);
     botManager.stopBot(pending.userId);
-    throw new HttpError(410, "Verification expired. Please reconnect the bot.");
+    throw new HttpError(410, "Mã xác minh đã hết hạn, vui lòng kết nối lại bot");
   }
 
   if (!pending.verified) {
@@ -136,7 +136,7 @@ export const disconnectBot = async (req: AuthRequest, res: Response) => {
     data: { isActive: false },
   });
 
-  res.json({ message: "Bot disconnected" });
+  res.json({ message: "Đã ngắt kết nối bot" });
 };
 
 export const botStatus = async (req: AuthRequest, res: Response) => {

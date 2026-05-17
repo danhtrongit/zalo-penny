@@ -51,7 +51,7 @@ export const getTransaction = async (req: AuthRequest, res: Response) => {
     include: { receipt: true },
   });
 
-  if (!tx) throw new HttpError(404, "Transaction not found");
+  if (!tx) throw new HttpError(404, "Không tìm thấy giao dịch");
 
   res.json(tx);
 };
@@ -68,7 +68,7 @@ export const updateTransaction = async (req: AuthRequest, res: Response) => {
   const tx = await prisma.transaction.findFirst({
     where: { id, userId: req.userId! },
   });
-  if (!tx) throw new HttpError(404, "Transaction not found");
+  if (!tx) throw new HttpError(404, "Không tìm thấy giao dịch");
 
   const updated = await prisma.transaction.update({
     where: { id },
@@ -89,9 +89,9 @@ export const deleteTransaction = async (req: AuthRequest, res: Response) => {
   const tx = await prisma.transaction.findFirst({
     where: { id, userId: req.userId! },
   });
-  if (!tx) throw new HttpError(404, "Transaction not found");
+  if (!tx) throw new HttpError(404, "Không tìm thấy giao dịch");
 
   await prisma.transaction.delete({ where: { id } });
 
-  res.json({ message: "Transaction deleted" });
+  res.json({ message: "Đã xoá giao dịch" });
 };

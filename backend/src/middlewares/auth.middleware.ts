@@ -13,7 +13,7 @@ export const authMiddleware = (
 ) => {
   const header = req.headers.authorization;
   if (!header?.startsWith("Bearer ")) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Bạn cần đăng nhập" });
     return;
   }
 
@@ -23,7 +23,7 @@ export const authMiddleware = (
     req.userRole = payload.role;
     next();
   } catch {
-    res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Phiên đăng nhập không hợp lệ hoặc đã hết hạn" });
   }
 };
 
@@ -33,7 +33,7 @@ export const adminMiddleware = (
   next: NextFunction
 ) => {
   if (req.userRole !== "ADMIN") {
-    res.status(403).json({ error: "Forbidden" });
+    res.status(403).json({ error: "Bạn không có quyền truy cập" });
     return;
   }
   next();

@@ -21,13 +21,13 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
   const { planSlug } = req.body as { planSlug: string };
 
   const plan = await prisma.plan.findUnique({ where: { slug: planSlug } });
-  if (!plan) throw new HttpError(404, "Plan not found");
+  if (!plan) throw new HttpError(404, "Không tìm thấy gói");
 
   const existing = await prisma.subscription.findUnique({
     where: { userId: req.userId! },
   });
   if (existing && existing.status === "ACTIVE") {
-    throw new HttpError(409, "You already have an active subscription");
+    throw new HttpError(409, "Bạn đã có gói đang hoạt động");
   }
 
   const invoiceNumber = generateInvoiceNumber();

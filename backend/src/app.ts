@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import * as Sentry from "@sentry/node";
+import "./config/zod-i18n"; // side-effect: Vietnamese zod error messages
 import routes from "./routes";
 import webhookRoute from "./routes/webhook.route";
 import { notFoundHandler, errorHandler } from "./middlewares/error.middleware";

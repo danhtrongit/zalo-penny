@@ -13,7 +13,7 @@ export const register = async (req: AuthRequest, res: Response) => {
   };
 
   const existing = await prisma.user.findUnique({ where: { phone } });
-  if (existing) throw new HttpError(409, "Phone number already registered");
+  if (existing) throw new HttpError(409, "Số điện thoại đã được đăng ký");
 
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
@@ -30,10 +30,10 @@ export const login = async (req: AuthRequest, res: Response) => {
   const { phone, password } = req.body as { phone: string; password: string };
 
   const user = await prisma.user.findUnique({ where: { phone } });
-  if (!user) throw new HttpError(401, "Invalid credentials");
+  if (!user) throw new HttpError(401, "Số điện thoại hoặc mật khẩu không đúng");
 
   const valid = await verifyPassword(password, user.passwordHash);
-  if (!valid) throw new HttpError(401, "Invalid credentials");
+  if (!valid) throw new HttpError(401, "Số điện thoại hoặc mật khẩu không đúng");
 
   const token = signToken({ userId: user.id, role: user.role });
 
@@ -75,7 +75,7 @@ export const me = async (req: AuthRequest, res: Response) => {
     },
   });
 
-  if (!user) throw new HttpError(404, "User not found");
+  if (!user) throw new HttpError(404, "Không tìm thấy người dùng");
 
   res.json(user);
 };
