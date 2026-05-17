@@ -106,6 +106,13 @@ export function stopBot(userId: string) {
   }
 }
 
+export async function stopAllBots() {
+  const userIds = [...instances.keys()];
+  for (const userId of userIds) {
+    stopBot(userId);
+  }
+}
+
 export function isBotRunning(userId: string): boolean {
   return instances.has(userId);
 }
