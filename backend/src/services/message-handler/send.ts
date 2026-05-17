@@ -1,5 +1,5 @@
 import * as zaloApi from "../../utils/zalo-api";
-import * as aiService from "../ai.service";
+import * as aiService from "../ai";
 import { logger } from "../../utils/logger";
 import {
   ConversationIntent,

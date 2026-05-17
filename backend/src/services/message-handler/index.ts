@@ -1,7 +1,7 @@
 import prisma from "../../config/prisma";
 import { ZaloMessage } from "../../utils/zalo-api";
 import * as zaloApi from "../../utils/zalo-api";
-import * as aiService from "../ai.service";
+import * as aiService from "../ai";
 import {
   buildConversationContext,
   hasProcessedMessage,

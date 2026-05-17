@@ -1,5 +1,5 @@
 import prisma from "../../config/prisma";
-import * as aiService from "../ai.service";
+import * as aiService from "../ai";
 import { logger } from "../../utils/logger";
 import { ConversationSession } from "../conversation-state.service";
 import { sendTrackedMessage } from "./send";

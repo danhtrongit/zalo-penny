@@ -1,4 +1,4 @@
-import * as aiService from "../ai.service";
+import * as aiService from "../ai";
 import {
   ConversationSession,
   isAwaitingFollowUp,

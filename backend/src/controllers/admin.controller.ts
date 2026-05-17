@@ -4,7 +4,7 @@ import { AuthRequest } from "../middlewares/auth.middleware";
 import * as zaloApi from "../utils/zalo-api";
 import * as botManager from "../services/bot-manager.service";
 import { buildSystemPrompt } from "../services/persona.service";
-import * as aiService from "../services/ai.service";
+import * as aiService from "../services/ai";
 
 export const listUsers = async (req: AuthRequest, res: Response) => {
   const { page = "1", limit = "20" } = req.query;

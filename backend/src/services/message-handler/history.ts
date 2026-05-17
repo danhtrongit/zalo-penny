@@ -1,5 +1,5 @@
 import prisma from "../../config/prisma";
-import * as aiService from "../ai.service";
+import * as aiService from "../ai";
 import { ConversationSession } from "../conversation-state.service";
 import { sendTrackedMessage } from "./send";
 import { formatMoney } from "./helpers";
