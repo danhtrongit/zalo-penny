@@ -1,37 +1,41 @@
 import { Response } from "express";
-import crypto from "crypto";
 import prisma from "../config/prisma";
 import { AuthRequest } from "../middlewares/auth.middleware";
+import { HttpError } from "../middlewares/error.middleware";
 import { env } from "../config/env";
+import { SEPAY_CHECKOUT_URL } from "../config/constants";
+import {
+  buildCheckoutFields,
+  signCheckoutFields,
+} from "../services/payment.service";
+
+function generateInvoiceNumber(): string {
+  return `INV-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 8)
+    .toUpperCase()}`;
+}
 
 export const createSubscription = async (req: AuthRequest, res: Response) => {
-  const { planSlug } = req.body;
-
-  if (!planSlug) {
-    res.status(400).json({ error: "planSlug is required" });
-    return;
-  }
+  const { planSlug } = req.body as { planSlug: string };
 
   const plan = await prisma.plan.findUnique({ where: { slug: planSlug } });
-  if (!plan) {
-    res.status(404).json({ error: "Plan not found" });
-    return;
-  }
+  if (!plan) throw new HttpError(404, "Plan not found");
 
   const existing = await prisma.subscription.findUnique({
     where: { userId: req.userId! },
   });
   if (existing && existing.status === "ACTIVE") {
-    res.status(409).json({ error: "You already have an active subscription" });
-    return;
+    throw new HttpError(409, "You already have an active subscription");
   }
 
-  const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+  const invoiceNumber = generateInvoiceNumber();
 
   if (existing) {
-    // Delete payment first (FK constraint), then subscription
-    await prisma.payment.deleteMany({ where: { subscriptionId: existing.id } });
-    await prisma.subscription.delete({ where: { id: existing.id } });
+    await prisma.$transaction([
+      prisma.payment.deleteMany({ where: { subscriptionId: existing.id } }),
+      prisma.subscription.delete({ where: { id: existing.id } }),
+    ]);
   }
 
   const subscription = await prisma.subscription.create({
@@ -55,15 +59,16 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
     const endDate = new Date(now);
     endDate.setDate(endDate.getDate() + plan.durationDays);
 
-    await prisma.subscription.update({
-      where: { id: subscription.id },
-      data: { status: "ACTIVE", startDate: now, endDate },
-    });
-
-    await prisma.payment.update({
-      where: { subscriptionId: subscription.id },
-      data: { status: "PAID", paidAt: now, method: "DEV_AUTO" },
-    });
+    await prisma.$transaction([
+      prisma.subscription.update({
+        where: { id: subscription.id },
+        data: { status: "ACTIVE", startDate: now, endDate },
+      }),
+      prisma.payment.update({
+        where: { subscriptionId: subscription.id },
+        data: { status: "PAID", paidAt: now, method: "DEV_AUTO" },
+      }),
+    ]);
 
     const { invoiceNumber: _devInv, ...devSafeSubscription } = subscription;
 
@@ -80,57 +85,19 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
     return;
   }
 
-  // Don't expose invoiceNumber to the client – it's used server-side only for IPN matching
   const { invoiceNumber: _inv, ...safeSubscription } = subscription;
 
-  // Build checkout fields exactly matching SePay docs
-  const checkoutFields: Record<string, string> = {
-    merchant: env.sepay.merchantId,
-    currency: "VND",
-    order_amount: String(plan.price),
-    operation: "PURCHASE",
-    order_description: `Penny - ${plan.name}`,
-    order_invoice_number: invoiceNumber,
-    customer_id: req.userId!,
-    success_url: `${env.frontendUrl}/payment/success`,
-    error_url: `${env.frontendUrl}/payment/error`,
-    cancel_url: `${env.frontendUrl}/pricing`,
-  };
+  const checkoutFields = buildCheckoutFields({
+    merchantId: env.sepay.merchantId,
+    planName: plan.name,
+    amount: plan.price,
+    invoiceNumber,
+    customerId: req.userId!,
+    frontendUrl: env.frontendUrl,
+  });
+  checkoutFields.signature = signCheckoutFields(checkoutFields);
 
-  // Generate signature per SePay docs:
-  // Only sign fields that exist in checkoutFields AND are in the allowed sign list
-  const signableFields = [
-    "merchant",
-    "operation",
-    "payment_method",
-    "order_amount",
-    "currency",
-    "order_invoice_number",
-    "order_description",
-    "customer_id",
-    "success_url",
-    "error_url",
-    "cancel_url",
-  ];
-
-  const signedParts: string[] = [];
-  for (const field of signableFields) {
-    if (!(field in checkoutFields)) continue;
-    signedParts.push(`${field}=${checkoutFields[field] ?? ""}`);
-  }
-  const signedString = signedParts.join(",");
-
-  const signature = crypto
-    .createHmac("sha256", env.sepay.secretKey)
-    .update(signedString, "utf8")
-    .digest("base64");
-
-  checkoutFields.signature = signature;
-
-  const checkoutUrl =
-    env.sepay.env === "sandbox"
-      ? "https://pay-sandbox.sepay.vn/v1/checkout/init"
-      : "https://pay.sepay.vn/v1/checkout/init";
+  const checkoutUrl = SEPAY_CHECKOUT_URL[env.sepay.env];
 
   res.status(201).json({
     subscription: safeSubscription,
@@ -150,10 +117,5 @@ export const mySubscription = async (req: AuthRequest, res: Response) => {
     },
   });
 
-  if (!subscription) {
-    res.json(null);
-    return;
-  }
-
-  res.json(subscription);
+  res.json(subscription ?? null);
 };

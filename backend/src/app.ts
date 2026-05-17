@@ -29,7 +29,15 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: REQUEST_BODY_LIMIT }));
+app.use(
+  express.json({
+    limit: REQUEST_BODY_LIMIT,
+    verify: (req, _res, buf) => {
+      // Capture raw body for webhook signature verification (SePay IPN, etc.)
+      (req as express.Request & { rawBody?: Buffer }).rawBody = Buffer.from(buf);
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true, limit: REQUEST_BODY_LIMIT }));
 
 // Webhook routes are mounted before generalLimiter so 3rd-party providers
