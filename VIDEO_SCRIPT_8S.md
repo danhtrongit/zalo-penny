@@ -295,4 +295,279 @@ Penny — trợ lý chi tiêu trên Zalo.
 
 **Tác giả kịch bản**: Tài liệu này lưu tại [`VIDEO_SCRIPT_8S.md`](VIDEO_SCRIPT_8S.md). Khi sản xuất, mở file kèm Figma / AE để tham chiếu timecode.
 
-**Phiên bản**: v1.0 · `2026-05-17`
+**Phiên bản**: v1.1 · `2026-05-17` (thêm AI prompts ở Section 14)
+
+---
+
+## 14. AI generation prompts — 16:9
+
+> **Lưu ý orientation**: Section 1-13 spec dạng 9:16 vertical cho social.
+> Section này cung cấp prompt **16:9 landscape** theo yêu cầu — phù hợp
+> YouTube, web hero, Facebook in-feed.
+
+### 14.1 Prompt tạo ảnh frame mở đầu (Scene 1 hero shot)
+
+**Phù hợp**: Midjourney V7, Flux Pro 1.1, DALL·E 3, Ideogram 3, Stable Diffusion XL.
+
+#### 🇬🇧 English prompt (khuyến nghị — kết quả tốt nhất ở mọi tool)
+
+```
+Cinematic over-the-shoulder shot of a young Vietnamese person's hand
+holding a crumpled cafe receipt over a warm wooden desk, with three or
+four more receipts scattered, a black ballpoint pen, an open notebook
+with blank page, and a partially visible smartphone face-down at the
+right edge of the frame. Soft golden window side-light at 3200K from
+the left, gentle haze in the background, shallow depth of field with a
+35mm lens at f/2.0, focus locked on the wrinkled receipt in hand,
+background falls into creamy bokeh. Mood: quiet contemplation, mildly
+overwhelmed but cozy. Warm earth tones — beige, terracotta, soft
+emerald-green plant leaves out of focus in the deep background.
+Cinematography reference: A24 film color grading, Roger Deakins lighting.
+Photorealistic, sharp on subject, fine grain. No text, no UI, no logos.
+16:9 landscape composition, subject on left third, negative space on
+right third for future text overlay.
+
+--ar 16:9 --style raw --v 7 --quality 2
+```
+
+**Negative / avoid**: `cartoon, illustration, anime, lowres, oversaturated, busy background, modern app screenshot, multiple faces, watermark, text in image, lens flare, HDR look, glossy`
+
+#### 🇻🇳 Vietnamese prompt (cho tool hỗ trợ tiếng Việt: Veo, một số bản Flux finetune)
+
+```
+Cảnh cinematic over-the-shoulder, tay một người Việt trẻ cầm tờ hóa đơn
+cà phê nhăn nhúm phía trên mặt bàn gỗ ấm, có 3-4 tờ hóa đơn khác rải
+rác, một cây bút bi đen, một quyển sổ tay mở trang trắng, và một chiếc
+điện thoại úp mặt xuống ở mép phải khung hình. Ánh sáng cửa sổ vàng dịu
+3200K chiếu side-light từ trái, có chút khói nhẹ phía sau, độ sâu trường
+ảnh nông với ống kính 35mm f/2.0, focus đặt vào tờ hóa đơn nhăn trong
+tay, hậu cảnh bokeh kem mịn. Cảm xúc: trầm tư, hơi rối nhưng ấm cúng.
+Tông đất ấm — be, đất nung, lá cây xanh emerald mềm out-of-focus phía
+sau. Tham chiếu: phim A24, ánh sáng Roger Deakins. Hyperrealistic,
+nét rõ chủ thể, grain mịn. Không có chữ, không UI, không logo. Bố cục
+16:9 ngang, chủ thể nằm 1/3 trái, khoảng trống bên phải dành cho text
+overlay sau.
+
+Tỉ lệ: 16:9 · Phong cách: raw cinematic
+```
+
+#### Tham số gợi ý theo tool
+
+| Tool | Tham số |
+|---|---|
+| **Midjourney V7** | `--ar 16:9 --style raw --v 7 --quality 2 --stylize 250` |
+| **Flux Pro 1.1** | `aspect_ratio: 16:9`, `output_quality: 95`, `prompt_strength: 0.85` |
+| **DALL·E 3** | size `1792x1024`, style `natural`, quality `hd` |
+| **Ideogram 3** | aspect `16:9`, magic prompt `off`, style `realistic` |
+| **SDXL / Flux Dev** | `1920x1080`, sampler `dpmpp_2m_sde_karras`, steps `30`, CFG `5.5` |
+
+---
+
+### 14.2 Prompt tạo video 8 giây toàn bộ (text-to-video)
+
+**Phù hợp**: Sora (OpenAI), Veo 3 (Google), Kling 2.1 / 2.5, Runway Gen-4,
+Luma Ray 2, Pika 2.2, MiniMax Hailuo.
+
+#### 🇬🇧 English prompt — bản đầy đủ (recommended for Sora / Veo 3 / Kling)
+
+```
+An 8-second cinematic ad for "Penny" — a Vietnamese smart-spending
+assistant on Zalo. 16:9 landscape, 1920x1080, 30 fps, photorealistic
+with subtle UI overlay sequences.
+
+[0.0–1.5s] Open on an over-the-shoulder shot of a young Vietnamese
+person's hand holding a wrinkled cafe receipt on a warm wooden desk.
+Soft window side-light, three more receipts scattered, a smartphone
+face-down at the right edge. Slow handheld drift to the right.
+Text "Ghi chi tiêu mỗi ngày..." softly fades in upper-left then fades
+out. Match-cut to the same hand lifting the phone.
+
+[1.5–3.3s] Top-down 15-degree tilt of an iPhone screen now centered.
+Camera dolly-in slowly. The Zalo chat with "Penny" opens. A green
+header (#00582A) appears, then a chat bubble slides in from the left
+with spring physics, typewriting: "Chào bạn 👋 Mình là Penny". A small
+cute mascot illustration with green tones waves at the corner of the
+bubble. UI animation feels Apple-iOS smooth.
+
+[3.3–5.3s] User types "ăn trưa 50k" into the input field, one character
+at a time, with soft tap sounds. The bubble flies up with a bounce. Three
+typing dots animate for 200ms. Then Penny replies with a confirmation
+card: green check icon, "Đã ghi · Ăn trưa: 50.000đ · Danh mục: Ăn uống".
+A subtle 1.05x crash-zoom on the card. The mascot does a tiny happy
+wiggle.
+
+[5.3–6.8s] Quick whip-pan transition. Top-down flat shot of a clean
+dashboard UI: a card animates up with the big number "2.450.000đ"
+counting up from zero, three bar chart bars slide in stacked
+(emerald gradient #00582A → #A7D5B9), then a donut chart fills 360
+degrees. Small label reads "Báo cáo tháng này".
+
+[6.8–8.0s] Wipe to a deep-emerald gradient background (#00582A to
+#003D1B). A circular brand logo (green and white, smooth glyph) scales
+in from zero with spring bounce in the center. The wordmark "Penny"
+types out below in bold sans-serif. Then a tagline appears: "Trợ lý
+chi tiêu trên Zalo". Finally a white pill-shaped CTA button slides up:
+"Mở Zalo → tìm Penny". Subtle floating particles, gentle pulsing logo.
+
+Visual style: A24 cinematography for the live-action open, polished
+fintech app aesthetic for the UI screens, warm and trustworthy.
+Color palette: deep emerald green #00582A, off-white #FAFAF8,
+warm wood tones, soft beige. Typography: Manrope-like geometric
+sans-serif.
+
+Audio: ambient warm pad opening, light hi-hat 8ths kicking in at 1.5s,
+soft typing taps at 3.5s, a friendly two-note success chime at 4.6s,
+swelling pad and gentle marimba on the dashboard scene, brand sting
+of three rising notes on the logo reveal. Vietnamese female voiceover,
+warm Hanoi accent, smile-in-voice, says:
+"Penny — trợ lý chi tiêu của bạn, ngay trong Zalo. Chỉ cần nhắn tự
+nhiên... Penny tự hiểu và ghi lại. Báo cáo trực quan, kiểm soát ngân
+sách dễ dàng. Penny — trợ lý chi tiêu trên Zalo."
+
+No watermark, no captions burned in, no copyrighted logos, no other
+brand names visible. Aspect ratio 16:9.
+```
+
+#### 🇻🇳 Vietnamese prompt — bản đầy đủ (cho Veo 3 hỗ trợ tiếng Việt, Kling VN finetune)
+
+```
+Quảng cáo 8 giây cho "Penny" — trợ lý chi tiêu thông minh trên Zalo.
+16:9 ngang, 1920x1080, 30fps, ảnh thực kèm UI animation chuyên nghiệp.
+
+[0.0–1.5s] Mở cảnh: cú máy qua vai một người Việt trẻ, tay cầm tờ hóa
+đơn cà phê nhăn nhúm trên bàn gỗ ấm. Side-light ấm từ cửa sổ. 3 tờ
+hóa đơn rải rác, điện thoại úp mặt ở mép phải. Cú máy drift handheld
+chậm sang phải. Text "Ghi chi tiêu mỗi ngày..." fade in góc trên trái
+rồi fade out. Cut chuyển khi tay nâng điện thoại lên.
+
+[1.5–3.3s] Top-down nghiêng 15°, màn hình iPhone vào giữa khung. Camera
+dolly-in chậm. Chat Zalo với "Penny" hiện ra, header xanh emerald
+#00582A. Bong bóng chat trượt vào từ trái với physics spring, gõ chữ:
+"Chào bạn 👋 Mình là Penny". Mascot nhỏ tông xanh vẫy tay ở góc bong
+bóng. UI mượt như iOS.
+
+[3.3–5.3s] Người dùng gõ "ăn trưa 50k" từng ký tự, có tiếng tap nhẹ.
+Bong bóng bay lên với bounce. 3 chấm typing 200ms. Penny phản hồi card
+xác nhận: icon check xanh, "Đã ghi · Ăn trưa: 50.000đ · Danh mục: Ăn
+uống". Crash-zoom nhẹ 1.05x. Mascot wiggle vui vẻ.
+
+[5.3–6.8s] Whip-pan chuyển cảnh. Top-down phẳng dashboard sạch: card
+trượt lên, số lớn "2.450.000đ" đếm từ 0 lên, 3 bar chart trượt vào
+stagger (gradient emerald #00582A → #A7D5B9), donut chart fill 360°.
+Nhãn nhỏ "Báo cáo tháng này".
+
+[6.8–8.0s] Wipe sang nền gradient xanh đậm #00582A → #003D1B. Logo
+tròn (xanh + trắng, glyph mượt) scale in từ 0 với spring bounce, giữa
+khung. Wordmark "Penny" type-out phía dưới, sans-serif đậm. Tagline
+"Trợ lý chi tiêu trên Zalo" fade in. Cuối: pill trắng "Mở Zalo → tìm
+Penny" trượt lên. Hạt particle nhẹ, logo pulse nhịp thở.
+
+Phong cách hình ảnh: cinematography A24 cho live action, fintech
+hiện đại cho UI, ấm áp đáng tin. Bảng màu: xanh emerald đậm #00582A,
+trắng off #FAFAF8, gỗ ấm, be mềm. Typography: sans-serif hình học
+kiểu Manrope.
+
+Âm thanh: pad ấm mở đầu, hi-hat 8ths vào lúc 1.5s, tiếng gõ phím nhẹ
+3.5s, 2 nốt chime thành công 4.6s, pad swell + marimba cảnh dashboard,
+brand sting 3 nốt lên ở logo. Voiceover nữ Hà Nội ấm, smile-in-voice:
+"Penny — trợ lý chi tiêu của bạn, ngay trong Zalo. Chỉ cần nhắn tự
+nhiên... Penny tự hiểu và ghi lại. Báo cáo trực quan, kiểm soát ngân
+sách dễ dàng. Penny — trợ lý chi tiêu trên Zalo."
+
+Không watermark, không caption cháy vào hình, không logo bản quyền,
+không tên thương hiệu khác. Tỉ lệ 16:9.
+```
+
+#### Tham số gợi ý theo tool
+
+| Tool | Tham số / API hint |
+|---|---|
+| **Sora 2** | `duration: 8s`, `aspect_ratio: 16:9`, `resolution: 1080p`, `quality: high`, audio `on`. Có thể prompt thẳng cả VO. |
+| **Veo 3 (Google)** | `duration: 8`, `aspectRatio: "16:9"`, `personGeneration: "allow"`, `enableAudio: true`. Hỗ trợ tiếng Việt VO. |
+| **Kling 2.5** | `mode: pro`, `duration: 10s` (round up từ 8s, trim sau), `aspect: 16:9`, motion `medium-high`, prompt enhancer `on`. |
+| **Runway Gen-4** | `seconds: 8`, `ratio: 1920:1080`, `motion: 6`, `seed: random`. Audio cần ghép ngoài. |
+| **Luma Ray 2** | `aspect_ratio: 16:9`, `duration: 9s`, `loop: false`. Audio ghép sau. |
+| **Pika 2.2** | `aspect_ratio: 16:9`, `motion_strength: 2`, `frame_rate: 30`. |
+| **MiniMax Hailuo** | `duration: 6` (max 6s, sẽ phải chạy 2 segment nối). |
+
+> **Lưu ý hiện trạng**: tới 2026-05, hầu hết model text-to-video còn yếu
+> khi render UI chữ phức tạp (typewriter, app screenshot). **Workflow
+> khuyên dùng** cho chất lượng cao nhất:
+>
+> 1. Quay/render trước Scene 2-4 ở After Effects với UI mockup thật (UI
+>    nhập tay là chắc chắn nét chữ).
+> 2. Dùng AI gen cho Scene 1 (live action) và Scene 5 (logo motion).
+> 3. Ghép lại trong AE/Premiere theo timecode ở Section 3.
+>
+> Hoặc dùng **image-to-video** mode: dùng prompt 14.1 ra ảnh, rồi feed
+> vào Runway Gen-4 / Kling với prompt motion ngắn để controlled tốt hơn.
+
+---
+
+### 14.3 Prompt rút gọn (cho khi tool giới hạn ký tự)
+
+#### Ảnh frame mở đầu — short
+
+```
+Cinematic over-the-shoulder, young Vietnamese hand holding crumpled
+cafe receipt, warm wooden desk, scattered receipts, ballpoint pen,
+open notebook, smartphone face-down right edge, soft window side-light
+3200K, 35mm f/2.0, shallow DOF, A24 color grading, warm earth tones,
+no text, no UI, 16:9, photorealistic, fine grain. --ar 16:9 --v 7
+```
+
+#### Video 8s — short
+
+```
+8-second cinematic ad for "Penny" Vietnamese spending assistant on
+Zalo. Open with hand holding crumpled receipt on warm desk (1.5s),
+match-cut to phone showing Zalo chat with Penny (1.8s), user types
+"ăn trưa 50k", Penny confirms with green check card (2s), whip-pan
+to dashboard with animated bar chart and counting number 2.450.000đ
+(1.5s), close on emerald #00582A gradient with circular Penny logo
+scale-in and tagline "Trợ lý chi tiêu trên Zalo" (1.2s). Vietnamese
+female VO warm Hanoi accent. Color: emerald #00582A, off-white, warm
+wood. Style: A24 + fintech UI polish. 16:9, 30fps, audio on. No
+watermark.
+```
+
+---
+
+### 14.4 Workflow đề xuất (tiết kiệm chi phí, chất lượng tốt nhất)
+
+```
+   ┌──────────────────────────────────────────────────────────────┐
+   │ Step 1: Generate hero still với prompt 14.1                  │
+   │   → Midjourney V7 hoặc Flux Pro 1.1 (~$0.05/lần, retry 5-10) │
+   │   → Pick frame ưng ý, upscale 4K                             │
+   └──────────────────────────────────────────────────────────────┘
+                              ↓
+   ┌──────────────────────────────────────────────────────────────┐
+   │ Step 2: Image-to-video Scene 1 từ hero still                 │
+   │   → Runway Gen-4 image-to-video, 4s, motion: slow drift     │
+   │   → Hoặc Kling 2.5 với image init                            │
+   └──────────────────────────────────────────────────────────────┘
+                              ↓
+   ┌──────────────────────────────────────────────────────────────┐
+   │ Step 3: Render Scene 2-4 trong After Effects                 │
+   │   → Mockup UI iPhone + chat animation theo Section 3         │
+   │   → Đảm bảo chữ tiếng Việt hiển thị đúng dấu                 │
+   └──────────────────────────────────────────────────────────────┘
+                              ↓
+   ┌──────────────────────────────────────────────────────────────┐
+   │ Step 4: Generate Scene 5 logo motion                         │
+   │   → AE manual hoặc Runway gen-4 với prompt logo reveal       │
+   └──────────────────────────────────────────────────────────────┘
+                              ↓
+   ┌──────────────────────────────────────────────────────────────┐
+   │ Step 5: Edit + audio mix trong Premiere/Resolve              │
+   │   → Ghép 4 segments theo timecode Section 3                  │
+   │   → Layer VO + SFX + music theo Section 4-6                  │
+   │   → Master -14 LUFS, export H.264 16:9 1920x1080 30fps      │
+   └──────────────────────────────────────────────────────────────┘
+```
+
+**Ngân sách dự kiến** cho workflow này: ~$8-15 tiền AI compute + 4-6 giờ
+dựng + $50-100 talent VO. So với agency thuê ngoài tiết kiệm 80-90%.
+
+---
