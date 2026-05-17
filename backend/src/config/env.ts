@@ -22,6 +22,7 @@ const rawSchema = z.object({
     .default("info"),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(120),
+  REDIS_URL: z.string().optional(),
 });
 
 const parsed = rawSchema.safeParse(process.env);
@@ -71,6 +72,7 @@ export const env = {
     windowMs: raw.RATE_LIMIT_WINDOW_MS,
     max: raw.RATE_LIMIT_MAX,
   },
+  redisUrl: raw.REDIS_URL,
   sepay: {
     merchantId: raw.SEPAY_MERCHANT_ID,
     secretKey: raw.SEPAY_SECRET_KEY,

@@ -69,9 +69,9 @@ export async function handleMessage(
   if (!botConfig) return;
 
   const processingKey = `${botConfig.id}:${message.message_id}`;
-  if (!claimMessageProcessing(processingKey)) {
+  if (!(await claimMessageProcessing(processingKey))) {
     logger.debug(
-      { botConfigId: botConfig.id, chatId, messageId: message.message_id, reason: "in-memory-dedup" },
+      { botConfigId: botConfig.id, chatId, messageId: message.message_id, reason: "dedup" },
       "Duplicate Zalo message ignored"
     );
     return;
@@ -96,7 +96,7 @@ export async function handleMessage(
         },
         "Duplicate Zalo message ignored"
       );
-      completeMessageProcessing(processingKey);
+      await completeMessageProcessing(processingKey);
       return;
     }
 
@@ -107,7 +107,7 @@ export async function handleMessage(
     if (text.startsWith("/")) {
       await handleCommand(botToken, chatId, text, userId, zaloUser, conversation);
       await rememberProcessedMessage(conversation, message.message_id);
-      completeMessageProcessing(processingKey);
+      await completeMessageProcessing(processingKey);
       return;
     }
 
@@ -133,7 +133,7 @@ export async function handleMessage(
         message.from.display_name
       );
       await rememberProcessedMessage(conversation, message.message_id);
-      completeMessageProcessing(processingKey);
+      await completeMessageProcessing(processingKey);
       return;
     }
 
@@ -220,9 +220,9 @@ export async function handleMessage(
     }
 
     await rememberProcessedMessage(conversation, message.message_id);
-    completeMessageProcessing(processingKey);
+    await completeMessageProcessing(processingKey);
   } catch (err) {
-    abandonMessageProcessing(processingKey);
+    await abandonMessageProcessing(processingKey);
     throw err;
   }
 }

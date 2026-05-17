@@ -3,6 +3,7 @@ import app from "./app";
 import { env } from "./config/env";
 import prisma from "./config/prisma";
 import { startAllBots, stopAllBots } from "./services/bot-manager.service";
+import { closeRedis } from "./config/redis";
 import { logger } from "./utils/logger";
 
 const server = http.createServer(app);
@@ -43,6 +44,12 @@ async function shutdown(signal: string) {
     logger.info("Prisma disconnected");
   } catch (err) {
     logger.error({ err }, "Error disconnecting prisma");
+  }
+
+  try {
+    await closeRedis();
+  } catch (err) {
+    logger.error({ err }, "Error closing redis");
   }
 
   clearTimeout(force);
