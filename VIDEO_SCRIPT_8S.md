@@ -1,28 +1,47 @@
 # Penny — Kịch bản video giới thiệu 8 giây
 
-> **Mục tiêu**: 8s teaser cho social (TikTok / Reels / Zalo Story) — giới thiệu Penny là trợ lý chi tiêu thông minh trên Zalo, ghi chi tiêu bằng tiếng Việt tự nhiên.
+> **Mục tiêu**: 8s teaser giới thiệu Penny là trợ lý chi tiêu thông minh trên Zalo, dẫn dắt bởi **mascot Penny** xuyên suốt — không có cảnh người thật.
 >
-> **Dạng**: Vertical 9:16, 1080×1920, 30 fps, MP4 H.264, audio 48 kHz stereo.
-> **Mood**: Hiện đại, ấm áp, tin cậy. Pace nhanh nhưng không gấp. Có nhịp "ồ-aha" ở giây thứ 4.
-> **Đối tượng**: Người Việt 22-40 tuổi, đang dùng Zalo, có nhu cầu quản lý chi tiêu cá nhân.
+> **Dạng**: 16:9 landscape, 1920×1080, 30 fps, MP4 H.264, audio 48 kHz stereo.
+> **Mood**: Vui tươi, dễ thương, tin cậy. Nhịp tempo upbeat nhưng vẫn ấm áp.
+> **Đối tượng**: Người Việt 22-40 tuổi đang dùng Zalo, có nhu cầu quản lý chi tiêu cá nhân.
+> **Style hình ảnh**: 3D cartoon kiểu Pixar / Duolingo / League of Legends mascot trailer — soft shading, rim light, polished motion graphic.
 
 ---
 
-## 1. Tóm tắt thông điệp (one-liner)
+## 0. Nhân vật chính — Mascot Penny
 
-> "Nhắn tin với Penny, để Penny lo phần ghi chi tiêu."
+| Thuộc tính | Mô tả |
+|---|---|
+| **Reference** | [`frontend/src/assets/happy.png`](frontend/src/assets/happy.png) (full body) · [`logo.png`](frontend/src/assets/logo.png) (head) |
+| **Tỉ lệ** | Chibi, đầu lớn ~1/2 toàn thân, dễ thương |
+| **Mũ phi hành gia** | Vòm helmet xanh lá chuối nhạt + đậm, 2 ăng-ten trên đỉnh có quả tròn vàng |
+| **Tai nghe** | 2 cup tai nghe xanh emerald lấp lánh |
+| **Khuôn mặt** | Tròn cream-trắng, mắt to xanh lá long lanh, má hồng phấn, miệng cười mở thấy lưỡi hồng |
+| **Thân** | Bộ giáp xanh emerald + trắng, tay áo phối 2 màu, găng tay xanh đậm |
+| **Huy hiệu ngực** | Đồng xu vàng tròn có chữ "P" — coin badge — biểu tượng thương hiệu |
+| **Chân** | Boots xanh đậm chunky, đứng vững |
+| **Render style** | 3D soft shading + cel outline mảnh, glossy highlight nhẹ, drop shadow mềm |
+
+**Personality**: Vui vẻ, năng động, sẵn sàng giúp đỡ — như người bạn nhỏ thông thái. Không bao giờ phán xét.
+
+---
+
+## 1. Tóm tắt thông điệp
+
+> "Nhắn cho Penny — Penny lo phần ghi chi tiêu."
 
 ---
 
 ## 2. Bảng tổng quan timeline
 
-| # | Timecode | Cảnh | Thời lượng | Mục đích |
+| # | Timecode | Cảnh | Thời lượng | Trạng thái Penny |
 |---|---|---|---|---|
-| 1 | `0.0–1.5s` | Hook — nỗi đau ghi sổ | 1.5s | Tạo sự đồng cảm |
-| 2 | `1.5–3.3s` | Penny xuất hiện trên Zalo | 1.8s | Giới thiệu nhân vật |
-| 3 | `3.3–5.3s` | Demo: gõ "ăn trưa 50k" → Penny xác nhận | 2.0s | Khoảnh khắc "aha" |
-| 4 | `5.3–6.8s` | Dashboard báo cáo glimpse | 1.5s | Giá trị thực |
-| 5 | `6.8–8.0s` | Logo + CTA + nhạc kết | 1.2s | Branding + lời gọi |
+| 1 | `0.0–1.5s` | Penny bounce-in vẫy chào | 1.5s | Hớn hở, năng lượng cao |
+| 2 | `1.5–3.3s` | Tin nhắn "ăn trưa 50k" bay tới | 1.8s | Tò mò, mắt sáng |
+| 3 | `3.3–5.3s` | Penny xử lý → "Đã ghi" | 2.0s | Tự tin, badge P phát sáng |
+| 4 | `5.3–6.8s` | Báo cáo + biểu đồ quanh Penny | 1.5s | Hài lòng, thumbs up |
+| 5 | `6.8–8.0s` | Logo + tagline + CTA | 1.2s | Wave + wink cuối |
 
 Tổng: **8.0 giây** chẵn.
 
@@ -30,163 +49,169 @@ Tổng: **8.0 giây** chẵn.
 
 ## 3. Storyboard chi tiết theo từng scene
 
-### 🎬 Scene 1 — `0.0 → 1.5s` · "Nỗi đau quen thuộc"
+### 🎬 Scene 1 — `0.0 → 1.5s` · "Penny bounce-in"
 
 | Yếu tố | Chi tiết |
 |---|---|
-| **Khung hình** | Vertical close-up, framing 9:16 trung tâm |
-| **Góc quay** | **Over-the-shoulder POV**, ống kính 35mm, depth-of-field nông (f/2.0) — tay nhân vật cầm tờ hóa đơn nhăn nhúm trên bàn cà phê |
-| **Camera move** | **Slow handheld drift** sang phải, có rung tinh tế (~2px sway) để cảm giác chân thực |
-| **Lighting** | Ánh sáng cửa sổ side-light ấm (3200K), một chút haze; mood gần như sepia ở 0.3s rồi chuyển nhẹ sang trung tính |
-| **Vật thể chính** | 3-4 tờ hóa đơn giấy, một cây bút bi, một sổ tay mở trang trắng |
-| **Motion graphic overlay** | Lúc 0.6s: text-block tiếng Việt mờ-dần-vào ở góc trên trái — `font: Manrope Bold, 56pt, #1A1A1A, letter-spacing -1%` |
-| **Text overlay** | "Ghi chi tiêu mỗi ngày…" — fade in 200ms, exit lúc 1.4s với motion blur 8px |
-| **Voiceover (VO)** | Im lặng — chỉ ambient |
-| **SFX** | `paper_rustle_soft.wav` (0.0–0.4s) + `clock_tick_distant.wav` loop nhẹ -18 dB |
-| **Music** | Pad strings F minor mềm, fade-in từ -∞ đến -14 dB, chưa có nhịp |
-| **Asset tham chiếu** | Không dùng asset trong repo — quay live action hoặc dùng stock B-roll: keyword `"vietnamese receipt paper desk handheld"` |
-| **Transition out** | Match cut sang Scene 2 qua chuyển động tay nhân vật cầm điện thoại lên |
+| **Khung hình** | 16:9 trống, Penny vào chính giữa |
+| **Background** | Gradient radial từ trắng trung tâm `#FAFAF8` ra emerald `#E8F3EC` ở mép, có 12 hạt particle vàng/xanh nhỏ floating chậm |
+| **Góc quay** | **Medium full shot**, ống kính ảo 50mm, Penny chiếm ~45% chiều cao khung |
+| **Camera move** | Static khung, nhưng Penny làm anchor di chuyển. Cuối scene **subtle push-in 5%** |
+| **Penny animation** | <ul><li>0.0–0.15s: Khung trống</li><li>0.15s: Một vệt sáng vàng từ trên rơi xuống chính giữa</li><li>0.35s: Penny rơi xuống với squash khi chạm "mặt đất ảo", anti-grav landing — biến dạng 1.3x ngang × 0.7x dọc trong 4 frames, rồi snap back với spring overshoot</li><li>0.7s: Penny đứng thẳng, ngước lên</li><li>0.9s: Mở miệng cười, mắt long lanh sparkle 2 frame</li><li>1.0–1.4s: Vẫy tay phải qua-lại 2 lần (góc -25° → +25°), tay trái chống hông</li></ul> |
+| **Particle effect** | <ul><li>0.35s: Dust ring nổ ra ở chân khi landing (12 puff trắng-vàng, 600ms tail)</li><li>0.9s: 4 sparkle ⭐ vàng pop quanh mặt Penny</li></ul> |
+| **Text overlay** | Lúc 1.0s, ở 1/3 phải khung hình: text "Xin chào, mình là Penny!" — Manrope Bold 64pt, màu `#1A1A1A`, slide-in từ phải với fade |
+| **VO** | "Mình là Penny!" (0.9–1.4s) — giọng nữ trẻ vui tươi, hơi cao, smile-in-voice |
+| **SFX** | <ul><li>0.15s: `whoosh_drop.wav` (Penny rơi từ trên)</li><li>0.35s: `cartoon_landing_thump.wav` (tiếng pof dễ thương, không nặng)</li><li>0.9s: `sparkle_shimmer.wav` (3 nốt cao)</li><li>1.0s: `wave_swoosh.wav` mỗi lần vẫy</li></ul> |
+| **Music** | Bắt đầu với chord stab F major kèm pluck synth — upbeat từ frame đầu |
+| **Transition out** | Penny chỉ tay sang trái khung hình → motion lead vào Scene 2 |
 
 ---
 
-### 🎬 Scene 2 — `1.5 → 3.3s` · "Penny xuất hiện trên Zalo"
+### 🎬 Scene 2 — `1.5 → 3.3s` · "Tin nhắn bay tới"
 
 | Yếu tố | Chi tiết |
 |---|---|
-| **Khung hình** | Điện thoại trên tay, screen recording overlay hoặc clean phone mockup (iPhone 15 frame) |
-| **Góc quay** | **Top-down 15° tilt**, ống kính macro 50mm — màn hình chiếm ~70% khung |
-| **Camera move** | **Dolly-in chậm** từ z-50 về z-0 (push-in tinh tế) trong suốt scene |
-| **Lighting** | Studio key light 5500K, fill nhẹ, không phản chiếu mạnh trên màn hình. Có rim light xanh emerald `#00582A` từ phía sau gợi ý thương hiệu |
-| **UI trên màn hình** | Mở app Zalo, nhảy vào chat với "Penny". Avatar Penny dùng [`logo.png`](frontend/src/assets/logo.png). Header xanh `#00582A`. |
-| **Animation UI** | <ul><li>1.7s: Bong bóng chat **Penny** trượt từ trái vào với spring easing (`cubic-bezier(.34,1.56,.64,1)`)</li><li>1.9s: Text trong bong bóng typewriter-effect: "Chào bạn 👋 Mình là Penny"</li><li>2.4s: Bong bóng thứ 2 xuất hiện: "Nhắn cho mình chi tiêu nha"</li></ul> |
-| **Text overlay** | Không có — text nằm trong UI chat |
-| **VO** | "Penny… trợ lý chi tiêu của bạn, ngay trong Zalo." — bắt đầu lúc 1.6s, kết thúc 3.0s |
-| **SFX** | <ul><li>1.55s: `zalo_notification_chime.wav` (mimic, ~440Hz đôi)</li><li>1.9s + 2.4s: `keyboard_tap_soft.wav` mỗi ký tự, layer -22 dB</li><li>Continuous: nhạc nền bắt đầu có hi-hat 8ths</li></ul> |
-| **Asset tham chiếu** | <ul><li>Avatar Penny: [`frontend/src/assets/logo.png`](frontend/src/assets/logo.png)</li><li>Penny vẫy tay (chèn nhỏ ở góc dưới phải bong bóng): [`frontend/src/assets/penny-waving.png`](frontend/src/assets/penny-waving.png) — scale 25%, fade in 200ms</li></ul> |
-| **Color palette** | Background `#FAFAF8`, Penny bubble `#00582A` với text trắng, user bubble `#E8F3EC` text `#1A1A1A` |
-| **Transition out** | Cross-cut nhanh (1 frame J-cut) sang Scene 3 — giữ liên tục bong bóng chat |
+| **Khung hình** | Penny lùi về 1/3 trái khung, chừa 2/3 phải cho action |
+| **Background** | Giữ gradient từ Scene 1, thêm 1 đường motion line nhẹ chạy ngang |
+| **Góc quay** | Slight wide hơn, kéo back camera 10% |
+| **Camera move** | Camera **pan trái nhẹ** 30 frames theo hướng nhìn của Penny |
+| **Penny animation** | <ul><li>1.5–1.7s: Quay đầu sang phải (head turn anim)</li><li>1.7s: Mắt to lên 110%, miệng há nhỏ "ohh"</li><li>2.4s: Khi tin nhắn tới, Penny mở 2 tay đón, hơi nhún xuống</li><li>2.6–3.3s: Penny giữ tin nhắn ở trước ngực, mắt nhìn xuống tò mò, đầu nghiêng 15° trái</li></ul> |
+| **UI element bay vào** | <ul><li>1.7s: Bong bóng chat Zalo style — bo góc 16px, viền `#00582A` 2px, background `#FFFFFF`, drop shadow nhẹ — bay từ ngoài mép phải vào</li><li>1.9–2.4s: Bong bóng có trail particle xanh nhỏ + slight bobbing motion (sin wave 8px)</li><li>2.0s: Text trong bong bóng typewriter "ăn trưa 50k" với cursor blink — Manrope Medium 38pt</li><li>2.4s: Bong bóng đáp vào tay Penny, scale 1.1 → 1.0 spring</li></ul> |
+| **Text overlay phụ** | Lúc 1.6s ở góc dưới trái: `"Bạn nhắn..."` italic Manrope 24pt, fade in/out 1s |
+| **VO** | "Bạn cứ nhắn tự nhiên..." (1.6–3.0s) |
+| **SFX** | <ul><li>1.7s: `zalo_chime_2note.wav` (2 nốt sine A5-E6, mimic Zalo, không copyright)</li><li>1.7–2.4s: `whoosh_bubble.wav` trail bay</li><li>2.0–2.4s: 11 lần `keyboard_tap_soft.wav` mỗi ký tự</li><li>2.4s: `bubble_catch.wav` (pop nhẹ khi đáp vào tay)</li></ul> |
+| **Music** | Hi-hat 8ths bắt đầu, kick vào downbeat 1.5s |
+| **Transition out** | Penny quay đầu nhìn vào camera, hơi nháy mắt → cue Scene 3 |
 
 ---
 
-### 🎬 Scene 3 — `3.3 → 5.3s` · "Khoảnh khắc Aha — ăn trưa 50k"
+### 🎬 Scene 3 — `3.3 → 5.3s` · "Penny xử lý — Đã ghi"
 
 | Yếu tố | Chi tiết |
 |---|---|
-| **Khung hình** | Tiếp tục phone mockup, nhưng zoom thêm 10% vào input box phía dưới |
-| **Góc quay** | Vẫn top-down 15° tilt, nhưng **slight crash zoom** lúc 4.6s (zoom-in 1.05× trong 8 frame) để nhấn vào reaction |
-| **Camera move** | Static, để UI dẫn dắt chuyển động |
-| **UI animation chi tiết** | <ul><li>3.4s: Ngón tay (cursor giả lập hoặc finger overlay 60% opacity) chạm vào input</li><li>3.5–4.2s: Typewriter effect gõ tin nhắn `"ăn trưa 50k"` — mỗi ký tự ~50ms, có cursor blink</li><li>4.25s: Bong bóng người dùng `"ăn trưa 50k"` bay lên với physics bounce</li><li>4.4s: Penny đang typing… (3 chấm chạy 200ms loop)</li><li>4.6s: Bong bóng Penny xuất hiện kèm card xác nhận: <br/>`✅ Đã ghi`<br/>`Ăn trưa: 50.000đ`<br/>`Danh mục: Ăn uống`</li><li>4.9s: Penny avatar (dùng [`penny-happy.png`](frontend/src/assets/penny-happy.png)) wiggle/bounce 1 lần (rotation -8°→+8°→0° trong 300ms)</li></ul> |
-| **Text overlay** | Không có — vẫn để UI thoại |
-| **VO** | "Chỉ cần nhắn tự nhiên." (3.6–4.4s) "Penny tự hiểu và ghi lại." (4.5–5.2s) |
-| **SFX** | <ul><li>3.5–4.2s: 11 lần `keyboard_tap_iphone.wav` layered, mỗi cái -18 dB, randomized pitch ±50 cents</li><li>4.25s: `whoosh_short.wav` (bubble bay lên)</li><li>4.6s: `cash_register_subtle.wav` (như tiếng "ka-ching" nhẹ, không cliché)</li><li>4.6s: `chime_success_2note.wav` — 2 notes lên (G4→C5)</li></ul> |
-| **Music** | Beat hoàn chỉnh hiện ra với kick + clap nhẹ ở 4.6s — tạo cảm giác "đã" |
-| **Asset tham chiếu** | <ul><li>Penny happy face: [`frontend/src/assets/penny-happy.png`](frontend/src/assets/penny-happy.png)</li><li>Có thể dùng [`frontend/src/assets/happy.png`](frontend/src/assets/happy.png) (version cao hơn) nếu cần chất lượng in</li></ul> |
-| **Color palette** | Card xác nhận viền `#00582A`, background `#F0F9F2`, success check icon `#10B981` |
-| **Transition out** | Whip pan **sang phải** (140°/0.15s) kèm motion blur — vào Scene 4 |
+| **Khung hình** | Penny lùi về trung tâm, full body, action chính ở giữa khung |
+| **Background** | Background subtly chuyển sang vibrant hơn — emerald tint mạnh hơn 10%, có aurora wave nhẹ phía sau |
+| **Góc quay** | Medium close-up, chops slightly above Penny's boots — focus vào upper body |
+| **Camera move** | Static, chỉ có 1 **micro crash-zoom 1.05x** ở 4.6s khi card xác nhận pop ra |
+| **Penny animation** | <ul><li>3.4s: Penny chạm tay vào bong bóng — tia sáng xanh phát ra từ điểm chạm</li><li>3.6–4.4s: Bong bóng từ từ tan thành 5-6 particle xanh xoáy quanh Penny rồi tụ về huy hiệu "P" trên ngực</li><li>4.4s: Huy hiệu "P" phát sáng pulse 3 lần (scale 1.0 → 1.2 → 1.0)</li><li>4.6s: Card xác nhận pop ra từ ngực Penny — green check icon to + text</li><li>4.7–5.0s: Penny cười tươi hơn, đầu lắc nhẹ qua-lại sung sướng (head nod 2 lần)</li><li>5.0–5.3s: Penny giơ ngón cái lên 👍</li></ul> |
+| **Card xác nhận** | <ul><li>Hình chữ nhật bo góc 20px, white background, viền `#00582A` 2px, drop shadow lớn</li><li>Layout: ✅ icon trái (kích thước 64px, color `#10B981`)</li><li>Trên: "Đã ghi" — Manrope Bold 32pt, `#1A1A1A`</li><li>Giữa: "Ăn trưa · 50.000đ" — Manrope SemiBold 38pt, `#00582A`</li><li>Dưới: "Danh mục: Ăn uống" — Manrope Medium 22pt, `#666666`</li></ul> |
+| **Particle effect** | Confetti pop tại 4.6s: 20 mảnh confetti vàng-xanh-trắng nổ ra hình tròn 360°, gravity nhẹ |
+| **VO** | "Penny tự hiểu và ghi lại ngay." (3.7–5.0s) |
+| **SFX** | <ul><li>3.4s: `magic_touch_sparkle.wav` (chạm tay)</li><li>3.6–4.4s: `data_swirl.wav` (particle xoáy)</li><li>4.4s: `coin_glow_pulse.wav` × 3 (badge sáng)</li><li>4.6s: `success_chime_2note.wav` (G4→C5 marimba)</li><li>4.6s: `confetti_pop.wav` (subtle pop)</li><li>5.0s: `thumbs_up_blip.wav` (UI blip ngắn)</li></ul> |
+| **Music** | Full mix với clap nhẹ at 4.6s — climax đầu tiên |
+| **Transition out** | Whip pan từ Penny → quay 180° camera → vào Scene 4 (motion blur 6 frames) |
 
 ---
 
-### 🎬 Scene 4 — `5.3 → 6.8s` · "Báo cáo thông minh"
+### 🎬 Scene 4 — `5.3 → 6.8s` · "Báo cáo bao quanh Penny"
 
 | Yếu tố | Chi tiết |
 |---|---|
-| **Khung hình** | Phone mockup full màn hình, hiển thị Dashboard của Penny |
-| **Góc quay** | **Top-down 0° (true overhead)**, không tilt — composition phẳng, hiện đại |
-| **Camera move** | **Subtle parallax**: phone tịnh tiến lên 8px khi các elements animate vào |
-| **UI animation** | <ul><li>5.35s: Card "Tháng này" trượt lên từ dưới (`y: 100 → 0`, spring)</li><li>5.5s: Số tiền `2.450.000đ` đếm tăng từ 0 lên (CountUp animation, ease-out)</li><li>5.7s: 3 thanh bar chart phân loại slide-in stagger 80ms: Ăn uống, Di chuyển, Mua sắm — màu sắc emerald gradient</li><li>6.1s: Donut chart fill-in 360° trong 400ms</li><li>6.4s: Mascot Penny góc dưới phải vẫy tay ([`penny-waving.png`](frontend/src/assets/penny-waving.png))</li></ul> |
-| **Text overlay** | Lúc 5.4s, label nhỏ `"Báo cáo tháng này"` slide-in từ trái — Manrope SemiBold 32pt |
+| **Khung hình** | Penny giữa khung, các UI element nổi orbital xung quanh |
+| **Background** | Chuyển sang darker emerald `#003D1B` với grid lines nhạt + radial light từ Penny |
+| **Góc quay** | **Wide medium**, hơi low angle 10° nhìn lên Penny — tạo cảm giác heroic |
+| **Camera move** | **Slow orbit** 8° sang phải trong 1.5s (mascot xoay vũ trụ riêng) |
+| **Penny animation** | <ul><li>5.3s: Penny appear ở center, hai tay dang rộng nhẹ palm-up</li><li>5.4–6.0s: Penny nhìn quanh các UI element xuất hiện, head turn chậm</li><li>6.0–6.5s: Penny nhìn vào số tổng tiền lớn nhất, hơi mở miệng "ố"</li><li>6.5–6.8s: Penny gật đầu hài lòng + đưa 2 ngón cái 👍👍</li></ul> |
+| **UI element orbital** | <ul><li>5.4s: Số tổng "2.450.000đ" — số lớn vàng đậm Manrope Bold 84pt — xuất hiện phía trên đầu Penny, đếm tăng từ 0 với ease-out</li><li>5.6s: 3 bar chart 3D mọc lên từ phía sau Penny — gradient emerald `#00582A → #A7D5B9`, stagger 80ms giữa 3 cột, label nhỏ "Ăn uống · Di chuyển · Mua sắm"</li><li>6.0s: Donut chart vành đai bay vòng quanh Penny ở mặt phẳng ngang — fill 360° trong 600ms</li><li>6.2s: 4 icon nhỏ pop tại 4 góc Penny: 🍜 🛒 🚗 🎬 — bouncing in stagger</li></ul> |
+| **Text overlay** | Label "Báo cáo tháng này" ở góc trên trái — Manrope SemiBold 28pt, `#FFFFFF`, slide-in từ trái |
 | **VO** | "Báo cáo trực quan, kiểm soát ngân sách dễ dàng." (5.4–6.7s) |
-| **SFX** | <ul><li>5.35s: `card_pop_up.wav` (gentle whoosh)</li><li>5.5–5.9s: `digit_tick.wav` mỗi 60ms khi số đếm</li><li>5.7s, 5.78s, 5.86s: 3 lần `bar_chart_blip.wav` (pitched: C5, E5, G5)</li><li>6.1s: `donut_fill.wav` (rotational sweep)</li></ul> |
-| **Asset tham chiếu** | <ul><li>Penny vẫy tay: [`frontend/src/assets/penny-waving.png`](frontend/src/assets/penny-waving.png)</li><li>Có thể inspire UI từ trang Dashboard thực: [`frontend/src/pages/dashboard/index.tsx`](frontend/src/pages/dashboard/index.tsx) và [`spending-card.tsx`](frontend/src/components/dashboard/spending-card.tsx)</li></ul> |
-| **Color palette** | <ul><li>Background card: white</li><li>Primary bar: `#00582A`</li><li>Secondary bar: `#3B8B5C`</li><li>Tertiary bar: `#A7D5B9`</li><li>Number text: `#1A1A1A`, Manrope Bold</li></ul> |
-| **Transition out** | Logo mark từ trung tâm card "lớn dần" và lan ra full màn hình, blur background |
+| **SFX** | <ul><li>5.4s: `card_pop.wav` (số xuất hiện)</li><li>5.4–5.9s: `digit_tick.wav` mỗi 60ms khi số đếm — pitched marimba</li><li>5.6s, 5.68s, 5.76s: `bar_blip.wav` × 3 (C5-E5-G5 ascending)</li><li>6.0s: `donut_sweep.wav` (filter sweep 600ms)</li><li>6.2s, 6.25s, 6.3s, 6.35s: 4 lần `icon_pop.wav` micro-pop</li><li>6.5s: `thumbs_double_blip.wav`</li></ul> |
+| **Music** | Marimba accent + string swell bắt đầu — đẩy energy lên |
+| **Transition out** | Tất cả UI element fly outward về camera, motion blur, **iris-out** xuống tâm Penny → cue Scene 5 |
 
 ---
 
-### 🎬 Scene 5 — `6.8 → 8.0s` · "Logo & CTA"
+### 🎬 Scene 5 — `6.8 → 8.0s` · "Logo + CTA + Penny vẫy chào tạm biệt"
 
 | Yếu tố | Chi tiết |
 |---|---|
-| **Khung hình** | Centered, brand-mark dominant |
-| **Góc quay** | Flat composition, không depth — pure 2D brand frame |
-| **Camera move** | Logo có **subtle breath pulse** (scale 1.0 ↔ 1.02, 800ms loop) |
-| **Background** | Gradient radial từ `#00582A` (center) → `#003D1B` (edges); có 12 hạt particle nhỏ trắng floating slow |
-| **Logo animation** | <ul><li>6.85s: [`logo.png`](frontend/src/assets/logo.png) scale-in từ 0 → 1.0 với spring (`bounce: .3`)</li><li>7.05s: Wordmark "Penny" type-out bên dưới logo — Manrope ExtraBold 72pt, màu trắng</li><li>7.3s: Tagline "Trợ lý chi tiêu trên Zalo" fade in dưới wordmark — Manrope Medium 28pt, opacity 80%</li><li>7.6s: CTA pill "Mở Zalo → tìm Penny" slide-up từ dưới, background trắng text `#00582A`, có shadow nhẹ</li><li>7.8–8.0s: Hold frame</li></ul> |
-| **Text overlay** | <ul><li>"Penny" (wordmark)</li><li>"Trợ lý chi tiêu trên Zalo" (tagline)</li><li>"Mở Zalo → tìm Penny" (CTA)</li></ul> |
-| **VO** | "Penny — Trợ lý chi tiêu trên Zalo." (6.9–8.0s) — giọng nữ Hà Nội, ấm, smile-in-voice |
-| **SFX** | <ul><li>6.85s: `logo_whoosh_in.wav` (1.2s tail)</li><li>7.05s: `brand_sting_3note.wav` (G-B-D, 600ms) — kết bài</li><li>7.6s: `pill_pop.wav` (CTA appear)</li><li>8.0s: nhạc kết bằng note pad tail F major, fade 200ms</li></ul> |
-| **Asset tham chiếu** | [`frontend/src/assets/logo.png`](frontend/src/assets/logo.png) — chính. |
-| **Color palette** | <ul><li>BG: `#00582A` → `#003D1B` gradient</li><li>Logo: nguyên bản (giả định có alpha)</li><li>Wordmark: `#FFFFFF`</li><li>CTA pill: bg `#FFFFFF`, text `#00582A`</li></ul> |
+| **Khung hình** | Layout chia 2: trái = brand mark, phải = Penny |
+| **Background** | Deep emerald gradient radial `#00582A → #003D1B`, có 16 hạt particle vàng-trắng floating chậm tạo galaxy feel |
+| **Góc quay** | Flat 2D composition, không depth, brand frame chuẩn |
+| **Camera move** | Camera static. Penny + logo có **subtle breath pulse** (scale 1.0 ↔ 1.015, 800ms loop) |
+| **Penny animation** | <ul><li>6.8s: Penny slide-in từ giữa sang vị trí 2/3 phải khung hình, scale 0.8 lúc đầu → 1.0</li><li>7.0–7.4s: Đứng yên, breath pulse</li><li>7.4–7.7s: Vẫy tay phải qua-lại 2 lần — wave goodbye</li><li>7.7s: Wink mắt phải (nháy 1 frame nhanh)</li><li>7.8–8.0s: Hold smile pose, breath pulse continue</li></ul> |
+| **Logo/brand stack (1/3 trái)** | <ul><li>6.85s: [`logo.png`](frontend/src/assets/logo.png) (head-only mark) scale-in từ 0 → 1.0 spring bounce, kích thước 240px</li><li>7.05s: Wordmark "Penny" type-out chữ-by-chữ bên dưới logo — Manrope ExtraBold 96pt, color `#FFFFFF`</li><li>7.3s: Tagline "Trợ lý chi tiêu trên Zalo" fade in dưới wordmark — Manrope Medium 32pt, opacity 85%</li><li>7.6s: CTA pill "Mở Zalo → tìm Penny" slide-up từ dưới, bg `#FFFFFF`, text `#00582A`, shadow nhẹ, 60px height bo góc đầy đủ</li></ul> |
+| **Text overlay** | Đã liệt kê ở khối brand stack bên trên |
+| **VO** | "Penny — trợ lý chi tiêu, ngay trên Zalo." (6.9–8.0s) — giọng đầm, hơi smile |
+| **SFX** | <ul><li>6.85s: `logo_whoosh_in.wav` (1.2s tail)</li><li>7.05s: `brand_sting_3note.wav` (G-B-D piano + strings, 600ms) — kết bài chính</li><li>7.4–7.6s: 2 lần `wave_swoosh.wav` (Penny vẫy)</li><li>7.6s: `pill_pop.wav` (CTA)</li><li>7.7s: `wink_tink.wav` (tiếng "tink" cute khi nháy)</li><li>8.0s: Music tail pad F major fade 200ms</li></ul> |
 | **Transition out** | Cut to black 1 frame, hết video |
 
 ---
 
-## 4. Voiceover script đầy đủ (giọng nữ, Hà Nội, ấm, trẻ trung)
+## 4. Voiceover script đầy đủ
 
-| Timecode | Câu thoại | Ghi chú diễn xuất |
+Giọng **nữ trẻ Hà Nội, ấm-vui, smile-in-voice**, không robotic.
+
+| Timecode | Câu thoại | Diễn xuất |
 |---|---|---|
-| `1.6 – 3.0s` | "Penny — trợ lý chi tiêu của bạn, ngay trong Zalo." | Nhấn nhẹ ở "ngay trong Zalo" |
-| `3.6 – 4.4s` | "Chỉ cần nhắn tự nhiên…" | Để treo, hơi mời gọi |
-| `4.5 – 5.2s` | "…Penny tự hiểu và ghi lại." | Smile-in-voice rõ ở "ghi lại" |
-| `5.4 – 6.7s` | "Báo cáo trực quan, kiểm soát ngân sách dễ dàng." | Phát âm tròn vành, đầm |
-| `6.9 – 8.0s` | "Penny — trợ lý chi tiêu trên Zalo." | Kết câu rõ ràng, hơi chậm lại |
+| `0.9 – 1.4s` | "Mình là Penny!" | Phấn khích, hơi cao giọng, kéo dài chữ "Penny" 200ms |
+| `1.6 – 3.0s` | "Bạn cứ nhắn tự nhiên..." | Mời gọi, treo nhịp |
+| `3.7 – 5.0s` | "Penny tự hiểu và ghi lại ngay." | Tự tin, nhấn ở "ngay" |
+| `5.4 – 6.7s` | "Báo cáo trực quan, kiểm soát ngân sách dễ dàng." | Đầm, tròn vành |
+| `6.9 – 8.0s` | "Penny — trợ lý chi tiêu, ngay trên Zalo." | Kết bài chậm, ấm |
 
-**Tổng**: ~28 từ, ~6.4 giây active speech, vừa với 8s khung hình.
+**Tổng**: ~32 từ, ~6.7s active speech.
 
-**Tham khảo casting**: Giọng "VAYA Female VN — neutral warm", hoặc actor diễn xuất tự nhiên. **Tránh**: giọng AI text-to-speech robot-tinted.
-
-**Mixing VO**: bus VO ở -12 dB LUFS, ducking music -6 dB khi VO active.
+**Ducking**: music -6 dB khi VO active, SFX không bị duck.
 
 ---
 
-## 5. Music — composition guide
+## 5. Music composition guide
 
 | Thuộc tính | Giá trị |
 |---|---|
-| **Style** | Vietnamese fintech-friendly, ấm, không sến |
-| **Tempo** | 124 BPM |
-| **Key** | F major (tươi sáng, lạc quan) |
-| **Instrument stack** | <ul><li>Pad strings (intro, scene 1)</li><li>Plucked synth + soft kick (từ scene 2)</li><li>Hi-hat 8ths (scene 2 trở đi)</li><li>Clap có tail short (scene 3-4)</li><li>Marimba accent (scene 3 lúc xác nhận expense)</li><li>String swell + cymbal soft (scene 5 outro)</li></ul> |
-| **Dynamics** | <ul><li>0.0–1.5s: -14 dB pad only</li><li>1.5–3.3s: build với hi-hat, -10 dB</li><li>3.3–5.3s: full mix, -8 dB</li><li>5.3–6.8s: hold full</li><li>6.8–8.0s: outro swell với pad tail</li></ul> |
-| **Reference track** | Tham khảo cảm giác: *Notion app intro*, *Cash App Vietnamese ad 2023*, *Momo "Tết 2024"* (ấm, dễ tin) |
-| **Stems cần xuất** | Music FULL · VO FULL · SFX FULL · 3 stems riêng để có thể remix cho variant 15s / 30s sau |
+| **Style** | Vietnamese fintech-friendly + mascot trailer playful (gợi nhớ Duolingo / Among Us trailer / Vietnamese fintech ad 2024) |
+| **Tempo** | 128 BPM (hơi nhanh hơn v1 vì mascot-driven cần energy cao hơn) |
+| **Key** | F major (vui tươi) |
+| **Instrument stack** | <ul><li>Pluck synth (lead motif, scene 1-3)</li><li>Soft kick + clap (từ scene 2)</li><li>Hi-hat 8ths</li><li>Marimba accent (scene 3-4)</li><li>Brass stab (scene 4 reveal big number)</li><li>String swell + cymbal soft (scene 5 outro)</li><li>Glockenspiel sparkles ngẫu nhiên ở scene 1, 5</li></ul> |
+| **Dynamic curve** | <ul><li>0.0–1.5s: Chord stab + pluck, -10 dB</li><li>1.5–3.3s: Beat hoàn chỉnh, -8 dB</li><li>3.3–5.3s: Full mix với marimba, -6 dB peak</li><li>5.3–6.8s: Brass stab + string swell</li><li>6.8–8.0s: Outro pad tail</li></ul> |
+| **Reference tracks** | Duolingo "Stay Curious" trailer · Momo "Tết 2024" · Among Us official trailer (energy reference) |
 
 ---
 
-## 6. SFX library shopping list (hoặc record thủ công)
+## 6. SFX shopping list
 
-| File logic | Mô tả | Nguồn gợi ý |
+| File logic | Mô tả | Nguồn / Cách tạo |
 |---|---|---|
-| `paper_rustle_soft.wav` | Tiếng giấy nhăn nhẹ | Freesound, keyword "paper crumple soft" |
-| `clock_tick_distant.wav` | Tiếng đồng hồ tick xa, loop 1s | Freesound, "wall clock tick" |
-| `zalo_notification_chime.wav` | **Tự tạo**: 2 note A5–E6 sine, attack 5ms, release 80ms, light reverb |
-| `keyboard_tap_iphone.wav` | iOS soft keyboard click | Stock iOS sample pack |
-| `whoosh_short.wav` | Whoosh 150ms cho bong bóng | Sound Ideas, Boom Library |
-| `cash_register_subtle.wav` | "Ka-ching" nhưng pitched-up + filtered (không cliché) | Filtered từ register sample |
-| `chime_success_2note.wav` | 2 notes G4→C5 marimba | Compose 5s trong Logic Pro |
-| `card_pop_up.wav` | UI pop, attack 10ms | Premium Beat UI pack |
-| `digit_tick.wav` | Tick nhỏ cho số đếm | Pluck synth single note muted |
-| `bar_chart_blip.wav` | Blip ngắn, pitched | Compose: triangle wave, 50ms |
-| `donut_fill.wav` | Sweep rotational 400ms | Filter sweep noise + reverb |
-| `logo_whoosh_in.wav` | Whoosh lớn 1.2s tail | Boom Library "Cinematic Whooshes" |
-| `brand_sting_3note.wav` | 3 notes G-B-D piano + strings, 600ms | Compose, mastered -1 dB |
-| `pill_pop.wav` | UI pop nhẹ | Reuse `card_pop_up.wav` pitched-up |
+| `whoosh_drop.wav` | Whoosh xuống nhanh 400ms | Boom Library hoặc compose |
+| `cartoon_landing_thump.wav` | Pof dễ thương khi mascot landing | Sound Ideas cartoon pack |
+| `sparkle_shimmer.wav` | 3 nốt cao thuỷ tinh | Glockenspiel + chime layered |
+| `wave_swoosh.wav` | Swoosh ngắn cho vẫy tay | Compose: filtered noise burst |
+| `zalo_chime_2note.wav` | 2 nốt notification | **Tự tạo**: A5+E6 sine, attack 5ms, reverb light |
+| `whoosh_bubble.wav` | Bubble trail bay 700ms | Compose từ filtered air |
+| `keyboard_tap_soft.wav` | iOS soft tap | Stock iOS pack |
+| `bubble_catch.wav` | Pop khi bubble đáp tay | Compose: muted snare + EQ |
+| `magic_touch_sparkle.wav` | Tia magic 300ms | Boom Library magic FX |
+| `data_swirl.wav` | Particle xoáy 800ms | Filtered noise sweep + phaser |
+| `coin_glow_pulse.wav` | Pulse vàng tròn (×3) | Compose: bell + reverb |
+| `success_chime_2note.wav` | G4→C5 marimba | Logic Pro marimba VST |
+| `confetti_pop.wav` | Pop nhẹ tổng + paper rustle | Layer 2 samples |
+| `card_pop.wav` | UI card pop | UI Pack Premium Beat |
+| `digit_tick.wav` | Tick mỗi số đếm | Marimba single muted note |
+| `bar_blip.wav` | 3 blip ascending C-E-G | Triangle wave compose |
+| `donut_sweep.wav` | Sweep filter rotational | Noise + LFO filter |
+| `icon_pop.wav` | Micro pop UI ×4 | Reuse `card_pop.wav` pitched |
+| `thumbs_up_blip.wav` | UI blip ngắn 100ms | Pluck synth |
+| `thumbs_double_blip.wav` | 2 blip nhanh | Same pitched up |
+| `logo_whoosh_in.wav` | Whoosh lớn 1.2s | Boom Library cinematic |
+| `brand_sting_3note.wav` | G-B-D piano + strings 600ms | Compose, master -1 dB |
+| `pill_pop.wav` | UI pop CTA | Reuse `card_pop.wav` |
+| `wink_tink.wav` | "Tink" cute 80ms | Triangle single high note |
 
-**Tổng cộng**: 13 SFX. Bus SFX ở -16 dB LUFS, không vượt -4 dB peak.
+Tổng: **24 SFX**. Bus SFX -16 LUFS, true peak ≤ -4 dB.
 
 ---
 
-## 7. Asset references — bảng tổng
+## 7. Asset references
 
-| Asset | Path | Dùng cho |
+| Asset | Path | Vai trò |
 |---|---|---|
-| Logo chính | [`frontend/src/assets/logo.png`](frontend/src/assets/logo.png) | Scene 2 (avatar), Scene 5 (brand mark) |
-| Penny vẫy tay | [`frontend/src/assets/penny-waving.png`](frontend/src/assets/penny-waving.png) | Scene 2 corner, Scene 4 mascot |
-| Penny vui | [`frontend/src/assets/penny-happy.png`](frontend/src/assets/penny-happy.png) | Scene 3 (sau xác nhận expense) |
-| Penny vui (HD) | [`frontend/src/assets/happy.png`](frontend/src/assets/happy.png) | Print/billboard variant |
-| Penny lo lắng | [`frontend/src/assets/penny-worried.png`](frontend/src/assets/penny-worried.png) | Dự phòng — variant "vượt ngân sách" |
-| Penny robot | [`frontend/src/assets/penny-robot.png`](frontend/src/assets/penny-robot.png) | Dự phòng — variant tech feel |
-| Favicon (đã đồng bộ logo) | [`frontend/public/favicon.png`](frontend/public/favicon.png) | Hiển thị nhỏ ở thanh chrome trong screenshot |
+| **Mascot Penny full body** | [`frontend/src/assets/happy.png`](frontend/src/assets/happy.png) | Reference chính cho 3D model. Tất cả 5 cảnh. |
+| **Logo head only** | [`frontend/src/assets/logo.png`](frontend/src/assets/logo.png) | Scene 5 brand mark |
+| **Penny variants có sẵn** | [`penny-happy.png`](frontend/src/assets/penny-happy.png), [`penny-waving.png`](frontend/src/assets/penny-waving.png), [`penny-worried.png`](frontend/src/assets/penny-worried.png), [`penny-robot.png`](frontend/src/assets/penny-robot.png) | Reference expression khi rig animation |
+| **Favicon** | [`frontend/public/favicon.png`](frontend/public/favicon.png) | Đồng bộ với logo |
+
+**Quan trọng**: Penny phải giữ **consistency tuyệt đối** xuyên suốt 5 cảnh — cùng kích thước head/body, cùng màu xanh `#5BBA47` của giáp, cùng badge "P" vàng `#FFD700`. Không được biến thể quá nhiều.
 
 ---
 
@@ -194,68 +219,73 @@ Tổng: **8.0 giây** chẵn.
 
 | Vai trò | Font | Weight | Size | Letter-spacing |
 |---|---|---|---|---|
-| Headlines (Scene 1, 5) | Manrope Variable | ExtraBold (800) | 56–72pt | -1% |
-| Body / wordmark | Manrope Variable | Bold (700) | 28–32pt | 0 |
-| UI chat bubble | Manrope Variable | Medium (500) | 18pt | 0 |
-| Tagline | Manrope Variable | Medium (500) + italic | 22pt | +1% |
-| Numbers (báo cáo) | Manrope Variable | Bold (700) tabular-nums | 36pt | 0 |
-
-Font đã có trong dự án ([`@fontsource-variable/manrope`](frontend/package.json) và Montserrat). Dùng Manrope cho video để khớp app.
+| Greeting text (Scene 1) | Manrope Variable | Bold (700) | 64pt | 0 |
+| Chat bubble text | Manrope Variable | Medium (500) | 38pt | 0 |
+| Card confirm "Đã ghi" | Manrope Variable | Bold (700) | 32pt | 0 |
+| Card amount | Manrope Variable | SemiBold (600) | 38pt | 0 |
+| Big number (báo cáo) | Manrope Variable | ExtraBold (800) | 84pt tabular-nums | -2% |
+| Wordmark "Penny" | Manrope Variable | ExtraBold (800) | 96pt | -1% |
+| Tagline | Manrope Variable | Medium (500) | 32pt | +1% |
+| CTA pill | Manrope Variable | Bold (700) | 28pt | 0 |
 
 ---
 
 ## 9. Color palette
 
-| Vai trò | HEX | Ghi chú |
+| Vai trò | HEX | Sử dụng |
 |---|---|---|
-| Brand primary (deep) | `#00582A` | Đồng bộ với `theme-color` ở [`index.html`](frontend/index.html#L40) |
-| Brand primary (light) | `#3B8B5C` | Accent, chart secondary |
-| Brand wash | `#E8F3EC` | User chat bubble, soft backgrounds |
-| Success | `#10B981` | Check icon |
-| Background app | `#FAFAF8` | Off-white ấm |
-| Text primary | `#1A1A1A` | High contrast nhưng không pure-black |
-| Background outro | gradient `#00582A → #003D1B` | Scene 5 |
+| Brand primary | `#00582A` | Theme color (đồng bộ index.html) |
+| Penny armor green | `#5BBA47` | Body suit chính của mascot |
+| Penny accent dark green | `#2E7D32` | Outline, shadow của giáp |
+| Penny helmet light | `#C5E8B7` | Mũ phi hành gia phần sáng |
+| Coin gold "P" | `#FFD700` | Badge ngực |
+| Brand wash | `#E8F3EC` | Background scene 1-3 |
+| Success green | `#10B981` | Check icon scene 3 |
+| Background scene 4 | `#003D1B` | Dark emerald sau khi orbit |
+| Background scene 5 | gradient `#00582A → #003D1B` | Outro |
+| Text primary | `#1A1A1A` | Mọi text trên light bg |
+| Text on dark | `#FFFFFF` | Scene 4-5 |
+| Soft shadow | `rgba(0,0,0,0.15)` | Drop shadow toàn bộ UI |
 
 ---
 
-## 10. Technical specs export
+## 10. Technical export specs
 
 | Trường | Giá trị |
 |---|---|
-| Resolution | 1080 × 1920 (vertical 9:16) |
-| Frame rate | 30 fps (cố định) |
+| Resolution | 1920 × 1080 (16:9 landscape) |
+| Frame rate | 30 fps |
 | Codec | H.264 High profile, CRF 18 |
 | Bitrate | ~12 Mbps target |
-| Audio | AAC 320 kbps, 48 kHz, stereo |
+| Audio | AAC 320 kbps, 48 kHz stereo |
 | Color space | Rec. 709, sRGB output |
-| LUFS | -14 LUFS integrated (chuẩn social) |
+| Loudness | -14 LUFS integrated |
 | True peak | ≤ -1 dBTP |
 | Duration | 8.000 giây ± 1 frame |
 | Container | MP4 |
-| File name | `penny-teaser-8s-v1.mp4` |
+| File name | `penny-teaser-mascot-8s-v2.mp4` |
 
 **Variants xuất kèm**:
-- `penny-teaser-8s-square-1080x1080.mp4` — feed cropping
-- `penny-teaser-8s-landscape-1920x1080.mp4` — YouTube short ngang
-- `penny-teaser-8s-no-vo.mp4` — bản không voiceover để add caption sau
-- `penny-teaser-8s-subtitled.srt` — sub tiếng Việt khớp timecode VO
+- `penny-teaser-mascot-8s-square-1080x1080.mp4` — feed cropping
+- `penny-teaser-mascot-8s-vertical-1080x1920.mp4` — TikTok/Reels (re-frame mascot center)
+- `penny-teaser-mascot-8s-no-vo.mp4` — bản không VO để add caption ngôn ngữ khác
 
 ---
 
-## 11. Caption / subtitle text (SRT)
+## 11. SRT subtitle
 
 ```
 1
-00:00:01,600 --> 00:00:03,000
-Penny — trợ lý chi tiêu của bạn, ngay trong Zalo.
+00:00:00,900 --> 00:00:01,400
+Mình là Penny!
 
 2
-00:00:03,600 --> 00:00:04,400
-Chỉ cần nhắn tự nhiên…
+00:00:01,600 --> 00:00:03,000
+Bạn cứ nhắn tự nhiên...
 
 3
-00:00:04,500 --> 00:00:05,200
-…Penny tự hiểu và ghi lại.
+00:00:03,700 --> 00:00:05,000
+Penny tự hiểu và ghi lại ngay.
 
 4
 00:00:05,400 --> 00:00:06,700
@@ -263,311 +293,334 @@ Báo cáo trực quan, kiểm soát ngân sách dễ dàng.
 
 5
 00:00:06,900 --> 00:00:08,000
-Penny — trợ lý chi tiêu trên Zalo.
+Penny — trợ lý chi tiêu, ngay trên Zalo.
 ```
 
 ---
 
 ## 12. Production checklist
 
-- [ ] Quay live action Scene 1 — 30 phút studio, 1 actor tay, hóa đơn props
-- [ ] Dựng UI mockup (Figma → After Effects) cho Scene 2–4 dựa trên screenshots thực của [`frontend/src/pages/dashboard/index.tsx`](frontend/src/pages/dashboard/index.tsx)
-- [ ] Compose music 8s (Logic Pro hoặc thuê composer freelance ~2-3 triệu)
-- [ ] Record VO (1 talent nữ, 1 giờ studio ~1 triệu, bao gồm 2 lần re-take)
-- [ ] Sound design: gom 13 SFX, mix bus
-- [ ] Color grade pass: Rec 709, warm shadows shade theo brand
-- [ ] Master audio: -14 LUFS, true peak -1 dBTP
+- [ ] Build 3D mascot rig từ reference [`happy.png`](frontend/src/assets/happy.png) — recommend **Blender + Grease Pencil** hoặc **Cinema 4D + Octane**
+- [ ] Pose library: idle, wave, point, surprise, thumbs-up, wink, jump, catch
+- [ ] Render mascot ở 30fps với alpha channel
+- [ ] Mockup UI elements (chat bubble, card xác nhận, bar chart, donut) bằng After Effects
+- [ ] Compose music 8s — thuê freelancer hoặc dùng AIVA / Soundraw / Suno (license commercial)
+- [ ] Record VO talent nữ Hà Nội ấm — 1 giờ studio ~1 triệu, 3-5 takes
+- [ ] Sound design: gom 24 SFX, mix bus, layering
+- [ ] Composite final trong AE: mascot + UI + text + bg
+- [ ] Color grade pass — Rec 709
+- [ ] Master audio -14 LUFS, true peak -1 dBTP
 - [ ] Export 4 variants
-- [ ] QA: xem trên iPhone, Android, Web — kiểm tra caption hiển thị
+- [ ] QA: xem trên 4K display, mobile, có/không speaker
 
 ---
 
-## 13. Variants tương lai (out of scope cho phiên bản 8s này)
+## 13. AI generation prompts — Production-ready (16:9)
 
-| Variant | Thời lượng | Mục đích |
-|---|---|---|
-| 15s | mở rộng scene 3 với quét hóa đơn | TikTok ad |
-| 30s | thêm scene "kết nối bot lần đầu" | YouTube pre-roll |
-| 6s bumper | chỉ Scene 5 (logo) | YouTube bumper ad |
-| Stories vertical 15s | tách 3 frame × 5s | Zalo Story |
+### 13.1 Prompt tạo ảnh frame mở đầu — Mascot hero pose
 
----
+**Cho Scene 1 hero still hoặc poster key visual.**
 
-**Tác giả kịch bản**: Tài liệu này lưu tại [`VIDEO_SCRIPT_8S.md`](VIDEO_SCRIPT_8S.md). Khi sản xuất, mở file kèm Figma / AE để tham chiếu timecode.
-
-**Phiên bản**: v1.1 · `2026-05-17` (thêm AI prompts ở Section 14)
-
----
-
-## 14. AI generation prompts — 16:9
-
-> **Lưu ý orientation**: Section 1-13 spec dạng 9:16 vertical cho social.
-> Section này cung cấp prompt **16:9 landscape** theo yêu cầu — phù hợp
-> YouTube, web hero, Facebook in-feed.
-
-### 14.1 Prompt tạo ảnh frame mở đầu (Scene 1 hero shot)
-
-**Phù hợp**: Midjourney V7, Flux Pro 1.1, DALL·E 3, Ideogram 3, Stable Diffusion XL.
-
-#### 🇬🇧 English prompt (khuyến nghị — kết quả tốt nhất ở mọi tool)
+#### 🇬🇧 English prompt (Midjourney V7 / Flux Pro / DALL·E 3 / Ideogram 3)
 
 ```
-Cinematic over-the-shoulder shot of a young Vietnamese person's hand
-holding a crumpled cafe receipt over a warm wooden desk, with three or
-four more receipts scattered, a black ballpoint pen, an open notebook
-with blank page, and a partially visible smartphone face-down at the
-right edge of the frame. Soft golden window side-light at 3200K from
-the left, gentle haze in the background, shallow depth of field with a
-35mm lens at f/2.0, focus locked on the wrinkled receipt in hand,
-background falls into creamy bokeh. Mood: quiet contemplation, mildly
-overwhelmed but cozy. Warm earth tones — beige, terracotta, soft
-emerald-green plant leaves out of focus in the deep background.
-Cinematography reference: A24 film color grading, Roger Deakins lighting.
-Photorealistic, sharp on subject, fine grain. No text, no UI, no logos.
-16:9 landscape composition, subject on left third, negative space on
-right third for future text overlay.
+A cheerful chibi-style 3D mascot character named Penny, standing
+centered in a 16:9 landscape composition with negative space on both
+sides. The mascot has a big rounded head (about half the body size),
+wearing a light-green astronaut-style dome helmet with two thin
+antennae topped with small yellow ball tips, large dark-emerald
+headphones on the sides, a cream-white round face with huge glossy
+green eyes with bright highlights, small pink blush cheeks, and an
+open happy smile showing a pink tongue. The body wears emerald-green
+and white armor — green chest plate with a glowing gold round coin
+badge featuring the letter "P" in the center, white belly section,
+green articulated arms with darker green gloves, white thighs, and
+chunky dark-green boots. Pose: standing confidently, slight side
+weight, right arm raised in a friendly wave. Style: polished Pixar/
+Riot Games mascot trailer, 3D soft cel-shading with thin clean
+outline, glossy highlights, soft rim light. Background: soft off-
+white #FAFAF8 fading to emerald wash #E8F3EC at edges with floating
+yellow and green sparkle particles. Mood: friendly, optimistic,
+trustworthy fintech mascot. Photorealistic CGI render quality,
+4K detail, sharp focus on the mascot. No text, no UI, no extra
+characters.
 
---ar 16:9 --style raw --v 7 --quality 2
+--ar 16:9 --style raw --v 7 --quality 2 --stylize 300
 ```
 
-**Negative / avoid**: `cartoon, illustration, anime, lowres, oversaturated, busy background, modern app screenshot, multiple faces, watermark, text in image, lens flare, HDR look, glossy`
+**Negative**: `human, person, hands, realistic skin, dark, scary, lowres, watermark, text, multiple characters, anime style 2D flat, harsh shadows, photographic real-world setting`
 
-#### 🇻🇳 Vietnamese prompt (cho tool hỗ trợ tiếng Việt: Veo, một số bản Flux finetune)
+#### 🇻🇳 Vietnamese prompt (cho Veo / Flux finetune VN)
 
 ```
-Cảnh cinematic over-the-shoulder, tay một người Việt trẻ cầm tờ hóa đơn
-cà phê nhăn nhúm phía trên mặt bàn gỗ ấm, có 3-4 tờ hóa đơn khác rải
-rác, một cây bút bi đen, một quyển sổ tay mở trang trắng, và một chiếc
-điện thoại úp mặt xuống ở mép phải khung hình. Ánh sáng cửa sổ vàng dịu
-3200K chiếu side-light từ trái, có chút khói nhẹ phía sau, độ sâu trường
-ảnh nông với ống kính 35mm f/2.0, focus đặt vào tờ hóa đơn nhăn trong
-tay, hậu cảnh bokeh kem mịn. Cảm xúc: trầm tư, hơi rối nhưng ấm cúng.
-Tông đất ấm — be, đất nung, lá cây xanh emerald mềm out-of-focus phía
-sau. Tham chiếu: phim A24, ánh sáng Roger Deakins. Hyperrealistic,
-nét rõ chủ thể, grain mịn. Không có chữ, không UI, không logo. Bố cục
-16:9 ngang, chủ thể nằm 1/3 trái, khoảng trống bên phải dành cho text
-overlay sau.
+Nhân vật mascot 3D chibi tên Penny đứng giữa khung 16:9, đầu lớn
+~1/2 chiều cao thân, đội mũ phi hành gia xanh lá nhạt vòm cong với
+2 ăng-ten đầu vàng tròn, đeo tai nghe xanh emerald đậm 2 bên, khuôn
+mặt tròn cream-trắng với đôi mắt to xanh lá long lanh có highlight
+sáng, má hồng phấn nhỏ, miệng cười mở thấy lưỡi hồng. Thân mặc giáp
+xanh emerald + trắng — ngực có huy hiệu đồng xu vàng tròn phát sáng
+chữ "P" giữa, bụng trắng, tay xanh khớp với găng tay xanh đậm, đùi
+trắng, boots xanh đậm chunky. Tư thế: đứng tự tin, hơi nghiêng một
+bên, tay phải giơ vẫy chào thân thiện. Phong cách: trailer mascot
+kiểu Pixar / Riot Games, 3D cel-shading mềm với outline mỏng sạch,
+highlight bóng, rim light mềm. Hậu cảnh: off-white #FAFAF8 fade ra
+emerald #E8F3EC ở rìa kèm particle sparkle vàng-xanh floating. Cảm
+xúc: thân thiện, lạc quan, đáng tin (mascot fintech). Render CGI
+chất lượng cao 4K, focus rõ. Không chữ, không UI, không nhân vật phụ.
 
-Tỉ lệ: 16:9 · Phong cách: raw cinematic
+Tỉ lệ 16:9 · Style raw cinematic mascot
 ```
 
-#### Tham số gợi ý theo tool
+#### Tham số theo tool
 
 | Tool | Tham số |
 |---|---|
-| **Midjourney V7** | `--ar 16:9 --style raw --v 7 --quality 2 --stylize 250` |
-| **Flux Pro 1.1** | `aspect_ratio: 16:9`, `output_quality: 95`, `prompt_strength: 0.85` |
-| **DALL·E 3** | size `1792x1024`, style `natural`, quality `hd` |
-| **Ideogram 3** | aspect `16:9`, magic prompt `off`, style `realistic` |
-| **SDXL / Flux Dev** | `1920x1080`, sampler `dpmpp_2m_sde_karras`, steps `30`, CFG `5.5` |
+| **Midjourney V7** | `--ar 16:9 --style raw --v 7 --quality 2 --stylize 300` |
+| **Flux Pro 1.1** | `aspect_ratio: 16:9`, `output_quality: 95`, `prompt_strength: 0.9` |
+| **DALL·E 3** | size `1792x1024`, style `vivid`, quality `hd` |
+| **Ideogram 3** | aspect `16:9`, magic prompt `off`, style `3d` |
+| **SDXL + Pixar LoRA** | `1920x1080`, sampler `dpmpp_2m_sde`, steps `35`, CFG `6` |
+
+**Tip**: nếu output sai design → upload [`happy.png`](frontend/src/assets/happy.png) làm image reference (MJ `--cref`, Flux ref-image, Ideogram remix). Đảm bảo style consistency.
 
 ---
 
-### 14.2 Prompt tạo video 8 giây toàn bộ (text-to-video)
+### 13.2 Prompt tạo video 8 giây — Mascot-driven
 
-**Phù hợp**: Sora (OpenAI), Veo 3 (Google), Kling 2.1 / 2.5, Runway Gen-4,
-Luma Ray 2, Pika 2.2, MiniMax Hailuo.
+**Cho Sora 2 / Veo 3 / Kling 2.5 / Runway Gen-4 / Luma Ray 2.**
 
-#### 🇬🇧 English prompt — bản đầy đủ (recommended for Sora / Veo 3 / Kling)
-
-```
-An 8-second cinematic ad for "Penny" — a Vietnamese smart-spending
-assistant on Zalo. 16:9 landscape, 1920x1080, 30 fps, photorealistic
-with subtle UI overlay sequences.
-
-[0.0–1.5s] Open on an over-the-shoulder shot of a young Vietnamese
-person's hand holding a wrinkled cafe receipt on a warm wooden desk.
-Soft window side-light, three more receipts scattered, a smartphone
-face-down at the right edge. Slow handheld drift to the right.
-Text "Ghi chi tiêu mỗi ngày..." softly fades in upper-left then fades
-out. Match-cut to the same hand lifting the phone.
-
-[1.5–3.3s] Top-down 15-degree tilt of an iPhone screen now centered.
-Camera dolly-in slowly. The Zalo chat with "Penny" opens. A green
-header (#00582A) appears, then a chat bubble slides in from the left
-with spring physics, typewriting: "Chào bạn 👋 Mình là Penny". A small
-cute mascot illustration with green tones waves at the corner of the
-bubble. UI animation feels Apple-iOS smooth.
-
-[3.3–5.3s] User types "ăn trưa 50k" into the input field, one character
-at a time, with soft tap sounds. The bubble flies up with a bounce. Three
-typing dots animate for 200ms. Then Penny replies with a confirmation
-card: green check icon, "Đã ghi · Ăn trưa: 50.000đ · Danh mục: Ăn uống".
-A subtle 1.05x crash-zoom on the card. The mascot does a tiny happy
-wiggle.
-
-[5.3–6.8s] Quick whip-pan transition. Top-down flat shot of a clean
-dashboard UI: a card animates up with the big number "2.450.000đ"
-counting up from zero, three bar chart bars slide in stacked
-(emerald gradient #00582A → #A7D5B9), then a donut chart fills 360
-degrees. Small label reads "Báo cáo tháng này".
-
-[6.8–8.0s] Wipe to a deep-emerald gradient background (#00582A to
-#003D1B). A circular brand logo (green and white, smooth glyph) scales
-in from zero with spring bounce in the center. The wordmark "Penny"
-types out below in bold sans-serif. Then a tagline appears: "Trợ lý
-chi tiêu trên Zalo". Finally a white pill-shaped CTA button slides up:
-"Mở Zalo → tìm Penny". Subtle floating particles, gentle pulsing logo.
-
-Visual style: A24 cinematography for the live-action open, polished
-fintech app aesthetic for the UI screens, warm and trustworthy.
-Color palette: deep emerald green #00582A, off-white #FAFAF8,
-warm wood tones, soft beige. Typography: Manrope-like geometric
-sans-serif.
-
-Audio: ambient warm pad opening, light hi-hat 8ths kicking in at 1.5s,
-soft typing taps at 3.5s, a friendly two-note success chime at 4.6s,
-swelling pad and gentle marimba on the dashboard scene, brand sting
-of three rising notes on the logo reveal. Vietnamese female voiceover,
-warm Hanoi accent, smile-in-voice, says:
-"Penny — trợ lý chi tiêu của bạn, ngay trong Zalo. Chỉ cần nhắn tự
-nhiên... Penny tự hiểu và ghi lại. Báo cáo trực quan, kiểm soát ngân
-sách dễ dàng. Penny — trợ lý chi tiêu trên Zalo."
-
-No watermark, no captions burned in, no copyrighted logos, no other
-brand names visible. Aspect ratio 16:9.
-```
-
-#### 🇻🇳 Vietnamese prompt — bản đầy đủ (cho Veo 3 hỗ trợ tiếng Việt, Kling VN finetune)
+#### 🇬🇧 English prompt — bản đầy đủ
 
 ```
-Quảng cáo 8 giây cho "Penny" — trợ lý chi tiêu thông minh trên Zalo.
-16:9 ngang, 1920x1080, 30fps, ảnh thực kèm UI animation chuyên nghiệp.
+An 8-second 16:9 1920x1080 30fps cinematic ad featuring "Penny" — a
+chibi 3D mascot. Penny has a light-green astronaut dome helmet with
+two antennae topped with yellow balls, emerald headphones, big glossy
+green eyes, pink blushed cheeks, an open happy smile, emerald-green
+and white armor body with a glowing gold "P" coin badge on the chest,
+and chunky green boots. Style: Pixar / Riot Games mascot trailer,
+3D soft cel-shading with thin clean outlines, glossy highlights,
+warm rim light. Audio: on.
 
-[0.0–1.5s] Mở cảnh: cú máy qua vai một người Việt trẻ, tay cầm tờ hóa
-đơn cà phê nhăn nhúm trên bàn gỗ ấm. Side-light ấm từ cửa sổ. 3 tờ
-hóa đơn rải rác, điện thoại úp mặt ở mép phải. Cú máy drift handheld
-chậm sang phải. Text "Ghi chi tiêu mỗi ngày..." fade in góc trên trái
-rồi fade out. Cut chuyển khi tay nâng điện thoại lên.
+[0.0–1.5s] Centered 16:9 frame, background gradient off-white center
+to soft emerald wash at edges with floating sparkle particles. A
+bright streak drops from above, Penny lands with a squash-and-
+stretch bounce, dust puff at feet, looks up with sparkling eyes,
+then waves right hand twice with a big smile. Text appears on the
+right third: "Xin chào, mình là Penny!" in bold sans-serif.
 
-[1.5–3.3s] Top-down nghiêng 15°, màn hình iPhone vào giữa khung. Camera
-dolly-in chậm. Chat Zalo với "Penny" hiện ra, header xanh emerald
-#00582A. Bong bóng chat trượt vào từ trái với physics spring, gõ chữ:
-"Chào bạn 👋 Mình là Penny". Mascot nhỏ tông xanh vẫy tay ở góc bong
-bóng. UI mượt như iOS.
+[1.5–3.3s] Penny shifts to left third of frame. A Zalo-style green
+chat bubble flies in from off-screen right with a particle trail,
+typewriter-effect text reads "ăn trưa 50k". Penny tilts head
+curiously, eyes track the bubble, then catches it in both palms.
 
-[3.3–5.3s] Người dùng gõ "ăn trưa 50k" từng ký tự, có tiếng tap nhẹ.
-Bong bóng bay lên với bounce. 3 chấm typing 200ms. Penny phản hồi card
-xác nhận: icon check xanh, "Đã ghi · Ăn trưa: 50.000đ · Danh mục: Ăn
-uống". Crash-zoom nhẹ 1.05x. Mascot wiggle vui vẻ.
+[3.3–5.3s] Penny taps the bubble — it dissolves into emerald
+particles that swirl around Penny and absorb into the glowing gold
+"P" coin badge on the chest. The badge pulses three times. A clean
+white confirmation card pops from the chest: a green check icon,
+"Đã ghi" headline, "Ăn trưa · 50.000đ" amount, "Danh mục: Ăn uống"
+subtitle. Confetti pops around. Penny grins, nods, and gives a
+thumbs up.
 
-[5.3–6.8s] Whip-pan chuyển cảnh. Top-down phẳng dashboard sạch: card
-trượt lên, số lớn "2.450.000đ" đếm từ 0 lên, 3 bar chart trượt vào
-stagger (gradient emerald #00582A → #A7D5B9), donut chart fill 360°.
-Nhãn nhỏ "Báo cáo tháng này".
+[5.3–6.8s] Whip-pan into a darker emerald scene. Slight low-angle
+hero shot of Penny center frame with arms slightly spread. A huge
+yellow number "2.450.000đ" counts up from zero above Penny's head.
+Three 3D bar chart bars rise from the floor behind Penny in an
+emerald gradient, labeled "Ăn uống · Di chuyển · Mua sắm". A donut
+chart ring fills 360° orbiting around Penny at waist height. Four
+small icons pop at the corners around Penny: 🍜 🛒 🚗 🎬. Penny
+looks around amazed, then gives a double thumbs up.
 
-[6.8–8.0s] Wipe sang nền gradient xanh đậm #00582A → #003D1B. Logo
-tròn (xanh + trắng, glyph mượt) scale in từ 0 với spring bounce, giữa
-khung. Wordmark "Penny" type-out phía dưới, sans-serif đậm. Tagline
-"Trợ lý chi tiêu trên Zalo" fade in. Cuối: pill trắng "Mở Zalo → tìm
-Penny" trượt lên. Hạt particle nhẹ, logo pulse nhịp thở.
+[6.8–8.0s] Iris-out to a deep emerald gradient background
+(#00582A → #003D1B) with floating gold-white particles. Penny
+slides to the right third of the frame. On the left third: the
+circular Penny logo head scales in with spring bounce, then the
+wordmark "Penny" types out below in bold white, then the tagline
+"Trợ lý chi tiêu trên Zalo" fades in, then a white pill CTA
+button slides up reading "Mở Zalo → tìm Penny". Penny waves
+goodbye twice and winks.
 
-Phong cách hình ảnh: cinematography A24 cho live action, fintech
-hiện đại cho UI, ấm áp đáng tin. Bảng màu: xanh emerald đậm #00582A,
-trắng off #FAFAF8, gỗ ấm, be mềm. Typography: sans-serif hình học
-kiểu Manrope.
+Color palette: emerald #00582A, mascot green #5BBA47, gold #FFD700,
+off-white #FAFAF8, deep emerald #003D1B. Typography: Manrope-like
+geometric bold sans-serif.
 
-Âm thanh: pad ấm mở đầu, hi-hat 8ths vào lúc 1.5s, tiếng gõ phím nhẹ
-3.5s, 2 nốt chime thành công 4.6s, pad swell + marimba cảnh dashboard,
-brand sting 3 nốt lên ở logo. Voiceover nữ Hà Nội ấm, smile-in-voice:
-"Penny — trợ lý chi tiêu của bạn, ngay trong Zalo. Chỉ cần nhắn tự
-nhiên... Penny tự hiểu và ghi lại. Báo cáo trực quan, kiểm soát ngân
-sách dễ dàng. Penny — trợ lý chi tiêu trên Zalo."
+Audio: warm playful music at 128 BPM in F major with plucked synth,
+soft kick, hi-hat, marimba accents, brass stab on the big number,
+brand sting on the logo reveal. SFX: cartoon landing thump, sparkle
+shimmer, whoosh, soft typing taps, two-note success chime, confetti
+pop, data swirl, counting tick, donut sweep, logo whoosh, three-note
+brand sting. Vietnamese female voiceover, warm young Hanoi accent
+with smile-in-voice:
+"Mình là Penny! Bạn cứ nhắn tự nhiên... Penny tự hiểu và ghi lại
+ngay. Báo cáo trực quan, kiểm soát ngân sách dễ dàng. Penny — trợ
+lý chi tiêu, ngay trên Zalo."
 
-Không watermark, không caption cháy vào hình, không logo bản quyền,
-không tên thương hiệu khác. Tỉ lệ 16:9.
+No humans visible, no human hands. Only the mascot. No watermark,
+no copyrighted logos beyond Penny's own. 16:9 aspect ratio.
 ```
 
-#### Tham số gợi ý theo tool
+#### 🇻🇳 Vietnamese prompt — bản đầy đủ
 
-| Tool | Tham số / API hint |
+```
+Quảng cáo 8 giây 16:9 1920x1080 30fps với nhân vật mascot "Penny"
+— chibi 3D. Penny đội mũ phi hành gia xanh lá nhạt vòm cong, 2 ăng-
+ten đầu vàng tròn, tai nghe emerald đậm, mắt to xanh lá long lanh,
+má hồng, miệng cười mở, thân mặc giáp xanh emerald + trắng với huy
+hiệu đồng xu vàng "P" phát sáng trên ngực, boots xanh đậm chunky.
+Phong cách: trailer mascot kiểu Pixar / Riot Games, 3D cel-shading
+mềm với outline mỏng, highlight bóng, rim light ấm. Âm thanh: bật.
+
+[0.0–1.5s] Khung 16:9 giữa, background gradient off-white tâm fade
+ra emerald nhẹ ở rìa với hạt sparkle bay. Tia sáng vàng rơi từ trên
+xuống, Penny đáp đất với squash-stretch bounce, bụi puff dưới chân,
+ngước lên mắt long lanh, vẫy tay phải 2 lần kèm cười tươi. Text bên
+phải khung: "Xin chào, mình là Penny!" sans-serif bold.
+
+[1.5–3.3s] Penny lùi về 1/3 trái khung. Một bong bóng chat Zalo xanh
+bay từ ngoài phải vào kèm trail particle, typewriter text "ăn trưa
+50k". Penny nghiêng đầu tò mò, mắt theo dõi, rồi đón bong bóng bằng
+2 lòng bàn tay.
+
+[3.3–5.3s] Penny chạm vào bong bóng — bong bóng tan thành particle
+emerald xoáy quanh Penny rồi hút vào huy hiệu "P" vàng trên ngực.
+Huy hiệu pulse 3 lần. Card xác nhận trắng pop ra từ ngực: icon check
+xanh, "Đã ghi" headline, "Ăn trưa · 50.000đ" amount, "Danh mục: Ăn
+uống" subtitle. Confetti pop xung quanh. Penny cười tươi, gật đầu,
+giơ ngón cái 👍.
+
+[5.3–6.8s] Whip-pan sang cảnh emerald đậm hơn. Low-angle hơi heroic,
+Penny giữa khung tay hơi dang rộng. Số vàng lớn "2.450.000đ" đếm từ
+0 lên phía trên đầu Penny. 3 bar chart 3D mọc lên từ sàn sau Penny
+với gradient emerald, label "Ăn uống · Di chuyển · Mua sắm". Donut
+chart ring fill 360° bay vòng quanh Penny ở thắt lưng. 4 icon nhỏ
+pop ở 4 góc: 🍜 🛒 🚗 🎬. Penny nhìn quanh, sau đó giơ 2 ngón cái 👍👍.
+
+[6.8–8.0s] Iris-out vào nền gradient emerald đậm (#00582A → #003D1B)
+với particle vàng-trắng floating. Penny slide sang 1/3 phải khung.
+Bên trái: logo head Penny scale-in spring bounce, wordmark "Penny"
+type-out bold trắng phía dưới, tagline "Trợ lý chi tiêu trên Zalo"
+fade in, CTA pill trắng "Mở Zalo → tìm Penny" slide-up. Penny vẫy
+tay tạm biệt 2 lần và wink mắt.
+
+Bảng màu: emerald #00582A, mascot green #5BBA47, gold #FFD700,
+off-white #FAFAF8, deep emerald #003D1B. Typography: Manrope bold
+sans-serif hình học.
+
+Âm thanh: nhạc vui ấm 128 BPM F major với pluck synth, kick mềm,
+hi-hat, marimba accent, brass stab khi số lớn xuất hiện, brand sting
+khi logo. SFX: cartoon landing thump, sparkle shimmer, whoosh,
+typing taps, 2 nốt chime success, confetti pop, data swirl, counting
+tick, donut sweep, logo whoosh, 3 nốt brand sting. Voiceover nữ Hà
+Nội ấm trẻ, smile-in-voice:
+"Mình là Penny! Bạn cứ nhắn tự nhiên... Penny tự hiểu và ghi lại
+ngay. Báo cáo trực quan, kiểm soát ngân sách dễ dàng. Penny — trợ
+lý chi tiêu, ngay trên Zalo."
+
+KHÔNG có người, KHÔNG có tay người. Chỉ có mascot. Không watermark,
+không logo bản quyền khác. Tỉ lệ 16:9.
+```
+
+#### Tham số theo tool
+
+| Tool | Tham số gợi ý |
 |---|---|
-| **Sora 2** | `duration: 8s`, `aspect_ratio: 16:9`, `resolution: 1080p`, `quality: high`, audio `on`. Có thể prompt thẳng cả VO. |
-| **Veo 3 (Google)** | `duration: 8`, `aspectRatio: "16:9"`, `personGeneration: "allow"`, `enableAudio: true`. Hỗ trợ tiếng Việt VO. |
-| **Kling 2.5** | `mode: pro`, `duration: 10s` (round up từ 8s, trim sau), `aspect: 16:9`, motion `medium-high`, prompt enhancer `on`. |
-| **Runway Gen-4** | `seconds: 8`, `ratio: 1920:1080`, `motion: 6`, `seed: random`. Audio cần ghép ngoài. |
-| **Luma Ray 2** | `aspect_ratio: 16:9`, `duration: 9s`, `loop: false`. Audio ghép sau. |
-| **Pika 2.2** | `aspect_ratio: 16:9`, `motion_strength: 2`, `frame_rate: 30`. |
-| **MiniMax Hailuo** | `duration: 6` (max 6s, sẽ phải chạy 2 segment nối). |
-
-> **Lưu ý hiện trạng**: tới 2026-05, hầu hết model text-to-video còn yếu
-> khi render UI chữ phức tạp (typewriter, app screenshot). **Workflow
-> khuyên dùng** cho chất lượng cao nhất:
->
-> 1. Quay/render trước Scene 2-4 ở After Effects với UI mockup thật (UI
->    nhập tay là chắc chắn nét chữ).
-> 2. Dùng AI gen cho Scene 1 (live action) và Scene 5 (logo motion).
-> 3. Ghép lại trong AE/Premiere theo timecode ở Section 3.
->
-> Hoặc dùng **image-to-video** mode: dùng prompt 14.1 ra ảnh, rồi feed
-> vào Runway Gen-4 / Kling với prompt motion ngắn để controlled tốt hơn.
+| **Sora 2** | `duration: 8s`, `aspect_ratio: 16:9`, `resolution: 1080p`, `quality: high`, audio `on`, motion `medium-high` |
+| **Veo 3** | `duration: 8`, `aspectRatio: "16:9"`, `personGeneration: "dont_allow"` (rất quan trọng — chặn người xuất hiện), `enableAudio: true`. Veo 3 hỗ trợ VO tiếng Việt. |
+| **Kling 2.5** | `mode: pro`, `duration: 10s` (trim về 8s), `aspect: 16:9`, motion `high`, prompt enhancer `on`, **image reference**: upload [`happy.png`](frontend/src/assets/happy.png) để khóa design mascot |
+| **Runway Gen-4** | `seconds: 8`, `ratio: 1920:1080`, motion `7`. Strongly recommend **image-to-video** mode: gen ảnh hero trước (prompt 13.1), rồi feed vào Runway với prompt motion |
+| **Luma Ray 2** | `aspect_ratio: 16:9`, `duration: 9s`, `keyframe`: upload [`happy.png`](frontend/src/assets/happy.png) làm starting frame |
+| **Pika 2.2** | `aspect_ratio: 16:9`, motion `2`, fps `30` |
 
 ---
 
-### 14.3 Prompt rút gọn (cho khi tool giới hạn ký tự)
-
-#### Ảnh frame mở đầu — short
-
-```
-Cinematic over-the-shoulder, young Vietnamese hand holding crumpled
-cafe receipt, warm wooden desk, scattered receipts, ballpoint pen,
-open notebook, smartphone face-down right edge, soft window side-light
-3200K, 35mm f/2.0, shallow DOF, A24 color grading, warm earth tones,
-no text, no UI, 16:9, photorealistic, fine grain. --ar 16:9 --v 7
-```
-
-#### Video 8s — short
-
-```
-8-second cinematic ad for "Penny" Vietnamese spending assistant on
-Zalo. Open with hand holding crumpled receipt on warm desk (1.5s),
-match-cut to phone showing Zalo chat with Penny (1.8s), user types
-"ăn trưa 50k", Penny confirms with green check card (2s), whip-pan
-to dashboard with animated bar chart and counting number 2.450.000đ
-(1.5s), close on emerald #00582A gradient with circular Penny logo
-scale-in and tagline "Trợ lý chi tiêu trên Zalo" (1.2s). Vietnamese
-female VO warm Hanoi accent. Color: emerald #00582A, off-white, warm
-wood. Style: A24 + fintech UI polish. 16:9, 30fps, audio on. No
-watermark.
-```
-
----
-
-### 14.4 Workflow đề xuất (tiết kiệm chi phí, chất lượng tốt nhất)
+### 13.3 Workflow đề xuất
 
 ```
    ┌──────────────────────────────────────────────────────────────┐
-   │ Step 1: Generate hero still với prompt 14.1                  │
-   │   → Midjourney V7 hoặc Flux Pro 1.1 (~$0.05/lần, retry 5-10) │
-   │   → Pick frame ưng ý, upscale 4K                             │
+   │ Step 1: Generate hero still với prompt 13.1                  │
+   │   → Midjourney V7 với --cref = happy.png (lock design)      │
+   │   → 5-10 retry, pick frame ưng ý, upscale 4K                │
+   │   → Lưu thành penny-hero-frame.png                          │
    └──────────────────────────────────────────────────────────────┘
                               ↓
    ┌──────────────────────────────────────────────────────────────┐
-   │ Step 2: Image-to-video Scene 1 từ hero still                 │
-   │   → Runway Gen-4 image-to-video, 4s, motion: slow drift     │
-   │   → Hoặc Kling 2.5 với image init                            │
+   │ Step 2: Generate Scene 1 motion từ hero still (image-to-video)│
+   │   → Runway Gen-4 hoặc Kling 2.5 image-to-video, 2s          │
+   │   → Prompt: "mascot Penny bounces in with squash and stretch"│
    └──────────────────────────────────────────────────────────────┘
                               ↓
    ┌──────────────────────────────────────────────────────────────┐
    │ Step 3: Render Scene 2-4 trong After Effects                 │
-   │   → Mockup UI iPhone + chat animation theo Section 3         │
-   │   → Đảm bảo chữ tiếng Việt hiển thị đúng dấu                 │
+   │   → Import mascot PNG sequence (đã gen từ tool 3D hoặc AI)  │
+   │   → Mockup UI bằng tay → chữ tiếng Việt chắc chắn nét       │
+   │   → Layer mascot + chat bubble + card + bar chart           │
    └──────────────────────────────────────────────────────────────┘
                               ↓
    ┌──────────────────────────────────────────────────────────────┐
-   │ Step 4: Generate Scene 5 logo motion                         │
-   │   → AE manual hoặc Runway gen-4 với prompt logo reveal       │
+   │ Step 4: Generate Scene 5 với prompt riêng                    │
+   │   → AE manual composition + logo motion                      │
+   │   → Hoặc Runway gen-4 với prompt logo + mascot wave         │
    └──────────────────────────────────────────────────────────────┘
                               ↓
    ┌──────────────────────────────────────────────────────────────┐
    │ Step 5: Edit + audio mix trong Premiere/Resolve              │
    │   → Ghép 4 segments theo timecode Section 3                  │
-   │   → Layer VO + SFX + music theo Section 4-6                  │
+   │   → Layer VO + 24 SFX + music theo Section 5-6              │
    │   → Master -14 LUFS, export H.264 16:9 1920x1080 30fps      │
    └──────────────────────────────────────────────────────────────┘
 ```
 
-**Ngân sách dự kiến** cho workflow này: ~$8-15 tiền AI compute + 4-6 giờ
-dựng + $50-100 talent VO. So với agency thuê ngoài tiết kiệm 80-90%.
+**Ngân sách dự kiến**: ~$10-20 AI compute + 6-8 giờ dựng + $80-150 VO talent.
+
+> **Lưu ý quan trọng**: text-to-video model hiện chưa render chữ tiếng Việt
+> có dấu đẹp trong UI bong bóng/card. **Đừng tin** vào VO/text từ AI gen
+> — thay vào đó render UI text trong AE và VO record riêng.
 
 ---
+
+### 13.4 Prompt rút gọn (khi tool giới hạn ký tự)
+
+#### Ảnh mascot hero — short
+
+```
+Chibi 3D mascot Penny: light-green astronaut helmet with 2 antennae
+yellow balls, emerald headphones, big glossy green eyes, pink cheeks,
+happy open smile, emerald+white armor body, gold "P" coin badge on
+chest, green chunky boots. Standing centered, waving right hand,
+friendly pose. Pixar/Riot Games mascot style, 3D cel-shading,
+glossy highlights, soft rim light. Background: off-white #FAFAF8 to
+emerald #E8F3EC gradient with sparkles. No humans, no text. 16:9,
+4K, sharp focus. --ar 16:9 --v 7 --style raw
+```
+
+#### Video 8s mascot — short
+
+```
+8-second 16:9 mascot trailer for "Penny" Vietnamese spending assistant.
+Chibi 3D mascot with green astronaut helmet, emerald armor, gold "P"
+badge. (0-1.5s) bounces in, waves. (1.5-3.3s) green Zalo chat bubble
+flies in saying "ăn trưa 50k", Penny catches it. (3.3-5.3s) Penny
+absorbs message into chest badge, confirmation card pops with green
+check "Đã ghi · Ăn trưa: 50.000đ", confetti, thumbs up. (5.3-6.8s)
+big number 2.450.000đ counts up, bar chart and donut chart orbit
+Penny, double thumbs up. (6.8-8.0s) emerald gradient bg, Penny waves
+goodbye next to "Penny — Trợ lý chi tiêu trên Zalo" wordmark and
+white CTA pill. Pixar/Riot Games style, playful music 128 BPM F major,
+Vietnamese female warm VO. No humans visible. 16:9, 30fps, audio on.
+```
+
+---
+
+## 14. Variants tương lai
+
+| Variant | Thời lượng | Idea |
+|---|---|---|
+| 15s | + scene quét hóa đơn | TikTok ad |
+| 30s | + scene set ngân sách + persona switch | YouTube pre-roll |
+| 6s bumper | chỉ Scene 5 | YouTube bumper |
+| Sticker Zalo | tách pose Penny | Mascot Zalo sticker pack 6 emote |
+| 9:16 cho social | re-frame mascot center | Reels/TikTok/Zalo Story |
+
+---
+
+**Phiên bản**: v2.0 · `2026-05-17` (mascot-only, no humans, 16:9)
+**Path**: [`VIDEO_SCRIPT_8S.md`](VIDEO_SCRIPT_8S.md)
