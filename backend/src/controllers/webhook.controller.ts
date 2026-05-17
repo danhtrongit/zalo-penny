@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { env } from "../config/env";
-import { handleMessage } from "../services/message-handler.service";
+import { handleMessage } from "../services/message-handler";
 import { ZaloUpdateResult } from "../utils/zalo-api";
 
 interface ZaloWebhookPayload {

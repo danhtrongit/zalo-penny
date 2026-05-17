@@ -1,7 +1,7 @@
 import prisma from "../config/prisma";
 import { env } from "../config/env";
 import * as zaloApi from "../utils/zalo-api";
-import { handleMessage } from "./message-handler.service";
+import { handleMessage } from "./message-handler";
 
 interface PollingInstance {
   userId: string;

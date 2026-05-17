@@ -3,12 +3,6 @@ import { randomUUID } from "crypto";
 
 export const REQUEST_ID_HEADER = "x-request-id";
 
-declare module "http" {
-  interface IncomingMessage {
-    id?: string;
-  }
-}
-
 export const requestId = (req: Request, res: Response, next: NextFunction) => {
   const incoming = req.header(REQUEST_ID_HEADER);
   const id = incoming && incoming.length <= 128 ? incoming : randomUUID();
