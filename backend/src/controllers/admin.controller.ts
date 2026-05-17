@@ -1,19 +1,19 @@
 import { Response } from "express";
 import prisma from "../config/prisma";
 import { AuthRequest } from "../middlewares/auth.middleware";
+import { logger } from "../utils/logger";
 import * as zaloApi from "../utils/zalo-api";
-import * as botManager from "../services/bot-manager.service";
 import { buildSystemPrompt } from "../services/persona.service";
 import * as aiService from "../services/ai";
 
 export const listUsers = async (req: AuthRequest, res: Response) => {
-  const { page = "1", limit = "20" } = req.query;
-  const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+  const { page, limit } = req.query as unknown as { page: number; limit: number };
+  const skip = (page - 1) * limit;
 
   const [users, total] = await Promise.all([
     prisma.user.findMany({
       skip,
-      take: parseInt(limit as string),
+      take: limit,
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -33,27 +33,22 @@ export const listUsers = async (req: AuthRequest, res: Response) => {
   res.json({
     data: users,
     total,
-    page: parseInt(page as string),
-    totalPages: Math.ceil(total / parseInt(limit as string)),
+    page,
+    totalPages: Math.ceil(total / limit),
   });
 };
 
 export const broadcastMessage = async (req: AuthRequest, res: Response) => {
-  const { message, personalized } = req.body;
-
-  if (!message) {
-    res.status(400).json({ error: "message is required" });
-    return;
-  }
+  const { message, personalized } = req.body as {
+    message: string;
+    personalized?: boolean;
+  };
 
   const configs = await prisma.botConfig.findMany({
     where: { isActive: true },
     include: {
       user: {
-        include: {
-          persona: true,
-          subscription: true,
-        },
+        include: { persona: true, subscription: true },
       },
     },
   });
@@ -82,7 +77,11 @@ export const broadcastMessage = async (req: AuthRequest, res: Response) => {
 
         await zaloApi.sendMessage(config.botToken, zu.zaloUserId, text);
         sent++;
-      } catch {
+      } catch (err) {
+        logger.warn(
+          { err, userId: config.userId, zaloUserId: zu.zaloUserId },
+          "Broadcast send failed"
+        );
         failed++;
       }
     }

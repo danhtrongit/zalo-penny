@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { env } from "../config/env";
+import { logger } from "../utils/logger";
+import { HttpError } from "../middlewares/error.middleware";
 import { handleMessage } from "../services/message-handler";
 import { ZaloUpdateResult } from "../utils/zalo-api";
 
@@ -11,10 +13,8 @@ interface ZaloWebhookPayload {
   message?: ZaloUpdateResult["message"];
 }
 
-const parseWebhookPayload = (body: unknown): ZaloWebhookPayload | null => {
-  if (!body) {
-    return null;
-  }
+function parseWebhookPayload(body: unknown): ZaloWebhookPayload | null {
+  if (!body) return null;
 
   if (typeof body === "string") {
     try {
@@ -32,18 +32,15 @@ const parseWebhookPayload = (body: unknown): ZaloWebhookPayload | null => {
     }
   }
 
-  if (typeof body === "object") {
-    return body as ZaloWebhookPayload;
-  }
+  if (typeof body === "object") return body as ZaloWebhookPayload;
 
   return null;
-};
+}
 
 export const handleZaloWebhook = async (req: Request, res: Response) => {
   const secretToken = req.header("x-bot-api-secret-token");
   if (!env.zalo.webhookSecret || secretToken !== env.zalo.webhookSecret) {
-    res.status(403).json({ message: "Unauthorized" });
-    return;
+    throw new HttpError(403, "Unauthorized");
   }
 
   const botConfigIdParam = req.params.botConfigId;
@@ -51,63 +48,58 @@ export const handleZaloWebhook = async (req: Request, res: Response) => {
     ? botConfigIdParam[0]
     : botConfigIdParam;
 
-  if (!botConfigId) {
-    res.status(400).json({ message: "Missing bot config id" });
-    return;
-  }
+  if (!botConfigId) throw new HttpError(400, "Missing bot config id");
 
   const botConfig = await prisma.botConfig.findUnique({
     where: { id: botConfigId },
-    select: {
-      id: true,
-      userId: true,
-      botToken: true,
-      isActive: true,
-    },
+    select: { id: true, userId: true, botToken: true, isActive: true },
   });
 
-  if (!botConfig) {
-    res.status(404).json({ message: "Bot not found" });
-    return;
-  }
+  if (!botConfig) throw new HttpError(404, "Bot not found");
 
-  // Allow webhook even when isActive=false (bot may be in verification state)
-  // The message handler checks for verification codes before requiring isActive
+  // Allow webhook even when isActive=false: handler checks verification state.
 
   const payload = parseWebhookPayload(req.body);
   const event =
     payload?.ok && payload.result
       ? payload.result
       : payload?.event_name && payload.message
-        ? {
-            event_name: payload.event_name,
-            message: payload.message,
-          }
+        ? { event_name: payload.event_name, message: payload.message }
         : null;
 
   if (!event) {
-    console.error("Invalid Zalo webhook payload:", {
-      contentType: req.header("content-type"),
-      bodyType: typeof req.body,
-      body: req.body,
-    });
-    res.status(400).json({ message: "Invalid payload" });
-    return;
+    logger.warn(
+      {
+        reqId: req.id,
+        contentType: req.header("content-type"),
+        bodyType: typeof req.body,
+      },
+      "Invalid Zalo webhook payload"
+    );
+    throw new HttpError(400, "Invalid payload");
   }
 
   if (event.event_name === "message.text.received" && event.message) {
-    console.log("Zalo webhook received:", {
-      botConfigId,
-      eventName: event.event_name,
-      chatId: event.message.chat.id,
-      fromId: event.message.from.id,
-      text: event.message.text,
-    });
-    handleMessage(botConfig.botToken, botConfig.userId, event.message).catch(
-      (err) => {
-        console.error(`Webhook message handling error for ${botConfig.userId}:`, err);
-      }
+    logger.info(
+      {
+        reqId: req.id,
+        botConfigId,
+        eventName: event.event_name,
+        chatId: event.message.chat.id,
+        fromId: event.message.from.id,
+        text: event.message.text?.slice(0, 200),
+      },
+      "Zalo webhook received"
     );
+
+    // Process async — we MUST 200 Zalo quickly. Errors are logged with reqId
+    // so they can be traced back via structured logs / APM.
+    handleMessage(botConfig.botToken, botConfig.userId, event.message).catch((err) => {
+      logger.error(
+        { err, reqId: req.id, userId: botConfig.userId, botConfigId },
+        "Webhook message handling error"
+      );
+    });
   }
 
   res.json({ message: "Success" });

@@ -10,17 +10,7 @@ export const getBudgets = async (req: AuthRequest, res: Response) => {
 };
 
 export const setBudget = async (req: AuthRequest, res: Response) => {
-  const { type, amount } = req.body;
-
-  if (!type || !amount) {
-    res.status(400).json({ error: "type and amount are required" });
-    return;
-  }
-
-  if (!["WEEKLY", "MONTHLY"].includes(type)) {
-    res.status(400).json({ error: "type must be WEEKLY or MONTHLY" });
-    return;
-  }
+  const { type, amount } = req.body as { type: "WEEKLY" | "MONTHLY"; amount: number };
 
   const budget = await prisma.budget.upsert({
     where: { userId_type: { userId: req.userId!, type } },
