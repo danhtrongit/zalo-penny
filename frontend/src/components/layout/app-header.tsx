@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import pennyAvatar from "@/assets/penny-avatar.png";
+import pennyAvatar from "@/assets/logo.png";
 
 export function AppHeader() {
   const { user } = useAuth();

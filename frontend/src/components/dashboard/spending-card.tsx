@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import pennyLogo from "@/assets/penny-logo.png";
+import pennyLogo from "@/assets/logo.png";
 import pennyWaving from "@/assets/penny-waving.png";
 import pennyHappy from "@/assets/penny-happy.png";
 import pennyWorried from "@/assets/penny-worried.png";
