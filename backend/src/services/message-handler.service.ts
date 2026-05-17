@@ -22,7 +22,7 @@ import {
   claimMessageProcessing,
   completeMessageProcessing,
 } from "./message-dedup.service";
-import { pendingVerifications } from "../controllers/bot.controller";
+import { matchAndMarkVerified } from "./bot-verification.service";
 
 interface ParsedExpense {
   description: string;
@@ -41,25 +41,20 @@ export async function handleMessage(
 
   if (!text) return;
 
-  // --- Bot ownership verification check ---
-  // If someone sends a message that matches a pending verification code, mark it as verified
-  for (const [verifyId, verification] of pendingVerifications) {
-    if (
-      verification.botToken === botToken &&
-      verification.code === text &&
-      verification.expiresAt > new Date() &&
-      !verification.verified
-    ) {
-      verification.verified = true;
-      console.log("Bot verification matched!", { verifyId, code: text, userId });
-      // Send confirmation message back to the user
-      try {
-        await zaloApi.sendMessage(botToken, chatId, "Xác minh thành công! ✅ Quay lại trang web để hoàn tất kết nối.");
-      } catch (err) {
-        console.error("Failed to send verification confirmation:", err);
-      }
-      return;
+  // Bot ownership verification: if message text matches a pending verification code, mark it verified
+  const matched = matchAndMarkVerified({ botToken, code: text });
+  if (matched) {
+    console.log("Bot verification matched!", { verifyId: matched.verifyId, code: text, userId });
+    try {
+      await zaloApi.sendMessage(
+        botToken,
+        chatId,
+        "Xác minh thành công! ✅ Quay lại trang web để hoàn tất kết nối."
+      );
+    } catch (err) {
+      console.error("Failed to send verification confirmation:", err);
     }
+    return;
   }
 
   // Check if bot is active - if not, only verification codes are processed above
