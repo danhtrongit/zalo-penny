@@ -44,39 +44,49 @@ export function SpendingCarousel({ children }: SpendingCarouselProps) {
   }
 
   return (
-    <div className="relative">
-      {/* Scroll Container */}
-      <div
-        ref={scrollRef}
-        className="flex snap-x snap-mandatory gap-0 overflow-x-auto scrollbar-hide"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {children.map((child, i) => (
-          <div key={i} className="w-full shrink-0 snap-center px-1">
-            {child}
-          </div>
-        ))}
-      </div>
+    <div>
+      {/* Scroll wrapper is its own `relative` parent so the nav arrows align
+          to the visible card center — NOT to the whole carousel that includes
+          the dots row below. Cards push their main body down by mt-16 to
+          leave room for the flap decorations; the arrows compensate with
+          mt-8 so they land near the main card vertical center. */}
+      <div className="relative">
+        <div
+          ref={scrollRef}
+          className="flex snap-x snap-mandatory gap-0 scrollbar-hide"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            overflowX: "scroll",
+            overflowY: "visible",
+          }}
+        >
+          {children.map((child, i) => (
+            <div key={i} className="w-full shrink-0 snap-center px-1">
+              {child}
+            </div>
+          ))}
+        </div>
 
-      {/* Navigation Arrows */}
-      <Button
-        variant="secondary"
-        size="icon"
-        className="absolute top-1/2 -left-2 size-8 -translate-y-1/2 rounded-full shadow-md sm:-left-4 sm:size-9"
-        onClick={() => scrollTo(activeIndex - 1)}
-        disabled={activeIndex === 0}
-      >
-        <ChevronLeft className="size-4" />
-      </Button>
-      <Button
-        variant="secondary"
-        size="icon"
-        className="absolute top-1/2 -right-2 size-8 -translate-y-1/2 rounded-full shadow-md sm:-right-4 sm:size-9"
-        onClick={() => scrollTo(activeIndex + 1)}
-        disabled={activeIndex === totalSlides - 1}
-      >
-        <ChevronRight className="size-4" />
-      </Button>
+        <Button
+          variant="secondary"
+          size="icon"
+          className="absolute top-16 bottom-0 -left-2 z-10 my-auto size-8 rounded-full shadow-md sm:-left-4 sm:size-9"
+          onClick={() => scrollTo(activeIndex - 1)}
+          disabled={activeIndex === 0}
+        >
+          <ChevronLeft className="size-4" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon"
+          className="absolute top-16 bottom-0 -right-2 z-10 my-auto size-8 rounded-full shadow-md sm:-right-4 sm:size-9"
+          onClick={() => scrollTo(activeIndex + 1)}
+          disabled={activeIndex === totalSlides - 1}
+        >
+          <ChevronRight className="size-4" />
+        </Button>
+      </div>
 
       {/* Dots */}
       <div className="mt-3 flex justify-center gap-1.5">

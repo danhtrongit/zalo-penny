@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MessageCircle, Mail, Phone, ExternalLink, Shield, FileText, HelpCircle } from "lucide-react";
-import pennyRobot from "@/assets/penny-robot.png";
+import pennyLogo from "@/assets/logo.png";
 
 const faqs = [
   { q: "Làm sao để bắt đầu ghi chi tiêu?", a: "Nhắn tin cho Penny trên Zalo, ví dụ: \"ăn trưa 50k\" - Penny sẽ tự hiểu và ghi lại cho bạn." },
@@ -21,7 +21,7 @@ export default function ContactPage() {
       {/* Penny Greeting */}
       <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/50">
         <CardContent className="flex items-center gap-4 p-4">
-          <img src={pennyRobot} alt="Penny" className="size-16 shrink-0" />
+          <img src={pennyLogo} alt="Penny" className="size-16 shrink-0" />
           <div>
             <p className="text-sm font-medium">Cần giúp đỡ?</p>
             <p className="mt-0.5 text-xs text-muted-foreground">

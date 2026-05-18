@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SpendingCard } from "@/components/dashboard/spending-card";
 import { SpendingCarousel } from "@/components/dashboard/spending-carousel";
+import { SummaryReport } from "@/components/dashboard/summary-report";
+import pennyVideo from "@/assets/video.mp4";
 import { ArrowRight } from "lucide-react";
 import { getCategoryIcon } from "@/lib/category-icons";
 
@@ -69,10 +71,12 @@ export default function DashboardPage() {
   const currentMonth = months[new Date().getMonth()];
 
   return (
-    <div className="space-y-6 pt-4">
+    <div className="space-y-6">
       <PageHead title="Trang Chủ" />
-      {/* Spending Carousel — bleeds wider to overlap header edge */}
-      <div className="-mx-5 -mt-3 px-5 sm:-mx-6 sm:px-6">
+      {/* Spending Carousel — pulled up to overlap the header so the main
+          card visually tucks into the rounded-b-3xl bottom of the green
+          header. -mt-28 = -7rem (-112px) ≈ half the header height. */}
+      <div className="relative z-10 -mx-5 -mt-28 px-5 sm:-mx-6 sm:px-6">
         <SpendingCarousel>
           <SpendingCard
             title="HẠN MỨC CHI TIÊU"
@@ -95,6 +99,22 @@ export default function DashboardPage() {
           />
         </SpendingCarousel>
       </div>
+
+      {/* Intro video — 16:9 autoplay */}
+      <div className="overflow-hidden rounded-2xl bg-black/5">
+        <video
+          src={pennyVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="aspect-video w-full object-cover"
+        />
+      </div>
+
+      {/* Weekly / Monthly summary chart */}
+      <SummaryReport />
 
       {/* Recent Transactions */}
       <div className="space-y-3">
