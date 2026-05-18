@@ -16,8 +16,10 @@ export const updatePersonaBody = z.object({
   serious: personaIntensity.optional(),
   frugal: personaIntensity.optional(),
   emoji: personaIntensity.optional(),
-  displayName: z.string().min(1).max(60).optional(),
-  gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
+  // Empty string is allowed and means "no display name set" — UI ships
+  // `displayName: ""` by default until the user types one.
+  displayName: z.string().max(60).optional().or(z.literal("")),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional().or(z.literal("")),
 });
 
 export type UpdatePersonaInput = z.infer<typeof updatePersonaBody>;

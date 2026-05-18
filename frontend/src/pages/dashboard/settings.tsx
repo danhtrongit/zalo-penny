@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PageHead } from "@/components/page-head";
 import api from "@/lib/api";
+import { parseApiError } from "@/lib/api-error";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,8 +119,8 @@ export default function SettingsPage() {
         setBotToken("");
         await refreshUser();
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Không thể kết nối bot");
+    } catch (err) {
+      toast.error(parseApiError(err, "Không thể kết nối bot"));
     } finally { setConnecting(false); }
   };
 
@@ -137,14 +138,19 @@ export default function SettingsPage() {
       toast.success("Đã ngắt kết nối bot");
       setBotStatus((await api.get("/bot/status")).data);
       await refreshUser();
-    } catch { toast.error("Không thể ngắt kết nối"); }
+    } catch (err) { toast.error(parseApiError(err, "Không thể ngắt kết nối")); }
   };
 
   const handleSavePersona = async () => {
     setSavingPersona(true);
-    try { await api.put("/persona", persona); toast.success("Đã lưu cài đặt persona"); }
-    catch { toast.error("Không thể lưu"); }
-    finally { setSavingPersona(false); }
+    try {
+      await api.put("/persona", persona);
+      toast.success("Đã lưu cài đặt persona");
+    } catch (err) {
+      toast.error(parseApiError(err, "Không thể lưu"));
+    } finally {
+      setSavingPersona(false);
+    }
   };
 
   const handleSaveBudget = async () => {
@@ -153,8 +159,11 @@ export default function SettingsPage() {
     try {
       await api.post("/budgets", { type: "MONTHLY", amount: parseInt(budgetAmount) });
       toast.success("Đã đặt ngân sách tháng");
-    } catch { toast.error("Không thể đặt ngân sách"); }
-    finally { setSavingBudget(false); }
+    } catch (err) {
+      toast.error(parseApiError(err, "Không thể đặt ngân sách"));
+    } finally {
+      setSavingBudget(false);
+    }
   };
 
   const hasActiveSub = user?.subscription?.status === "ACTIVE";
