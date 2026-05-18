@@ -10,7 +10,7 @@ import transactionRoute from "./transaction.route";
 import budgetRoute from "./budget.route";
 import personaRoute from "./persona.route";
 import reportRoute from "./report.route";
-import adminRoute from "./admin.route";
+import adminRoute from "./admin";
 
 const router = Router();
 

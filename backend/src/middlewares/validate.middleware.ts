@@ -13,7 +13,11 @@ export const validate = (schema: ValidateSchema): RequestHandler => {
       if (schema.body) req.body = schema.body.parse(req.body);
       if (schema.query) {
         const parsed = schema.query.parse(req.query);
-        Object.assign(req.query, parsed);
+        Object.defineProperty(req, "query", {
+          value: parsed,
+          writable: true,
+          configurable: true,
+        });
       }
       if (schema.params) {
         const parsed = schema.params.parse(req.params);
