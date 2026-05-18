@@ -73,13 +73,17 @@ export const handleZaloWebhook = async (req: Request, res: Response) => {
         reqId: req.id,
         contentType: req.header("content-type"),
         bodyType: typeof req.body,
+        payloadKeys: payload && typeof payload === "object" ? Object.keys(payload) : null,
+        rawPayload: payload,
       },
       "Invalid Zalo webhook payload"
     );
     throw new HttpError(400, "Invalid payload");
   }
 
-  if (event.event_name === "message.text.received" && event.message) {
+  if (event.message) {
+    // Log the FULL message shape so we can discover unknown fields (Zalo
+    // doesn't fully document the image / document payload).
     logger.info(
       {
         reqId: req.id,
@@ -88,6 +92,10 @@ export const handleZaloWebhook = async (req: Request, res: Response) => {
         chatId: event.message.chat.id,
         fromId: event.message.from.id,
         text: event.message.text?.slice(0, 200),
+        hasPhoto: !!event.message.photo,
+        hasDocument: !!event.message.document,
+        messageKeys: Object.keys(event.message),
+        rawMessage: event.message,
       },
       "Zalo webhook received"
     );
@@ -100,6 +108,13 @@ export const handleZaloWebhook = async (req: Request, res: Response) => {
         "Webhook message handling error"
       );
     });
+  } else {
+    // No message field — log the raw payload at debug so we can discover
+    // event shapes we don't recognize yet.
+    logger.debug(
+      { reqId: req.id, botConfigId, payload: req.body },
+      "Zalo webhook with no message field"
+    );
   }
 
   res.json({ message: "Success" });

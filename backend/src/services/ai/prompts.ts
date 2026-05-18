@@ -88,6 +88,35 @@ export function withGoogleSearchInstructions(systemPrompt: string, contextBlock:
   return `${systemPrompt}\n- Với câu hỏi cần dữ liệu mới nhất, giá hiện tại, tin tức hôm nay hoặc thông tin thay đổi theo thời gian, bạn PHẢI dùng Google Search tool nếu nó đang được bật.\n- Khi đã dùng Google Search tool, hãy trả lời dựa trên kết quả tìm được thay vì từ chối vì thiếu dữ liệu real-time.\n- Không được tự mâu thuẫn: nếu đã có kết quả tìm kiếm thì không được mở đầu bằng kiểu "em chưa có thông tin", "em chưa cập nhật được", "em không check được" rồi mới đưa số liệu.\n- Nếu vẫn chưa đủ dữ liệu sau khi tìm, hãy nói rõ phần nào còn thiếu.${contextBlock}`;
 }
 
+export function buildReceiptOcrPrompt(hint?: string): string {
+  const today = new Date().toISOString().slice(0, 10);
+  const hintBlock = hint
+    ? `\n\nGợi ý thêm từ caption / hoá đơn trước đó (cùng người dùng, < 5 phút):\n${hint}`
+    : "";
+
+  return `Bạn là hệ thống OCR hoá đơn. Phân tích ảnh / PDF hoá đơn và TRẢ VỀ DUY NHẤT 1 JSON, KHÔNG markdown, KHÔNG giải thích.
+
+Format JSON bắt buộc:
+{
+  "merchant": "tên cửa hàng (string|null)",
+  "date": "YYYY-MM-DD (string|null) — ngày trên hoá đơn, KHÔNG đoán nếu không thấy",
+  "total": số_tiền_VND (number|null) — TỔNG CUỐI CÙNG (tổng thanh toán/grand total), KHÔNG phải subtotal hay từng món,
+  "category": "Ăn uống|Di chuyển|Mua sắm|Giải trí|Hóa đơn|Sức khỏe|Giáo dục|Nhà cửa|Khác",
+  "description": "mô tả ngắn 3-6 từ (string)",
+  "itemCount": số_lượng_món (number|null),
+  "isPartOfMultiPage": true_nếu_chỉ_thấy_một_phần_hoá_đơn (ví dụ không có dòng TỔNG / TOTAL, chỉ thấy danh sách món hoặc chỉ thấy phần thanh toán),
+  "confidence": 0.0-1.0 — độ tin cậy của total + date
+}
+
+Quy tắc QUAN TRỌNG:
+- TUYỆT ĐỐI KHÔNG tự bịa total nếu hoá đơn bị cắt hoặc mờ — đặt total=null, confidence thấp, isPartOfMultiPage=true.
+- TUYỆT ĐỐI KHÔNG tự bịa date — đặt date=null nếu không nhìn rõ.
+- Date phải là ngày ghi trên hoá đơn (date of purchase), KHÔNG phải ngày hôm nay.
+- Total là số nguyên VND, không có dấu chấm/phẩy. VD: "150.000đ" → 150000, "1,250,500" → 1250500.
+- Nếu hoá đơn nước ngoài (USD, EUR…), CHỈ extract số gốc, ghi đơn vị vào description.
+- Hôm nay là ${today} (tham khảo, KHÔNG dùng làm date trừ khi hoá đơn thực sự ghi).${hintBlock}`;
+}
+
 export function buildHistoryContextBlock(context?: string): string {
   return context
     ? `\n\n--- Ngữ cảnh hội thoại gần đây (BẮT BUỘC dùng để hiểu tin nhắn hiện tại) ---\n${context}`

@@ -25,10 +25,34 @@ export class ZaloApiError extends Error {
   }
 }
 
+export interface ZaloAttachment {
+  /** Zalo-hosted URL or path. Some payloads return a full https URL; some return
+   *  a relative path that must be prefixed with the public CDN. */
+  url?: string;
+  /** mime type when Zalo provides it (e.g. application/pdf). */
+  mime_type?: string;
+  /** original file name for documents. */
+  file_name?: string;
+  /** size in bytes if provided. */
+  file_size?: number;
+}
+
 export interface ZaloMessage {
   from: { id: string; display_name: string; is_bot: boolean };
   chat: { id: string; chat_type: string };
   text?: string;
+  /** discriminator for media messages: CHAT_PHOTO | CHAT_DOCUMENT | CHAT_TEXT | ... */
+  message_type?: string;
+  /** live Zalo OA payload key for image attachments (direct CDN URL). */
+  photo_url?: string;
+  /** live Zalo OA payload key for document attachments (PDF etc.). */
+  document_url?: string;
+  /** legacy doc shape (string URL). */
+  photo?: string;
+  /** optional caption that came with photo/document. */
+  caption?: string;
+  /** undocumented but defensively read — some payloads use a doc object. */
+  document?: ZaloAttachment;
   message_id: string;
   date: number;
 }
@@ -130,6 +154,28 @@ export async function sendPhoto(
     photo,
     ...(caption ? { caption } : {}),
   });
+}
+
+/**
+ * Download a media URL coming from a Zalo webhook payload (photo / document).
+ * Returns the raw bytes + a best-effort mime type so the caller can hash and
+ * OCR the file. Throws on non-2xx.
+ */
+export async function downloadMedia(
+  url: string,
+  fallbackMime = "application/octet-stream"
+): Promise<{ bytes: Buffer; mimeType: string }> {
+  const absoluteUrl = url.startsWith("http") ? url : `https:${url.startsWith("//") ? "" : "//"}${url}`;
+  const response = await fetch(absoluteUrl);
+  if (!response.ok) {
+    throw new Error(`downloadMedia ${response.status} for ${absoluteUrl}`);
+  }
+  const arrayBuffer = await response.arrayBuffer();
+  const headerMime = response.headers.get("content-type")?.split(";")[0].trim();
+  return {
+    bytes: Buffer.from(arrayBuffer),
+    mimeType: headerMime || fallbackMime,
+  };
 }
 
 export async function sendChatAction(

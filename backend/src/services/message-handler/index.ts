@@ -25,6 +25,7 @@ import { handleDelete } from "./delete";
 import { handleReport } from "./report";
 import { handleHistory } from "./history";
 import { handleChat } from "./chat";
+import { handleReceiptMedia, messageHasMedia } from "./receipt";
 import { looksLikeExpense } from "./parsers";
 
 export async function handleMessage(
@@ -33,8 +34,18 @@ export async function handleMessage(
   message: ZaloMessage
 ) {
   const chatId = message.chat.id;
-  const text = (message.text || "").trim();
-  if (!text) return;
+  const text = (message.text || message.caption || "").trim();
+  const hasMedia = messageHasMedia(message);
+  if (!text && !hasMedia) {
+    logger.info(
+      {
+        messageId: message.message_id,
+        keys: Object.keys(message),
+      },
+      "Ignored message with no text and no recognizable media"
+    );
+    return;
+  }
 
   // Bot ownership verification: if message text matches a pending verification code, mark it verified
   const matched = matchAndMarkVerified({ botToken, code: text });
@@ -132,6 +143,19 @@ export async function handleMessage(
         conversation,
         message.from.display_name
       );
+      await rememberProcessedMessage(conversation, message.message_id);
+      await completeMessageProcessing(processingKey);
+      return;
+    }
+
+    // Photo / PDF receipt — dispatch to OCR pipeline before falling into
+    // text-intent classification.
+    if (hasMedia) {
+      logger.info(
+        { userId, chatId, messageId: message.message_id },
+        "Dispatching to receipt OCR handler"
+      );
+      await handleReceiptMedia(botToken, chatId, userId, message, conversation);
       await rememberProcessedMessage(conversation, message.message_id);
       await completeMessageProcessing(processingKey);
       return;

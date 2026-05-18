@@ -12,6 +12,8 @@ export const getReport = async (req: AuthRequest, res: Response) => {
   if (startDate && endDate) {
     start = new Date(startDate as string);
     end = new Date(endDate as string);
+    // Include the entire end day (00:00 → 23:59:59.999)
+    end.setHours(23, 59, 59, 999);
   } else {
     switch (period) {
       case "today":
@@ -35,6 +37,9 @@ export const getReport = async (req: AuthRequest, res: Response) => {
       date: { gte: start, lte: end },
     },
     orderBy: { date: "desc" },
+    include: {
+      receipt: { select: { id: true, fileUrl: true, fileType: true } },
+    },
   });
 
   const total = transactions.reduce((s, t) => s + t.amount, 0);

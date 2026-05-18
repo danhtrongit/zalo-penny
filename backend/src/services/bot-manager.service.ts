@@ -108,12 +108,18 @@ export function getBotWebhookUrl(botConfigId: string) {
   return getWebhookUrl(botConfigId);
 }
 
+const POLLED_EVENTS = new Set([
+  "message.text.received",
+  "message.image.received",
+  "message.document.received",
+]);
+
 async function pollLoop(instance: PollingInstance) {
   while (instance.running) {
     try {
       const result = await zaloApi.getUpdates(instance.botToken, "30");
 
-      if (result && result.event_name === "message.text.received" && result.message) {
+      if (result && POLLED_EVENTS.has(result.event_name) && result.message) {
         const msgId = result.message.message_id;
         if (!instance.seenIds.has(msgId)) {
           instance.seenIds.add(msgId);

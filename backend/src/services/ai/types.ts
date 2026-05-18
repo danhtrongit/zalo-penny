@@ -1,6 +1,28 @@
+export interface GeminiInlineData {
+  mimeType: string;
+  data: string;
+}
+
+export interface GeminiPartInput {
+  text?: string;
+  inlineData?: GeminiInlineData;
+}
+
 export interface GeminiContent {
   role: string;
-  parts: { text: string }[];
+  parts: GeminiPartInput[];
+}
+
+export interface ReceiptExtraction {
+  merchant: string | null;
+  date: string | null;
+  total: number | null;
+  category: string;
+  description: string;
+  itemCount: number | null;
+  isPartOfMultiPage: boolean;
+  confidence: number;
+  rawText?: string;
 }
 
 export interface GeminiPart {
