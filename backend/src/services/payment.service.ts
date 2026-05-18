@@ -6,12 +6,25 @@ import { HttpError } from "../middlewares/error.middleware";
 
 export interface SepayIpnPayload {
   notification_type?: string;
+  timestamp?: number;
   order?: {
+    id?: string;
+    order_id?: string;
+    order_status?: string;
+    order_currency?: string;
+    order_amount?: number | string;
     order_invoice_number?: string;
+    order_description?: string;
+    custom_data?: unknown;
   };
   transaction?: {
+    id?: string;
     payment_method?: string;
     transaction_id?: string;
+    transaction_status?: string;
+    transaction_amount?: number | string;
+    transaction_currency?: string;
+    transaction_date?: string;
   };
   [key: string]: unknown;
 }

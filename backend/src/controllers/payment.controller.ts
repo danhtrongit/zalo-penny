@@ -23,8 +23,30 @@ function getClientIp(req: Request): string {
   return req.socket.remoteAddress ?? "";
 }
 
+/**
+ * Per SePay docs (developer.sepay.vn/vi/cong-thanh-toan/bat-dau.md), IPN
+ * authenticity is enforced by:
+ *   1. Source IP whitelist (SEPAY_AUTHORIZED_IPS)
+ * The docs do NOT mandate an HMAC signature header. We still accept one if
+ * SePay ever ships it (forward-compat) and reject if it's malformed, but a
+ * missing signature is NOT grounds for rejection on its own.
+ */
 export const handleIPN = async (req: Request, res: Response) => {
   const ip = getClientIp(req).replace(/^::ffff:/, "");
+
+  // Always log inbound IPN headers + raw body for ops audit. Pino redacts
+  // any keys we configured globally.
+  logger.info(
+    {
+      reqId: req.id,
+      ip,
+      contentType: req.header("content-type"),
+      headerKeys: Object.keys(req.headers),
+      bodyKeys:
+        req.body && typeof req.body === "object" ? Object.keys(req.body) : null,
+    },
+    "IPN inbound"
+  );
 
   if (!env.isDev) {
     if (!SEPAY_AUTHORIZED_IPS.includes(ip as (typeof SEPAY_AUTHORIZED_IPS)[number])) {
@@ -32,27 +54,31 @@ export const handleIPN = async (req: Request, res: Response) => {
       throw new HttpError(403, "Unauthorized IP");
     }
 
-    const rawBody = req.rawBody;
-    if (!rawBody || rawBody.length === 0) {
-      logger.warn({ reqId: req.id }, "IPN rejected: missing raw body");
-      throw new HttpError(400, "Missing request body");
-    }
-
+    // Optional signature — verify only if SePay actually sends one. Missing
+    // signature is acceptable per current SePay spec.
     const signature = extractSignature(req.headers as Record<string, unknown>);
-    if (!signature) {
-      logger.warn({ reqId: req.id }, "IPN rejected: missing signature header");
-      throw new HttpError(401, "Missing signature");
-    }
-
-    if (!verifyIpnSignature(rawBody.toString("utf8"), signature)) {
-      logger.warn({ reqId: req.id, ip }, "IPN rejected: invalid signature");
-      throw new HttpError(401, "Invalid signature");
+    const rawBody = req.rawBody;
+    if (signature && rawBody && rawBody.length > 0) {
+      if (!verifyIpnSignature(rawBody.toString("utf8"), signature)) {
+        logger.warn(
+          { reqId: req.id, ip },
+          "IPN rejected: signature provided but invalid"
+        );
+        throw new HttpError(401, "Invalid signature");
+      }
+      logger.info({ reqId: req.id }, "IPN signature verified");
     }
   }
 
   const payload = req.body as SepayIpnPayload;
   logger.info(
-    { reqId: req.id, notification_type: payload.notification_type, invoice: payload.order?.order_invoice_number },
+    {
+      reqId: req.id,
+      notification_type: payload.notification_type,
+      invoice: payload.order?.order_invoice_number,
+      order_amount: payload.order?.order_amount,
+      transaction_id: payload.transaction?.transaction_id,
+    },
     "IPN received"
   );
 
