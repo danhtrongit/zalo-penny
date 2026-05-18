@@ -16,8 +16,15 @@ import TransactionsPage from "@/pages/dashboard/transactions";
 import ReportsPage from "@/pages/dashboard/reports";
 import SettingsPage from "@/pages/dashboard/settings";
 import ContactPage from "@/pages/dashboard/contact";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { AdminRoute } from "@/components/auth/admin-route";
+import AdminDashboardPage from "@/pages/admin/dashboard";
 import AdminUsersPage from "@/pages/admin/users";
-import AdminBroadcastPage from "@/pages/admin/broadcast";
+import AdminUserDetailPage from "@/pages/admin/user-detail";
+import AdminPlansPage from "@/pages/admin/plans";
+import AdminPaymentsPage from "@/pages/admin/payments";
+import AdminNotificationsPage from "@/pages/admin/notifications";
+import AdminAuditPage from "@/pages/admin/audit";
 import PrivacyPage from "@/pages/legal/privacy";
 import TermsPage from "@/pages/legal/terms";
 import ContactLegalPage from "@/pages/legal/contact";
@@ -29,13 +36,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="flex h-svh items-center justify-center text-sm text-muted-foreground">Loading...</div>;
   if (!user) return <Navigate to="/login" />;
-  return <>{children}</>;
-}
-
-function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  if (loading) return <div className="flex h-svh items-center justify-center text-sm text-muted-foreground">Loading...</div>;
-  if (!user || user.role !== "ADMIN") return <Navigate to="/dashboard" />;
   return <>{children}</>;
 }
 
@@ -65,9 +65,21 @@ export function App() {
                   <Route path="contact" element={<ContactPage />} />
                 </Route>
 
-                <Route path="/admin" element={<AdminRoute><AppLayout /></AdminRoute>}>
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <AdminLayout />
+                    </AdminRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboardPage />} />
                   <Route path="users" element={<AdminUsersPage />} />
-                  <Route path="broadcast" element={<AdminBroadcastPage />} />
+                  <Route path="users/:id" element={<AdminUserDetailPage />} />
+                  <Route path="plans" element={<AdminPlansPage />} />
+                  <Route path="payments" element={<AdminPaymentsPage />} />
+                  <Route path="notifications" element={<AdminNotificationsPage />} />
+                  <Route path="audit" element={<AdminAuditPage />} />
                 </Route>
               </Routes>
             </BrowserRouter>
