@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -9,7 +9,7 @@ import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import PricingPage from "@/pages/pricing";
-import PaymentSuccessPage from "@/pages/payment-success";
+import OnboardingPage from "@/pages/onboarding";
 import PaymentErrorPage from "@/pages/payment-error";
 import DashboardPage from "@/pages/dashboard/index";
 import TransactionsPage from "@/pages/dashboard/transactions";
@@ -34,8 +34,18 @@ const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return <div className="flex h-svh items-center justify-center text-sm text-muted-foreground">Loading...</div>;
   if (!user) return <Navigate to="/login" />;
+
+  const needsOnboarding =
+    user.subscription?.status === "ACTIVE" && !user.botConfig?.isActive;
+  const onboardingSafe =
+    location.pathname === "/onboarding" ||
+    location.pathname === "/dashboard/contact";
+  if (needsOnboarding && !onboardingSafe) {
+    return <Navigate to="/onboarding" replace />;
+  }
   return <>{children}</>;
 }
 
@@ -51,8 +61,16 @@ export function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
-                <Route path="/payment/success" element={<PaymentSuccessPage />} />
+                <Route path="/payment/success" element={<Navigate to="/onboarding" replace />} />
                 <Route path="/payment/error" element={<PaymentErrorPage />} />
+                <Route
+                  path="/onboarding"
+                  element={
+                    <ProtectedRoute>
+                      <OnboardingPage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/contact" element={<ContactLegalPage />} />
