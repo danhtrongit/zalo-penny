@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { InAppBrowserGuard } from "@/components/in-app-browser-guard";
 
 import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
@@ -54,6 +55,7 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
+          <InAppBrowserGuard>
           <AuthProvider>
             <BrowserRouter>
               <Routes>
@@ -103,6 +105,7 @@ export function App() {
             </BrowserRouter>
             <Toaster />
           </AuthProvider>
+          </InAppBrowserGuard>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
