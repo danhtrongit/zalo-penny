@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Camera, BarChart3, Bot, Shield, Zap } from "lucide-react";
+import { MessageSquare, Camera, BarChart3, Bot, Shield, Zap, LayoutDashboard, ArrowRight } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const features = [
   { icon: MessageSquare, title: "Chat tự nhiên", desc: "Ghi chi tiêu bằng tiếng Việt tự nhiên" },
@@ -20,18 +21,36 @@ const plans = [
 ];
 
 export default function LandingPage() {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-svh">
       <nav className="border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <span className="text-2xl font-heading font-bold">Penny</span>
           <div className="flex items-center gap-4">
-            <Link to="/login">
-              <Button variant="ghost">Đăng nhập</Button>
-            </Link>
-            <Link to="/register">
-              <Button>Đăng ký</Button>
-            </Link>
+            {user ? (
+              <>
+                <span className="hidden text-sm text-muted-foreground sm:inline">
+                  Xin chào, <strong className="text-foreground">{user.name}</strong>
+                </span>
+                <Link to="/dashboard">
+                  <Button>
+                    <LayoutDashboard className="mr-1.5 size-4" />
+                    Vào Dashboard
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost">Đăng nhập</Button>
+                </Link>
+                <Link to="/register">
+                  <Button>Đăng ký</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -48,12 +67,29 @@ export default function LandingPage() {
           quét hóa đơn, theo dõi ngân sách - tất cả chỉ bằng một cuộc trò chuyện.
         </p>
         <div className="mt-8 flex justify-center gap-4">
-          <Link to="/register">
-            <Button size="lg">Bắt đầu ngay</Button>
-          </Link>
-          <Link to="/pricing">
-            <Button size="lg" variant="outline">Xem bảng giá</Button>
-          </Link>
+          {user ? (
+            <>
+              <Link to="/dashboard">
+                <Button size="lg">
+                  <LayoutDashboard className="mr-1.5 size-4" />
+                  Vào Dashboard
+                  <ArrowRight className="ml-1.5 size-4" />
+                </Button>
+              </Link>
+              <Link to="/pricing">
+                <Button size="lg" variant="outline">Xem bảng giá</Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/register">
+                <Button size="lg">Bắt đầu ngay</Button>
+              </Link>
+              <Link to="/pricing">
+                <Button size="lg" variant="outline">Xem bảng giá</Button>
+              </Link>
+            </>
+          )}
         </div>
       </section>
 
@@ -86,7 +122,7 @@ export default function LandingPage() {
                 {p.save && <p className="text-sm text-primary">{p.save}</p>}
               </CardHeader>
               <CardContent>
-                <Link to="/register">
+                <Link to={user ? "/pricing" : "/register"}>
                   <Button className="w-full" variant={p.popular ? "default" : "outline"}>
                     Chọn gói này
                   </Button>
