@@ -63,6 +63,19 @@ enum AdminAction {
   SUBSCRIPTION_MANUAL_UPGRADE
   SUBSCRIPTION_CANCEL
   NOTIFICATION_BROADCAST
+  BOT_CREATE
+  BOT_UPDATE
+  BOT_DELETE
+}
+
+enum BotKind {
+  OWNED
+  POOL
+}
+
+enum AssignmentStatus {
+  PENDING_LINK
+  LINKED
 }
 
 model User {
@@ -78,13 +91,14 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  subscription Subscription?
-  botConfig    BotConfig?
-  transactions Transaction[]
-  budgets      Budget[]
-  receipts     Receipt[]
-  persona      Persona?
-  adminActions AdminAuditLog[] @relation("AdminActor")
+  subscription  Subscription?
+  botConfig     BotConfig?
+  botAssignment BotAssignment?
+  transactions  Transaction[]
+  budgets       Budget[]
+  receipts      Receipt[]
+  persona       Persona?
+  adminActions  AdminAuditLog[] @relation("AdminActor")
 }
 
 model Plan {
@@ -132,14 +146,39 @@ model Payment {
 
 model BotConfig {
   id          String    @id @default(cuid())
-  userId      String    @unique
+  userId      String?   @unique
+  kind        BotKind   @default(OWNED)
+  label       String?
   botToken    String
+  botLink     String?
+  qrImageUrl  String?
+  capacity    Int       @default(5)
   isActive    Boolean   @default(false)
   connectedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
+  user        User?           @relation(fields: [userId], references: [id])
+  assignments BotAssignment[]
+
+  @@index([kind, isActive])
+}
+
+model BotAssignment {
+  id               String           @id @default(cuid())
+  botConfigId      String
+  userId           String           @unique
+  status           AssignmentStatus @default(PENDING_LINK)
+  linkCode         String           @unique
+  linkedZaloUserId String?
+  createdAt        DateTime         @default(now())
+  linkedAt         DateTime?
+
+  botConfig BotConfig @relation(fields: [botConfigId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@index([botConfigId])
+  @@index([status])
 }
 
 model Transaction {
