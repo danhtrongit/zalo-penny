@@ -9,6 +9,12 @@ import {
   signCheckoutFields,
 } from "../services/payment.service";
 import { archiveSubscription } from "../services/subscription-archive.service";
+import {
+  poolHasCapacity,
+  assignBotToUser,
+  releaseAssignment,
+} from "../services/bot-pool.service";
+import { logger } from "../utils/logger";
 
 function generateInvoiceNumber(): string {
   return `INV-${Date.now()}-${Math.random()
@@ -18,10 +24,24 @@ function generateInvoiceNumber(): string {
 }
 
 export const createSubscription = async (req: AuthRequest, res: Response) => {
-  const { planSlug } = req.body as { planSlug: string };
+  const { planSlug, botMode = "pool" } = req.body as {
+    planSlug: string;
+    botMode?: "pool" | "self";
+  };
 
   const plan = await prisma.plan.findUnique({ where: { slug: planSlug } });
   if (!plan) throw new HttpError(404, "Không tìm thấy gói");
+
+  // Pool is the default path: don't take payment if there's no free bot slot.
+  // (Self-bot advanced users bring their own bot, so they bypass this gate.)
+  if (botMode !== "self" && !(await poolHasCapacity())) {
+    logger.warn({ userId: req.userId }, "POOL_FULL at checkout");
+    throw new HttpError(
+      409,
+      "Hệ thống tạm hết chỗ bot. Vui lòng thử lại sau ít phút hoặc tự kết nối bot riêng.",
+      { code: "POOL_FULL" }
+    );
+  }
 
   const existing = await prisma.subscription.findUnique({
     where: { userId: req.userId! },
@@ -40,6 +60,8 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
       reason: "REPLACED",
       notes: `Replaced by new subscription for plan ${plan.slug}`,
     });
+    // Free any previously held bot slot before re-assigning.
+    await releaseAssignment(req.userId!);
   }
 
   const subscription = await prisma.subscription.create({
@@ -73,6 +95,14 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
         data: { status: "PAID", paidAt: now, method: "DEV_AUTO" },
       }),
     ]);
+
+    if (botMode !== "self") {
+      try {
+        await assignBotToUser(req.userId!);
+      } catch (err) {
+        logger.error({ err, userId: req.userId }, "Dev auto-assign bot failed");
+      }
+    }
 
     const { invoiceNumber: _devInv, ...devSafeSubscription } = subscription;
 

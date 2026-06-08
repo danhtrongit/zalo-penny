@@ -65,3 +65,19 @@ export const auditListQuery = z.object({
   limit: z.coerce.number().int().positive().max(100).default(50),
   action: z.string().max(60).optional(),
 });
+
+export const botCreateBody = z.object({
+  label: z.string().min(1).max(80),
+  botToken: z.string().min(10).max(500).trim(),
+  capacity: z.number().int().positive().max(50).optional().default(5),
+  botLink: z.string().max(300).optional(),
+  qrImageUrl: z.string().max(2_000_000).optional(), // data URL
+  isActive: z.boolean().optional().default(true),
+});
+
+export const botUpdateBody = botCreateBody.partial().refine(
+  (v) => Object.keys(v).length > 0,
+  { message: "Cần ít nhất một trường để cập nhật" }
+);
+
+export const botIdParams = z.object({ id: z.string().min(1).max(64) });

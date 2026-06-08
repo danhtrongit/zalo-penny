@@ -5,13 +5,13 @@ import * as zaloApi from "../utils/zalo-api";
 import { handleMessage } from "./message-handler";
 
 interface PollingInstance {
-  userId: string;
+  botConfigId: string;
   botToken: string;
   running: boolean;
   seenIds: Set<string>;
 }
 
-const instances = new Map<string, PollingInstance>();
+const instances = new Map<string, PollingInstance>(); // key = botConfigId
 
 function getWebhookUrl(botConfigId: string) {
   if (!env.zalo.webhookBaseUrl) return null;
@@ -36,8 +36,12 @@ export async function startAllBots() {
 
   let startedCount = 0;
   for (const config of configs) {
-    if (config.user.subscription?.status === "ACTIVE") {
-      const started = await startBot(config.userId, config.botToken, config.id);
+    // Pool bots run whenever active; owned bots only while the owner's
+    // subscription is active.
+    const isPool = config.kind === "POOL";
+    const ownerActive = config.user?.subscription?.status === "ACTIVE";
+    if (isPool || ownerActive) {
+      const started = await startBot(config.id, config.botToken);
       if (started) startedCount += 1;
     }
   }
@@ -45,12 +49,8 @@ export async function startAllBots() {
   logger.info({ startedCount, mode: env.zalo.mode }, "Bot Manager started");
 }
 
-export async function startBot(
-  userId: string,
-  botToken: string,
-  botConfigId: string
-) {
-  if (instances.has(userId)) stopBot(userId);
+export async function startBot(botConfigId: string, botToken: string) {
+  if (instances.has(botConfigId)) stopBot(botConfigId);
 
   try {
     await zaloApi.getMe(botToken);
@@ -58,46 +58,45 @@ export async function startBot(
     if (env.zalo.mode === "webhook") {
       const webhookUrl = assertWebhookReady(botConfigId);
       await zaloApi.setWebhook(botToken, webhookUrl, env.zalo.webhookSecret);
-      logger.info({ userId, webhookUrl }, "Bot started [webhook]");
+      logger.info({ botConfigId, webhookUrl }, "Bot started [webhook]");
       return true;
     }
 
     await zaloApi.deleteWebhook(botToken);
   } catch (err) {
-    logger.error({ err, userId }, "Failed to initialize bot");
+    logger.error({ err, botConfigId }, "Failed to initialize bot");
     return false;
   }
 
   const instance: PollingInstance = {
-    userId,
+    botConfigId,
     botToken,
     running: true,
     seenIds: new Set(),
   };
 
-  instances.set(userId, instance);
+  instances.set(botConfigId, instance);
   pollLoop(instance);
 
-  logger.info({ userId }, "Bot started [polling]");
+  logger.info({ botConfigId }, "Bot started [polling]");
   return true;
 }
 
-export function stopBot(userId: string) {
-  const instance = instances.get(userId);
+export function stopBot(botConfigId: string) {
+  const instance = instances.get(botConfigId);
   if (instance) {
     instance.running = false;
-    instances.delete(userId);
-    logger.info({ userId }, "Bot stopped");
+    instances.delete(botConfigId);
+    logger.info({ botConfigId }, "Bot stopped");
   }
 }
 
 export async function stopAllBots() {
-  const userIds = [...instances.keys()];
-  for (const userId of userIds) stopBot(userId);
+  for (const id of [...instances.keys()]) stopBot(id);
 }
 
-export function isBotRunning(userId: string): boolean {
-  return instances.has(userId);
+export function isBotRunning(botConfigId: string): boolean {
+  return instances.has(botConfigId);
 }
 
 export function getBotRuntimeMode() {
@@ -129,13 +128,22 @@ async function pollLoop(instance: PollingInstance) {
             instance.seenIds = new Set(arr.slice(-5000));
           }
 
-          handleMessage(instance.botToken, instance.userId, result.message).catch((err) =>
-            logger.error({ err, userId: instance.userId }, "Message handling error")
-          );
+          const botConfig = await prisma.botConfig.findUnique({
+            where: { id: instance.botConfigId },
+            select: { id: true, userId: true, botToken: true, kind: true, isActive: true },
+          });
+          if (botConfig) {
+            handleMessage(botConfig, result.message).catch((err) =>
+              logger.error(
+                { err, botConfigId: instance.botConfigId },
+                "Message handling error"
+              )
+            );
+          }
         }
       }
     } catch (err) {
-      logger.error({ err, userId: instance.userId }, "Polling error");
+      logger.error({ err, botConfigId: instance.botConfigId }, "Polling error");
       await new Promise((r) => setTimeout(r, 2000));
     }
   }

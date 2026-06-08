@@ -3,6 +3,7 @@ import prisma from "../config/prisma";
 import { env } from "../config/env";
 import { logger } from "../utils/logger";
 import { HttpError } from "../middlewares/error.middleware";
+import { assignBotToUser } from "./bot-pool.service";
 
 export interface SepayIpnPayload {
   notification_type?: string;
@@ -108,6 +109,24 @@ export async function activateSubscriptionFromIpn(payload: SepayIpnPayload) {
       },
     }),
   ]);
+
+  // Auto-assign a pool bot. Never let this fail the IPN (Zalo/SePay must get a
+  // 200) — if the pool is full (race), the user is left "awaiting bot" and the
+  // admin sees them on the bot pool page.
+  try {
+    const assignment = await assignBotToUser(subscription.userId);
+    if (!assignment) {
+      logger.warn(
+        { userId: subscription.userId, invoiceNumber },
+        "POOL_FULL at activation — user awaiting bot"
+      );
+    }
+  } catch (err) {
+    logger.error(
+      { err, userId: subscription.userId },
+      "Bot auto-assign failed on IPN activation"
+    );
+  }
 
   logger.info(
     { subscriptionId: subscription.id, invoiceNumber },

@@ -23,6 +23,7 @@ import AdminDashboardPage from "@/pages/admin/dashboard";
 import AdminUsersPage from "@/pages/admin/users";
 import AdminUserDetailPage from "@/pages/admin/user-detail";
 import AdminPlansPage from "@/pages/admin/plans";
+import AdminBotsPage from "@/pages/admin/bots";
 import AdminPaymentsPage from "@/pages/admin/payments";
 import AdminNotificationsPage from "@/pages/admin/notifications";
 import AdminAuditPage from "@/pages/admin/audit";
@@ -39,8 +40,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (loading) return <div className="flex h-svh items-center justify-center text-sm text-muted-foreground">Loading...</div>;
   if (!user) return <Navigate to="/login" />;
 
-  const needsOnboarding =
-    user.subscription?.status === "ACTIVE" && !user.botConfig?.isActive;
+  const conn = user.botConnection;
+  const connected = conn ? conn.isActive || conn.status === "LINKED" : false;
+  const needsOnboarding = user.subscription?.status === "ACTIVE" && !connected;
   const onboardingSafe =
     location.pathname === "/onboarding" ||
     location.pathname === "/dashboard/contact";
@@ -97,6 +99,7 @@ export function App() {
                   <Route path="users" element={<AdminUsersPage />} />
                   <Route path="users/:id" element={<AdminUserDetailPage />} />
                   <Route path="plans" element={<AdminPlansPage />} />
+                  <Route path="bots" element={<AdminBotsPage />} />
                   <Route path="payments" element={<AdminPaymentsPage />} />
                   <Route path="notifications" element={<AdminNotificationsPage />} />
                   <Route path="audit" element={<AdminAuditPage />} />

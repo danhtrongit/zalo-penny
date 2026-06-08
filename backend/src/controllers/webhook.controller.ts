@@ -52,7 +52,7 @@ export const handleZaloWebhook = async (req: Request, res: Response) => {
 
   const botConfig = await prisma.botConfig.findUnique({
     where: { id: botConfigId },
-    select: { id: true, userId: true, botToken: true, isActive: true },
+    select: { id: true, userId: true, botToken: true, isActive: true, kind: true },
   });
 
   if (!botConfig) throw new HttpError(404, "Bot not found");
@@ -102,9 +102,9 @@ export const handleZaloWebhook = async (req: Request, res: Response) => {
 
     // Process async — we MUST 200 Zalo quickly. Errors are logged with reqId
     // so they can be traced back via structured logs / APM.
-    handleMessage(botConfig.botToken, botConfig.userId, event.message).catch((err) => {
+    handleMessage(botConfig, event.message).catch((err) => {
       logger.error(
-        { err, reqId: req.id, userId: botConfig.userId, botConfigId },
+        { err, reqId: req.id, botConfigId },
         "Webhook message handling error"
       );
     });
