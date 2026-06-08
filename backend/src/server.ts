@@ -11,6 +11,10 @@ import { env } from "./config/env";
 import prisma from "./config/prisma";
 import { startAllBots, stopAllBots } from "./services/bot-manager.service";
 import { startExpirySweep } from "./services/subscription-expiry.service";
+import {
+  startReminderScheduler,
+  stopReminderScheduler,
+} from "./services/reminder.service";
 import { closeRedis } from "./config/redis";
 import { logger } from "./utils/logger";
 
@@ -46,6 +50,8 @@ async function shutdown(signal: string) {
   } catch (err) {
     logger.error({ err }, "Error stopping bots");
   }
+
+  stopReminderScheduler();
 
   try {
     await prisma.$disconnect();
@@ -104,4 +110,5 @@ server.listen(env.port, async () => {
   }
 
   startExpirySweep();
+  startReminderScheduler();
 });

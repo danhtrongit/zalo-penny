@@ -302,3 +302,19 @@ model AdminAuditLog {
   @@index([action])
   @@index([createdAt])
 }
+
+enum ReminderKind {
+  MORNING
+  EVENING
+}
+
+model ReminderLog {
+  id        String       @id @default(cuid())
+  userId    String
+  kind      ReminderKind
+  sentOn    DateTime
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, kind, sentOn])
+  @@index([sentOn])
+}
