@@ -4,6 +4,7 @@ import { AuthRequest } from "../middlewares/auth.middleware";
 import { HttpError } from "../middlewares/error.middleware";
 import * as botManager from "../services/bot-manager.service";
 import * as verification from "../services/bot-verification.service";
+import { assignBotToUser } from "../services/bot-pool.service";
 import * as zaloApi from "../utils/zalo-api";
 import { logger } from "../utils/logger";
 
@@ -145,15 +146,35 @@ export const botStatus = async (req: AuthRequest, res: Response) => {
     select: { id: true, isActive: true, connectedAt: true, createdAt: true },
   });
 
+  const assignmentSelect = {
+    status: true,
+    linkCode: true,
+    botConfig: { select: { id: true, label: true, qrImageUrl: true, botLink: true } },
+  } as const;
+
   // Pool users don't own a BotConfig — their connection lives on BotAssignment.
-  const assignment = await prisma.botAssignment.findUnique({
+  let assignment = await prisma.botAssignment.findUnique({
     where: { userId: req.userId! },
-    select: {
-      status: true,
-      linkCode: true,
-      botConfig: { select: { id: true, label: true, qrImageUrl: true, botLink: true } },
-    },
+    select: assignmentSelect,
   });
+
+  // Self-heal: a user who paid while the pool was empty/full has no assignment.
+  // Once a pool bot is available, assign on the next status poll (idempotent).
+  if (!assignment && !config) {
+    const sub = await prisma.subscription.findUnique({
+      where: { userId: req.userId! },
+      select: { status: true },
+    });
+    if (sub?.status === "ACTIVE") {
+      const created = await assignBotToUser(req.userId!);
+      if (created) {
+        assignment = await prisma.botAssignment.findUnique({
+          where: { userId: req.userId! },
+          select: assignmentSelect,
+        });
+      }
+    }
+  }
 
   const mode = botManager.getBotRuntimeMode();
   // "running" semantics depend on the runtime mode:

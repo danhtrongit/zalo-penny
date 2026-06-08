@@ -17,11 +17,19 @@ export default function RegisterPage() {
   const { register, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!authLoading && user) navigate("/dashboard", { replace: true });
-  }, [authLoading, user, navigate]);
+  // New / non-paying users go buy a plan first; admins and active subscribers
+  // go straight to the dashboard.
+  const dest = user
+    ? user.role === "ADMIN" || user.subscription?.status === "ACTIVE"
+      ? "/dashboard"
+      : "/pricing"
+    : null;
 
-  if (!authLoading && user) return <Navigate to="/dashboard" replace />;
+  useEffect(() => {
+    if (!authLoading && dest) navigate(dest, { replace: true });
+  }, [authLoading, dest, navigate]);
+
+  if (!authLoading && dest) return <Navigate to={dest} replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

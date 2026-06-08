@@ -21,6 +21,7 @@ interface Props {
 
 export function StepConnectPool({ onLinked }: Props) {
   const [pool, setPool] = useState<PoolInfo | null>(null);
+  const [fetched, setFetched] = useState(false);
   const [copied, setCopied] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -28,13 +29,12 @@ export function StepConnectPool({ onLinked }: Props) {
     const tick = async () => {
       try {
         const { data } = await api.get("/bot/status");
-        if (data.pool) {
-          setPool(data.pool);
-          if (data.pool.status === "LINKED") {
-            if (pollingRef.current) clearInterval(pollingRef.current);
-            pollingRef.current = null;
-            onLinked();
-          }
+        setFetched(true);
+        setPool(data.pool ?? null);
+        if (data.pool?.status === "LINKED") {
+          if (pollingRef.current) clearInterval(pollingRef.current);
+          pollingRef.current = null;
+          onLinked();
         }
       } catch {
         // keep polling
@@ -60,10 +60,27 @@ export function StepConnectPool({ onLinked }: Props) {
   };
 
   if (!pool) {
+    // Still waiting on the first status response → genuine loading.
+    if (!fetched) {
+      return (
+        <Card>
+          <CardContent className="p-6 text-center text-sm text-muted-foreground">
+            <RefreshCw className="mx-auto mb-2 size-4 animate-spin" /> Đang chuẩn bị bot cho bạn...
+          </CardContent>
+        </Card>
+      );
+    }
+    // Fetched, but no bot is available yet (pool empty/full). Explain instead of
+    // spinning forever; keep polling so it resolves automatically once ready.
     return (
       <Card>
-        <CardContent className="p-6 text-center text-sm text-muted-foreground">
-          <RefreshCw className="mx-auto mb-2 size-4 animate-spin" /> Đang chuẩn bị bot cho bạn...
+        <CardContent className="space-y-3 p-6 text-center">
+          <RefreshCw className="mx-auto size-5 animate-spin text-amber-500" />
+          <p className="text-sm font-medium">Hệ thống đang chuẩn bị bot cho bạn</p>
+          <p className="text-xs text-muted-foreground">
+            Tất cả bot tạm thời đã đầy. Chúng tôi sẽ tự động cấp bot cho bạn ngay khi có chỗ —
+            bạn có thể đợi tại đây hoặc quay lại sau ít phút. Nếu chờ lâu, vui lòng liên hệ hỗ trợ.
+          </p>
         </CardContent>
       </Card>
     );

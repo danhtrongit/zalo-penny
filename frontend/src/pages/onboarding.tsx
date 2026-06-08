@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { PageHead } from "@/components/page-head";
 import { OnboardingProgressBar } from "@/components/onboarding/progress-bar";
@@ -43,6 +43,11 @@ export default function OnboardingPage() {
   }, [refreshUser, navigate]);
 
   const poolCurrent = (poolDone ? 2 : 1) as 1 | 2 | 3 | 4;
+
+  // No active plan → nothing to set up yet; send them to buy a plan first.
+  if (user && user.subscription?.status !== "ACTIVE") {
+    return <Navigate to="/pricing" replace />;
+  }
 
   return (
     <div className="min-h-svh bg-gradient-to-b from-emerald-50/50 to-background px-4 py-6 sm:py-10">
