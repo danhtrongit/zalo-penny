@@ -4,6 +4,7 @@ const { prismaMock, send } = vi.hoisted(() => {
   const prismaMock = {
     botAssignment: { findFirst: vi.fn(), update: vi.fn() },
     zaloUser: { findUnique: vi.fn(), create: vi.fn() },
+    persona: { upsert: vi.fn() },
     $transaction: vi.fn(async (ops: unknown[]) => ops),
   };
   const send = vi.fn();
@@ -23,6 +24,7 @@ describe("tryLinkPoolUser", () => {
     const uid = await tryLinkPoolUser("b1", "tok", "z1", "Z", "penny-aaaa", "c1");
     expect(uid).toBe("u1");
     expect(prismaMock.$transaction).toHaveBeenCalled();
+    expect(send).toHaveBeenCalled(); // bot confirms the successful link
   });
 
   it("từ chối khi mã sai (nhắc người dùng)", async () => {

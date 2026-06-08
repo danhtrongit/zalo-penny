@@ -48,13 +48,41 @@ export async function tryLinkPoolUser(
 
   await prisma.$transaction([
     prisma.zaloUser.create({
-      data: { zaloUserId, botConfigId, userId: assignment.userId, displayName },
+      data: {
+        zaloUserId,
+        botConfigId,
+        userId: assignment.userId,
+        displayName,
+        isOnboarded: true,
+      },
     }),
     prisma.botAssignment.update({
       where: { id: assignment.id },
       data: { status: "LINKED", linkedZaloUserId: zaloUserId, linkedAt: new Date() },
     }),
+    prisma.persona.upsert({
+      where: { userId: assignment.userId },
+      update: {},
+      create: { userId: assignment.userId, displayName },
+    }),
   ]);
+
+  // Confirm in-chat so the user knows the connection succeeded.
+  const name = displayName || "bạn";
+  try {
+    await zaloApi.sendMessage(
+      botToken,
+      chatId,
+      `Kết nối thành công! ✅\n\nChào ${name}, mình là Penny — trợ lý chi tiêu của bạn 💰\n\n` +
+        "Bạn chỉ cần nhắn tự nhiên như:\n" +
+        '- "ăn trưa 50k"\n' +
+        '- "grab 45k"\n' +
+        '- "rau 30k, cá 50k"\n\n' +
+        "Penny sẽ tự hiểu và lưu lại cho bạn. Bắt đầu thôi!"
+    );
+  } catch (err) {
+    logger.warn({ err, botConfigId }, "Failed to send link confirmation");
+  }
 
   logger.info({ botConfigId, userId: assignment.userId }, "Pool user linked");
   return assignment.userId;
