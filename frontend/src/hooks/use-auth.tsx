@@ -24,6 +24,11 @@ interface User {
     id: string;
     isActive: boolean;
   } | null;
+  botConnection?: {
+    kind: "OWNED" | "POOL";
+    status: "PENDING_LINK" | "LINKED";
+    isActive: boolean;
+  } | null;
 }
 
 interface AuthContextType {

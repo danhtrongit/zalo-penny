@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHead } from "@/components/page-head";
 import api from "@/lib/api";
 import { parseApiError } from "@/lib/api-error";
@@ -35,10 +36,20 @@ interface VerifyState {
   polling: boolean;
 }
 
+type PoolStatus = {
+  status: string;
+  linkCode: string;
+  id: string;
+  label?: string | null;
+  qrImageUrl?: string | null;
+  botLink?: string | null;
+} | null;
+
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [botToken, setBotToken] = useState("");
-  const [botStatus, setBotStatus] = useState<{ config: any; running: boolean; polling: boolean; mode: string } | null>(null);
+  const [botStatus, setBotStatus] = useState<{ config: any; running: boolean; polling: boolean; mode: string; pool?: PoolStatus } | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [verifyState, setVerifyState] = useState<VerifyState | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -187,7 +198,29 @@ export default function SettingsPage() {
               Cần gói subscription để kết nối bot.
             </div>
           )}
-          {(botStatus?.running || botStatus?.polling) ? (
+          {botStatus?.pool ? (
+            botStatus.pool.status === "LINKED" ? (
+              <div className="flex items-center gap-2.5 rounded-lg border p-3">
+                <Wifi className="size-4 shrink-0 text-emerald-500" />
+                <div>
+                  <p className="text-sm font-medium">Bot được cấp đang hoạt động</p>
+                  <p className="text-xs text-muted-foreground">
+                    Bạn đang dùng bot dùng chung{botStatus.pool.label ? ` · ${botStatus.pool.label}` : ""}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2 rounded-lg border-2 border-amber-300 bg-amber-50 p-3">
+                <p className="text-sm font-medium">Chưa liên kết bot</p>
+                <p className="text-xs text-muted-foreground">
+                  Quét QR và gửi mã liên kết để hoàn tất kết nối bot được cấp.
+                </p>
+                <Button size="sm" className="w-full" onClick={() => navigate("/onboarding")}>
+                  Hoàn tất kết nối
+                </Button>
+              </div>
+            )
+          ) : (botStatus?.running || botStatus?.polling) ? (
             <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
               <div className="flex items-center gap-2.5">
                 <Wifi className="size-4 shrink-0 text-emerald-500" />

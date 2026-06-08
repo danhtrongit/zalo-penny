@@ -6,6 +6,7 @@ import {
   CreditCard,
   Megaphone,
   ScrollText,
+  Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,7 @@ const items = [
   { to: "/admin", label: "Tổng quan", icon: Gauge, end: true },
   { to: "/admin/users", label: "Người dùng", icon: Users },
   { to: "/admin/plans", label: "Gói cước", icon: Package },
+  { to: "/admin/bots", label: "Bot Pool", icon: Bot },
   { to: "/admin/payments", label: "Thanh toán", icon: CreditCard },
   { to: "/admin/notifications", label: "Gửi thông báo", icon: Megaphone },
   { to: "/admin/audit", label: "Lịch sử admin", icon: ScrollText },
