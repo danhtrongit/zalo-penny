@@ -32,3 +32,10 @@ export const VERIFICATION_TTL_MS = 5 * 60 * 1000;
 export const VERIFICATION_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 
 export const REQUEST_BODY_LIMIT = "10mb";
+
+// Daily persona reminders (see services/reminder.service.ts).
+// VN = UTC+7, no DST — VN day boundaries are derived via Intl, independent of process TZ.
+export const REMINDER_TZ = "Asia/Ho_Chi_Minh";
+export const REMINDER_TICK_MS = 60 * 1000;
+export const REMINDER_MORNING_HOUR = 8;
+export const REMINDER_EVENING_HOUR = 17;
