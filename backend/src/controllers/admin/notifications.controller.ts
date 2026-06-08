@@ -23,39 +23,48 @@ interface BroadcastInput {
 export const broadcast = async (req: AuthRequest, res: Response) => {
   const { message, personalized, planSlugs } = req.body as BroadcastInput;
 
+  // Attribute per Zalo recipient (ZaloUser.userId), not per bot owner — a pool
+  // bot has many app-users, each with their own subscription + persona.
   const configs = await prisma.botConfig.findMany({
     where: { isActive: true },
-    include: {
-      user: {
-        include: {
-          persona: true,
-          subscription: { include: { plan: true } },
-        },
-      },
-    },
+    select: { id: true, botToken: true },
   });
+
+  type RecipientUser = Awaited<ReturnType<typeof loadUser>>;
+  const userCache = new Map<string, RecipientUser>();
+  async function loadUser(userId: string) {
+    const u = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { persona: true, subscription: { include: { plan: true } } },
+    });
+    return u;
+  }
+  async function getUser(userId: string) {
+    if (userCache.has(userId)) return userCache.get(userId)!;
+    const u = await loadUser(userId);
+    userCache.set(userId, u);
+    return u;
+  }
 
   let sent = 0;
   let failed = 0;
 
   for (const config of configs) {
-    if (config.user.subscription?.status !== "ACTIVE") continue;
-    if (
-      planSlugs?.length &&
-      !planSlugs.includes(config.user.subscription.plan.slug)
-    ) {
-      continue;
-    }
-
     const zaloUsers = await prisma.zaloUser.findMany({
       where: { botConfigId: config.id },
     });
 
     for (const zu of zaloUsers) {
+      const u = await getUser(zu.userId);
+      if (!u || u.subscription?.status !== "ACTIVE") continue;
+      if (planSlugs?.length && !planSlugs.includes(u.subscription.plan.slug)) {
+        continue;
+      }
+
       try {
         let text = message;
-        if (personalized && config.user.persona) {
-          const systemPrompt = buildSystemPrompt(config.user.persona);
+        if (personalized && u.persona) {
+          const systemPrompt = buildSystemPrompt(u.persona);
           text = await aiService.generateChatResponse(
             `Chuyển tin nhắn sau sang đúng persona của mình: "${message}"`,
             systemPrompt
@@ -65,7 +74,7 @@ export const broadcast = async (req: AuthRequest, res: Response) => {
         sent++;
       } catch (err) {
         logger.warn(
-          { err, userId: config.userId, zaloUserId: zu.zaloUserId },
+          { err, userId: zu.userId, zaloUserId: zu.zaloUserId },
           "Broadcast send failed"
         );
         failed++;

@@ -18,7 +18,9 @@ import {
 } from "../message-dedup.service";
 import { matchAndMarkVerified } from "../bot-verification.service";
 import { logger } from "../../utils/logger";
+import type { BotConfig } from "../../generated/prisma/client";
 import { getOrCreateZaloUser, startOnboarding } from "./onboarding";
+import { tryLinkPoolUser } from "./link";
 import { handleCommand } from "./command";
 import { handleExpense } from "./expense";
 import { handleDelete } from "./delete";
@@ -28,11 +30,16 @@ import { handleChat } from "./chat";
 import { handleReceiptMedia, messageHasMedia } from "./receipt";
 import { looksLikeExpense } from "./parsers";
 
+type BotConfigLite = Pick<
+  BotConfig,
+  "id" | "userId" | "botToken" | "kind" | "isActive"
+>;
+
 export async function handleMessage(
-  botToken: string,
-  userId: string,
+  botConfig: BotConfigLite,
   message: ZaloMessage
 ) {
+  const botToken = botConfig.botToken;
   const chatId = message.chat.id;
   const text = (message.text || message.caption || "").trim();
   const hasMedia = messageHasMedia(message);
@@ -47,37 +54,62 @@ export async function handleMessage(
     return;
   }
 
-  // Bot ownership verification: if message text matches a pending verification code, mark it verified
-  const matched = matchAndMarkVerified({ botToken, code: text });
-  if (matched) {
-    logger.info({ verifyId: matched.verifyId, userId }, "Bot verification matched");
-    try {
-      await zaloApi.sendMessage(
-        botToken,
-        chatId,
-        "Xác minh thành công! ✅ Quay lại trang web để hoàn tất kết nối."
-      );
-    } catch (err) {
-      logger.warn({ err }, "Failed to send verification confirmation");
+  // OWNED (self) bots keep the ownership-verification handshake. Pool bots
+  // attribute by Zalo sender instead (handled below) and have no owner code.
+  if (botConfig.kind === "OWNED") {
+    const matched = matchAndMarkVerified({ botToken, code: text });
+    if (matched) {
+      logger.info({ verifyId: matched.verifyId }, "Bot verification matched");
+      try {
+        await zaloApi.sendMessage(
+          botToken,
+          chatId,
+          "Xác minh thành công! ✅ Quay lại trang web để hoàn tất kết nối."
+        );
+      } catch (err) {
+        logger.warn({ err }, "Failed to send verification confirmation");
+      }
+      return;
     }
-    return;
+    if (!botConfig.isActive) {
+      logger.debug(
+        { text: text.slice(0, 50) },
+        "Owned bot not active yet, ignoring non-verification message"
+      );
+      return;
+    }
   }
 
-  // Bot in verification state: only verification codes are handled (above)
-  const botConfigCheck = await prisma.botConfig.findFirst({
-    where: { botToken, userId },
-    select: { isActive: true },
-  });
-  if (botConfigCheck && !botConfigCheck.isActive) {
-    logger.debug(
-      { text: text.slice(0, 50) },
-      "Bot not active yet, ignoring non-verification message"
-    );
-    return;
+  // Resolve which app-user this message belongs to, by SENDER (not bot owner).
+  let appUserId: string | null;
+  if (botConfig.kind === "OWNED") {
+    appUserId = botConfig.userId;
+  } else {
+    const linked = await prisma.zaloUser.findUnique({
+      where: {
+        zaloUserId_botConfigId: { zaloUserId: message.from.id, botConfigId: botConfig.id },
+      },
+      select: { userId: true },
+    });
+    if (linked) {
+      appUserId = linked.userId;
+    } else {
+      // Unlinked sender on a shared bot — only the link code is accepted.
+      if (text) {
+        await tryLinkPoolUser(
+          botConfig.id,
+          botToken,
+          message.from.id,
+          message.from.display_name,
+          text,
+          chatId
+        );
+      }
+      return;
+    }
   }
-
-  const botConfig = await prisma.botConfig.findFirst({ where: { botToken, userId } });
-  if (!botConfig) return;
+  if (!appUserId) return;
+  const userId = appUserId;
 
   const processingKey = `${botConfig.id}:${message.message_id}`;
   if (!(await claimMessageProcessing(processingKey))) {

@@ -38,7 +38,7 @@ export const connectBot = async (req: AuthRequest, res: Response) => {
     },
   });
 
-  const started = await botManager.startBot(req.userId!, botToken, botConfig.id);
+  const started = await botManager.startBot(botConfig.id, botToken);
   if (!started) {
     throw new HttpError(500, "Không khởi động được bot");
   }
@@ -79,7 +79,7 @@ export const verifyBotOwnership = async (req: AuthRequest, res: Response) => {
 
   if (pending.expiresAt < new Date()) {
     verification.removeVerification(verifyId);
-    botManager.stopBot(pending.userId);
+    botManager.stopBot(pending.botConfigId);
     throw new HttpError(410, "Mã xác minh đã hết hạn, vui lòng kết nối lại bot");
   }
 
@@ -118,10 +118,10 @@ export const verifyBotOwnership = async (req: AuthRequest, res: Response) => {
 export const disconnectBot = async (req: AuthRequest, res: Response) => {
   const config = await prisma.botConfig.findUnique({
     where: { userId: req.userId! },
-    select: { botToken: true },
+    select: { id: true, botToken: true },
   });
 
-  botManager.stopBot(req.userId!);
+  if (config) botManager.stopBot(config.id);
 
   if (config?.botToken) {
     try {
@@ -145,16 +145,25 @@ export const botStatus = async (req: AuthRequest, res: Response) => {
     select: { id: true, isActive: true, connectedAt: true, createdAt: true },
   });
 
+  // Pool users don't own a BotConfig — their connection lives on BotAssignment.
+  const assignment = await prisma.botAssignment.findUnique({
+    where: { userId: req.userId! },
+    select: {
+      status: true,
+      linkCode: true,
+      botConfig: { select: { id: true, label: true, qrImageUrl: true, botLink: true } },
+    },
+  });
+
   const mode = botManager.getBotRuntimeMode();
   // "running" semantics depend on the runtime mode:
-  //   - polling: there's an in-process poll loop (instances Map)
+  //   - polling: there's an in-process poll loop (instances Map, keyed by botConfigId)
   //   - webhook: Zalo is configured to POST here, reflected by config.isActive
-  // (polling-mode startBot also flips isActive via DB elsewhere, but the
-  // in-process Map is the source of truth there since the loop may crash.)
-  const running =
-    mode === "webhook"
-      ? !!config?.isActive
-      : botManager.isBotRunning(req.userId!);
+  const running = config
+    ? mode === "webhook"
+      ? !!config.isActive
+      : botManager.isBotRunning(config.id)
+    : false;
 
   res.json({
     config,
@@ -163,5 +172,8 @@ export const botStatus = async (req: AuthRequest, res: Response) => {
     mode,
     webhookUrl:
       config && mode === "webhook" ? botManager.getBotWebhookUrl(config.id) : null,
+    pool: assignment
+      ? { status: assignment.status, linkCode: assignment.linkCode, ...assignment.botConfig }
+      : null,
   });
 };
