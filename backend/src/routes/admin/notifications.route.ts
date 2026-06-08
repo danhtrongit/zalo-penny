@@ -5,6 +5,7 @@ import { validate } from "../../middlewares/validate.middleware";
 import {
   broadcastBody,
   sendToUserBody,
+  sendToUsersBody,
   userIdParam,
 } from "../../validators/admin.schema";
 
@@ -14,6 +15,11 @@ router.post(
   "/broadcast",
   validate({ body: broadcastBody }),
   asyncHandler(ctrl.broadcast)
+);
+router.post(
+  "/send",
+  validate({ body: sendToUsersBody }),
+  asyncHandler(ctrl.sendToUsers)
 );
 router.post(
   "/send-to/:userId",
