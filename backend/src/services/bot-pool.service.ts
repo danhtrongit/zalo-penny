@@ -78,6 +78,30 @@ export async function assignBotToUser(userId: string) {
 }
 
 /**
+ * Catch-up assignment: give a pool bot to every user who has an active
+ * subscription but no bot yet (paid while the pool was empty/full). Stops when
+ * the pool runs out of capacity. Returns how many users were newly assigned.
+ */
+export async function assignAwaitingUsers(): Promise<number> {
+  const subs = await prisma.subscription.findMany({
+    where: {
+      status: "ACTIVE",
+      user: { botAssignment: { is: null }, botConfig: { is: null } },
+    },
+    select: { userId: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  let assigned = 0;
+  for (const s of subs) {
+    const a = await assignBotToUser(s.userId);
+    if (!a) break; // pool full — stop
+    assigned += 1;
+  }
+  return assigned;
+}
+
+/**
  * Release the user's assignment, freeing the slot. Also removes the Zalo→app
  * mapping so a future re-assignment to a different bot can't mis-attribute.
  * Returns true if an assignment was released.

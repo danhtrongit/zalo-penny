@@ -4,6 +4,7 @@ import { AuthRequest } from "../../middlewares/auth.middleware";
 import { HttpError } from "../../middlewares/error.middleware";
 import { logAdminAction } from "../../services/admin-audit.service";
 import * as botManager from "../../services/bot-manager.service";
+import { assignAwaitingUsers } from "../../services/bot-pool.service";
 import * as zaloApi from "../../utils/zalo-api";
 
 interface BotCreateInput {
@@ -16,6 +17,9 @@ interface BotCreateInput {
 }
 
 export const list = async (_req: AuthRequest, res: Response) => {
+  // Catch up any users who paid while the pool was empty/full before reporting.
+  await assignAwaitingUsers();
+
   const bots = await prisma.botConfig.findMany({
     where: { kind: "POOL" },
     include: {
@@ -63,7 +67,10 @@ export const create = async (req: AuthRequest, res: Response) => {
     },
   });
 
-  if (bot.isActive) await botManager.startBot(bot.id, bot.botToken);
+  if (bot.isActive) {
+    await botManager.startBot(bot.id, bot.botToken);
+    await assignAwaitingUsers();
+  }
 
   await logAdminAction({
     adminId: req.userId!,
@@ -94,8 +101,12 @@ export const update = async (req: AuthRequest, res: Response) => {
 
   const bot = await prisma.botConfig.update({ where: { id }, data: input });
 
-  if (bot.isActive) await botManager.startBot(bot.id, bot.botToken);
-  else botManager.stopBot(bot.id);
+  if (bot.isActive) {
+    await botManager.startBot(bot.id, bot.botToken);
+    await assignAwaitingUsers();
+  } else {
+    botManager.stopBot(bot.id);
+  }
 
   await logAdminAction({
     adminId: req.userId!,
