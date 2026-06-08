@@ -60,6 +60,31 @@ export const sendToUserBody = z.object({
   message: z.string().min(1).max(2000),
 });
 
+export const sendToUsersBody = z.object({
+  userIds: z.array(z.string().min(1).max(64)).min(1).max(500),
+  message: z.string().min(1).max(2000),
+  personalized: z.boolean().optional().default(false),
+});
+
+export const timeseriesQuery = z.object({
+  metric: z.enum(["revenue", "signups"]),
+  range: z.enum(["7d", "30d", "90d"]).optional().default("30d"),
+});
+
+export const reminderListQuery = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  kind: z.enum(["MORNING", "EVENING"]).optional(),
+});
+
+export const reminderStatsQuery = z.object({
+  days: z.coerce.number().int().positive().max(90).default(14),
+});
+
 export const auditListQuery = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(50),

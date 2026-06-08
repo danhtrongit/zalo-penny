@@ -99,6 +99,84 @@ export const broadcast = async (req: AuthRequest, res: Response) => {
 };
 
 /**
+ * POST /api/admin/notifications/send
+ * Send a message to a chosen set of users (by app userId). Resolves each user's
+ * Zalo identity via their ZaloUser rows so it works for both owned and pool bots.
+ * When personalized=true, rewrites per recipient using their persona.
+ */
+export const sendToUsers = async (req: AuthRequest, res: Response) => {
+  const { userIds, message, personalized } = req.body as {
+    userIds: string[];
+    message: string;
+    personalized?: boolean;
+  };
+
+  let sent = 0;
+  let failed = 0;
+
+  for (const userId of userIds) {
+    const zaloUsers = await prisma.zaloUser.findMany({ where: { userId } });
+    if (zaloUsers.length === 0) {
+      failed++;
+      continue;
+    }
+
+    let text = message;
+    if (personalized) {
+      const u = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { persona: true },
+      });
+      if (u?.persona) {
+        try {
+          const systemPrompt = buildSystemPrompt(u.persona);
+          text = await aiService.generateChatResponse(
+            `Chuyển tin nhắn sau sang đúng persona của mình: "${message}"`,
+            systemPrompt
+          );
+        } catch (err) {
+          logger.warn({ err, userId }, "sendToUsers persona rewrite failed");
+          text = message;
+        }
+      }
+    }
+
+    for (const zu of zaloUsers) {
+      const config = await prisma.botConfig.findUnique({
+        where: { id: zu.botConfigId },
+        select: { botToken: true },
+      });
+      if (!config) {
+        failed++;
+        continue;
+      }
+      try {
+        await zaloApi.sendMessage(config.botToken, zu.zaloUserId, text);
+        sent++;
+      } catch (err) {
+        logger.warn({ err, userId, zaloUserId: zu.zaloUserId }, "sendToUsers send failed");
+        failed++;
+      }
+    }
+  }
+
+  await logAdminAction({
+    adminId: req.userId!,
+    action: "NOTIFICATION_BROADCAST",
+    payload: {
+      messagePreview: message.slice(0, 200),
+      personalized: !!personalized,
+      userCount: userIds.length,
+      sent,
+      failed,
+    },
+    summary: `Send to ${userIds.length} users: sent=${sent}, failed=${failed}`,
+  });
+
+  res.json({ sent, failed });
+};
+
+/**
  * POST /api/admin/notifications/send-to/:userId
  * Send a one-off message to a single user via their bot config.
  */

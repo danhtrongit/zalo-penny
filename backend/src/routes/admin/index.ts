@@ -7,6 +7,7 @@ import subscriptionsRoute from "./subscriptions.route";
 import notificationsRoute from "./notifications.route";
 import statsRoute from "./stats.route";
 import botsRoute from "./bots.route";
+import remindersRoute from "./reminders.route";
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use("/subscriptions", subscriptionsRoute);
 router.use("/notifications", notificationsRoute);
 router.use("/stats", statsRoute);
 router.use("/bots", botsRoute);
+router.use("/reminders", remindersRoute);
 
 export default router;
