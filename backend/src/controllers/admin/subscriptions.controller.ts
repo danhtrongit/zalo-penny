@@ -4,6 +4,8 @@ import { AuthRequest } from "../../middlewares/auth.middleware";
 import { HttpError } from "../../middlewares/error.middleware";
 import { logAdminAction } from "../../services/admin-audit.service";
 import { archiveSubscription } from "../../services/subscription-archive.service";
+import { assignBotToUser, releaseAssignment } from "../../services/bot-pool.service";
+import { logger } from "../../utils/logger";
 
 interface ManualUpgradeInput {
   planSlug: string;
@@ -34,6 +36,7 @@ export const manualUpgrade = async (req: AuthRequest, res: Response) => {
       reason: "REPLACED",
       notes: `Manual upgrade by admin ${req.userId!} to ${planSlug}`,
     });
+    await releaseAssignment(userId);
   }
 
   const now = new Date();
@@ -64,6 +67,15 @@ export const manualUpgrade = async (req: AuthRequest, res: Response) => {
       transactionId: `MANUAL-${req.userId!}-${Date.now()}`,
     },
   });
+
+  try {
+    const assignment = await assignBotToUser(userId);
+    if (!assignment) {
+      logger.warn({ userId }, "POOL_FULL on manual upgrade — user awaiting bot");
+    }
+  } catch (err) {
+    logger.error({ err, userId }, "Bot auto-assign failed on manual upgrade");
+  }
 
   await logAdminAction({
     adminId: req.userId!,
