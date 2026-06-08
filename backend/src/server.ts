@@ -10,6 +10,7 @@ import app from "./app";
 import { env } from "./config/env";
 import prisma from "./config/prisma";
 import { startAllBots, stopAllBots } from "./services/bot-manager.service";
+import { startExpirySweep } from "./services/subscription-expiry.service";
 import { closeRedis } from "./config/redis";
 import { logger } from "./utils/logger";
 
@@ -101,4 +102,6 @@ server.listen(env.port, async () => {
   } catch (err) {
     logger.error({ err }, "Failed to start bots");
   }
+
+  startExpirySweep();
 });
