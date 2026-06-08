@@ -35,7 +35,7 @@ Backend Express + Prisma **giữ nguyên** và dùng chung; admin API đã có s
 | Production features | **Tất cả**: charts, bảng+export, UX polish, Reminders, gửi-cho-user-chọn |
 | Admin React cũ | **Gỡ khỏi web chính + redirect** sang admin.pennybot.vn |
 | Triển khai | **Deploy luôn** (vhost + SSL + build) |
-| CORS | **Không cần** — admin vhost proxy `/api`→backend (same-origin); Vite dev proxy khi dev |
+| CORS | **Phải thêm** `https://admin.pennybot.vn` (và `localhost:5174` cho dev) vào `CORS_ORIGINS`. _Lưu ý:_ dù gọi same-origin qua proxy `/api`, browser vẫn gắn header `Origin` cho request non-GET (POST/PATCH/DELETE) → backend từ chối nếu origin không có trong allowlist (500). |
 | Màu Naive UI | Token Naive UI dùng **hex tương đương** của oklch primary (≈ `#00582A`) + hover/pressed/suppl từ palette chart; CSS thường vẫn dùng oklch |
 
 ## Architecture
@@ -139,7 +139,7 @@ Thêm vào router admin hiện có, kèm Zod validator + audit log + vitest:
 - `GET /api/admin/reminders/stats?days=14` — group `ReminderLog` theo `sentOn`+`kind` đếm số. Trả `{ points:[{date,kind,count}] }`.
 - File mới: `controllers/admin/reminders.controller.ts`, `routes/admin/reminders.route.ts`; mount `/reminders` trong `routes/admin/index.ts`. Validators trong `validators/admin.schema.ts`.
 
-CORS: **không bắt buộc đổi** (same-origin `/api`). Tùy chọn thêm `https://admin.pennybot.vn` vào `CORS_ORIGINS` để dự phòng.
+CORS: **bắt buộc** thêm `https://admin.pennybot.vn` vào `CORS_ORIGINS` của backend `.env` rồi restart `penny-backend`. Browser gắn `Origin` cho request POST/PATCH/DELETE kể cả khi same-origin qua proxy `/api`; nếu origin không nằm trong allowlist (`app.ts` cors), middleware ném lỗi → **500** (vd đăng nhập POST `/api/auth/login`).
 
 ### 7. Gỡ admin React + redirect
 
