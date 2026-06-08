@@ -44,12 +44,27 @@ export async function handleMessage(
   const text = (message.text || message.caption || "").trim();
   const hasMedia = messageHasMedia(message);
   if (!text && !hasMedia) {
+    // Sticker / voice / other unsupported types: let the user know instead of
+    // staying silent. Dedup so a webhook retry doesn't double-reply.
+    const messageType = (message as unknown as { message_type?: string }).message_type;
+    const isSticker =
+      messageType === "CHAT_STICKER" ||
+      typeof (message as unknown as { sticker?: unknown }).sticker !== "undefined";
+    const key = `${botConfig.id}:${message.message_id}`;
+    if (await claimMessageProcessing(key)) {
+      const reply = isSticker
+        ? "Mình nhận được sticker của bạn rồi 😄 Bạn nhắn bằng văn bản để mình hỗ trợ nhé!"
+        : "Hiện mình chưa xử lý được tin nhắn thoại/âm thanh 😅 Bạn nhắn bằng văn bản giúp mình nhé, ví dụ: \"ăn trưa 50k\".";
+      try {
+        await zaloApi.sendMessage(botToken, chatId, reply);
+      } catch (err) {
+        logger.warn({ err, botConfigId: botConfig.id }, "Failed to send unsupported-message reply");
+      }
+      await completeMessageProcessing(key);
+    }
     logger.info(
-      {
-        messageId: message.message_id,
-        keys: Object.keys(message),
-      },
-      "Ignored message with no text and no recognizable media"
+      { messageId: message.message_id, keys: Object.keys(message), isSticker },
+      "Replied to unsupported message (no text/media)"
     );
     return;
   }

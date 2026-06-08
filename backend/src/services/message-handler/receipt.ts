@@ -36,6 +36,12 @@ function pickMedia(message: ZaloMessage): MediaSource | null {
   // string URL — keep both, and a few other defensive keys.
   const m = message as unknown as Record<string, unknown>;
 
+  // Stickers carry a `url` (oasticker CDN) but are NOT receipts — never OCR them,
+  // otherwise the bot replies "can't read the total/date on this receipt".
+  if (m.message_type === "CHAT_STICKER" || typeof m.sticker !== "undefined") {
+    return null;
+  }
+
   const imageStringCandidates = [
     "photo_url", // ← live Zalo OA webhook
     "photo",
