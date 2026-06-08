@@ -72,10 +72,27 @@ export const me = async (req: AuthRequest, res: Response) => {
       botConfig: {
         select: { id: true, isActive: true, connectedAt: true },
       },
+      botAssignment: {
+        select: { status: true },
+      },
     },
   });
 
   if (!user) throw new HttpError(404, "Không tìm thấy người dùng");
 
-  res.json(user);
+  const botConnection = user.botConfig
+    ? {
+        kind: "OWNED" as const,
+        status: user.botConfig.isActive ? ("LINKED" as const) : ("PENDING_LINK" as const),
+        isActive: user.botConfig.isActive,
+      }
+    : user.botAssignment
+      ? {
+          kind: "POOL" as const,
+          status: user.botAssignment.status,
+          isActive: user.botAssignment.status === "LINKED",
+        }
+      : null;
+
+  res.json({ ...user, botConnection });
 };
