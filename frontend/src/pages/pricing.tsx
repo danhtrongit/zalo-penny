@@ -42,6 +42,24 @@ export default function PricingPage() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
 
+  const handleFree = async () => {
+    if (!user) {
+      navigate("/register");
+      return;
+    }
+    setLoading("free");
+    try {
+      await api.post("/bot/free");
+      toast.success("Đã kích hoạt gói miễn phí! Kết nối bot để bắt đầu.");
+      await refreshUser();
+      navigate("/onboarding");
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Không thể bắt đầu dùng miễn phí");
+    } finally {
+      setLoading(null);
+    }
+  };
+
   const handleSelect = async (slug: string) => {
     if (!user) {
       navigate("/register");
@@ -98,9 +116,49 @@ export default function PricingPage() {
           <p className="mt-4 text-muted-foreground">
             Bắt đầu sử dụng Penny với gói phù hợp nhu cầu của bạn
           </p>
+          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+            Bạn có thể <span className="font-medium text-foreground">dùng miễn phí</span> với
+            10 tin nhắn mỗi ngày — không cần thanh toán. Gói trả phí mở khoá nhắn{" "}
+            <span className="font-medium text-foreground">không giới hạn</span> và nhắc ghi
+            chép mỗi ngày.
+          </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-dashed">
+            <CardHeader>
+              <Badge variant="secondary" className="mb-2 w-fit">
+                Miễn phí
+              </Badge>
+              <CardTitle className="text-2xl">Dùng thử</CardTitle>
+              <p className="text-4xl font-bold">0đ</p>
+              <p className="text-sm text-muted-foreground">Không giới hạn thời gian</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ul className="space-y-2">
+                {[
+                  "10 tin nhắn mỗi ngày",
+                  "Ghi chi tiêu & hỏi đáp với AI",
+                  "Báo cáo cơ bản",
+                  "Nâng cấp bất cứ lúc nào",
+                ].map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-sm">
+                    <Check className="size-4 text-primary" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                className="w-full"
+                variant="outline"
+                disabled={loading === "free"}
+                onClick={handleFree}
+              >
+                {loading === "free" ? "Đang xử lý..." : "Bắt đầu miễn phí"}
+              </Button>
+            </CardContent>
+          </Card>
+
           {plans.map((plan) => (
             <Card
               key={plan.slug}

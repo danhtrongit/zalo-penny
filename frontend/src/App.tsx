@@ -32,7 +32,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   const conn = user.botConnection;
   const connected = conn ? conn.isActive || conn.status === "LINKED" : false;
-  const needsOnboarding = user.subscription?.status === "ACTIVE" && !connected;
+  // ACTIVE subscribers, and free users who have claimed a pool bot (botConnection
+  // present but not yet linked), both need to finish connecting their bot.
+  const needsOnboarding =
+    (user.subscription?.status === "ACTIVE" || !!conn) && !connected;
   const onboardingSafe =
     location.pathname === "/onboarding" ||
     location.pathname === "/dashboard/contact";

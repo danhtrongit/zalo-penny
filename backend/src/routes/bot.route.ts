@@ -4,6 +4,7 @@ import {
   disconnectBot,
   botStatus,
   verifyBotOwnership,
+  claimFreeBot,
 } from "../controllers/bot.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { asyncHandler } from "../middlewares/async-handler";
@@ -14,6 +15,7 @@ const router = Router();
 
 router.use(authMiddleware);
 
+router.post("/free", asyncHandler(claimFreeBot));
 router.post("/connect", validate({ body: connectBotBody }), asyncHandler(connectBot));
 router.post("/verify", validate({ body: verifyBotBody }), asyncHandler(verifyBotOwnership));
 router.post("/disconnect", asyncHandler(disconnectBot));
