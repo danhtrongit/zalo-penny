@@ -44,8 +44,10 @@ export default function OnboardingPage() {
 
   const poolCurrent = (poolDone ? 2 : 1) as 1 | 2 | 3 | 4;
 
-  // No active plan → nothing to set up yet; send them to buy a plan first.
-  if (user && user.subscription?.status !== "ACTIVE") {
+  // No active plan AND no pool bot assigned → nothing to set up yet; send them to
+  // the pricing page (where they can pick a plan or start free). Free users who
+  // already claimed a pool bot have a botConnection and proceed to connect.
+  if (user && user.subscription?.status !== "ACTIVE" && !user.botConnection) {
     return <Navigate to="/pricing" replace />;
   }
 
