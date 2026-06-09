@@ -8,6 +8,34 @@ import { assignBotToUser } from "../services/bot-pool.service";
 import * as zaloApi from "../utils/zalo-api";
 import { logger } from "../utils/logger";
 
+/**
+ * POST /api/bot/free — start using the bot for free (no subscription).
+ * Assigns a shared pool bot so a non-paying user can onboard and use the bot at
+ * the free-tier daily limit. Idempotent; 409 when the pool has no free slot.
+ */
+export const claimFreeBot = async (req: AuthRequest, res: Response) => {
+  const userId = req.userId!;
+  // Self-bot (OWNED) users manage their own bot — nothing to claim here.
+  const config = await prisma.botConfig.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+  if (config) {
+    res.json({ ok: true, alreadyHasBot: true });
+    return;
+  }
+  // assignBotToUser is idempotent (returns the existing assignment) and returns
+  // null only when no active pool bot has a free slot.
+  const assignment = await assignBotToUser(userId);
+  if (!assignment) {
+    throw new HttpError(
+      409,
+      "Hiện đã đủ người dùng, vui lòng thử lại sau hoặc nâng cấp gói"
+    );
+  }
+  res.json({ ok: true, status: assignment.status });
+};
+
 export const connectBot = async (req: AuthRequest, res: Response) => {
   const { botToken: rawToken } = req.body as { botToken: string };
   const botToken = rawToken.trim();
