@@ -29,6 +29,7 @@ import { handleHistory } from "./history";
 import { handleChat } from "./chat";
 import { handleReceiptMedia, messageHasMedia } from "./receipt";
 import { looksLikeExpense } from "./parsers";
+import { enforceFreeTier } from "../usage.service";
 
 type BotConfigLite = Pick<
   BotConfig,
@@ -190,6 +191,17 @@ export async function handleMessage(
         conversation,
         message.from.display_name
       );
+      await rememberProcessedMessage(conversation, message.message_id);
+      await completeMessageProcessing(processingKey);
+      return;
+    }
+
+    // Free-tier gate: non-ACTIVE users get FREE_DAILY_MESSAGE_LIMIT msgs/day.
+    // Placed after onboarding (so onboarding/commands don't count) and before
+    // any AI call (so blocked messages cost nothing).
+    if (
+      (await enforceFreeTier({ userId, botToken, chatId, systemPrompt })).blocked
+    ) {
       await rememberProcessedMessage(conversation, message.message_id);
       await completeMessageProcessing(processingKey);
       return;

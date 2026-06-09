@@ -318,3 +318,16 @@ model ReminderLog {
   @@unique([userId, kind, sentOn])
   @@index([sentOn])
 }
+
+model DailyUsage {
+  id              String    @id @default(cuid())
+  userId          String
+  date            DateTime
+  count           Int       @default(0)
+  limitNotifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, date])
+  @@index([date])
+}
