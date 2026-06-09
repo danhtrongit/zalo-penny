@@ -39,3 +39,7 @@ export const REMINDER_TZ = "Asia/Ho_Chi_Minh";
 export const REMINDER_TICK_MS = 60 * 1000;
 export const REMINDER_MORNING_HOUR = 8;
 export const REMINDER_EVENING_HOUR = 17;
+
+// Free tier: non-ACTIVE users may send this many messages per VN day before
+// being asked to upgrade (see services/usage.service.ts).
+export const FREE_DAILY_MESSAGE_LIMIT = 10;
