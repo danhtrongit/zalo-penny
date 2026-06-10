@@ -41,7 +41,7 @@ export async function processUserMessage(
     [{ role: "user", parts: [{ text: prompt }] }],
     systemPrompt,
     1024,
-    { thinkingBudget: 2048, maxOutputTokens: 4096 }
+    { thinkingBudget: 0, maxOutputTokens: 1024 }
   );
 
   const cleaned = result.replace(/```json?\n?/g, "").replace(/```/g, "").trim();
@@ -81,7 +81,7 @@ export async function detectIntent(
     [{ role: "user", parts: [{ text: prompt }] }],
     systemPrompt,
     10,
-    { thinkingBudget: 512 }
+    { thinkingBudget: 0 }
   );
   return result.trim().toUpperCase();
 }
@@ -126,7 +126,7 @@ export async function parseReceiptFromMedia(
   const raw = await generateContent(contents, undefined, 1024, {
     temperature: 0.1,
     maxOutputTokens: 1024,
-    thinkingBudget: 1024,
+    thinkingBudget: 0,
   });
 
   const cleaned = raw.replace(/```json?\n?/gi, "").replace(/```/g, "").trim();

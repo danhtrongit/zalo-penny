@@ -15,9 +15,8 @@ const features = [
 ];
 
 const plans = [
-  { name: "1 Tháng", price: "49,000đ", slug: "1-month", popular: false },
-  { name: "6 Tháng", price: "249,000đ", slug: "6-month", popular: true, save: "Tiết kiệm 15%" },
-  { name: "1 Năm", price: "399,000đ", slug: "1-year", popular: false, save: "Tiết kiệm 32%" },
+  { name: "Dùng thử", price: "0đ", slug: "free", popular: false, save: "10 tin nhắn mỗi ngày" },
+  { name: "6 Tháng", price: "99,000đ", slug: "6-month", popular: true, save: "Chỉ ~16,500đ/tháng" },
 ];
 
 export default function LandingPage() {
@@ -112,7 +111,7 @@ export default function LandingPage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="mb-12 text-center font-heading text-3xl font-bold">Bảng giá</h2>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="mx-auto grid max-w-2xl gap-6 md:grid-cols-2">
           {plans.map((p) => (
             <Card key={p.slug} className={p.popular ? "border-primary shadow-lg" : ""}>
               <CardHeader>

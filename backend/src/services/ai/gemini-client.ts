@@ -10,6 +10,11 @@ const API_URL =
 const STREAM_API_URL =
   "https://api.yescale.io/v1beta/models/gemini-2.5-flash-lite:streamGenerateContent?alt=sse";
 
+// Guard against the upstream hanging indefinitely (Node's fetch has no default
+// timeout). The whole message-handling path awaits these calls, so a hung
+// request would stall the bot's reply.
+const REQUEST_TIMEOUT_MS = 45_000;
+
 function buildRequestBody(
   contents: GeminiContent[],
   systemInstruction?: string,
@@ -22,7 +27,10 @@ function buildRequestBody(
       temperature: options.temperature ?? 0.7,
       maxOutputTokens: options.maxOutputTokens ?? maxOutputTokens,
       thinkingConfig: {
-        thinkingBudget: options.thinkingBudget ?? 2048,
+        // Default to no extended thinking — on flash-lite it adds seconds of
+        // latency with little benefit for expense parsing / short chat replies.
+        // Callers that need reasoning can still opt in via options.thinkingBudget.
+        thinkingBudget: options.thinkingBudget ?? 0,
       },
     },
   };
@@ -56,21 +64,28 @@ export async function generateContent(
 ): Promise<string> {
   const body = buildRequestBody(contents, systemInstruction, maxOutputTokens, options);
 
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${env.yescaleApiKey}`,
-    },
-    body: JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${env.yescaleApiKey}`,
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
 
-  if (!response.ok) {
-    throw new Error(`YeScale API error: ${response.status} ${response.statusText}`);
+    if (!response.ok) {
+      throw new Error(`YeScale API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as GeminiResponse;
+    return extractTextFromResponse(data);
+  } finally {
+    clearTimeout(timeout);
   }
-
-  const data = (await response.json()) as GeminiResponse;
-  return extractTextFromResponse(data);
 }
 
 export async function* generateContentStream(
@@ -81,14 +96,25 @@ export async function* generateContentStream(
 ): AsyncGenerator<string> {
   const body = buildRequestBody(contents, systemInstruction, maxOutputTokens, options);
 
-  const response = await fetch(STREAM_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${env.yescaleApiKey}`,
-    },
-    body: JSON.stringify(body),
-  });
+  // Timeout guards connection/time-to-first-byte; cleared once the response
+  // starts so legitimately long streams aren't cut off.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response: Awaited<ReturnType<typeof fetch>>;
+  try {
+    response = await fetch(STREAM_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${env.yescaleApiKey}`,
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     throw new Error(`YeScale API error: ${response.status} ${response.statusText}`);

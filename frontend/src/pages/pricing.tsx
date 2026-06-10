@@ -10,30 +10,20 @@ import { Check } from "lucide-react";
 
 const plans = [
   {
-    name: "1 Tháng",
-    price: 9000,
-    priceLabel: "9,000đ",
-    slug: "1-month",
-    popular: false,
-    features: ["Bot Zalo cá nhân", "Ghi chi tiêu AI", "Dashboard đầy đủ", "Hỗ trợ ảnh hóa đơn"],
-  },
-  {
     name: "6 Tháng",
-    price: 49000,
-    priceLabel: "49,000đ",
+    price: 99000,
+    priceLabel: "99,000đ",
     slug: "6-month",
     popular: true,
-    save: "Tiết kiệm 9%",
-    features: ["Mọi tính năng gói 1 tháng", "Ưu tiên hỗ trợ", "Nhập PDF", "Báo cáo nâng cao"],
-  },
-  {
-    name: "1 Năm",
-    price: 89000,
-    priceLabel: "89,000đ",
-    slug: "1-year",
-    popular: false,
-    save: "Tiết kiệm 26%",
-    features: ["Mọi tính năng gói 6 tháng", "Hỗ trợ ưu tiên cao", "Tính năng mới sớm nhất"],
+    save: "Chỉ ~16,500đ/tháng",
+    features: [
+      "Bot Zalo cá nhân",
+      "Nhắn tin không giới hạn",
+      "Ghi chi tiêu & hỏi đáp với AI",
+      "Hỗ trợ ảnh hoá đơn & nhập PDF",
+      "Báo cáo nâng cao",
+      "Ưu tiên hỗ trợ",
+    ],
   },
 ];
 
@@ -124,7 +114,7 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
           <Card className="border-dashed">
             <CardHeader>
               <Badge variant="secondary" className="mb-2 w-fit">

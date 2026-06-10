@@ -30,7 +30,7 @@ export const createSubscription = async (req: AuthRequest, res: Response) => {
   };
 
   const plan = await prisma.plan.findUnique({ where: { slug: planSlug } });
-  if (!plan) throw new HttpError(404, "Không tìm thấy gói");
+  if (!plan || !plan.isActive) throw new HttpError(404, "Không tìm thấy gói");
 
   // Pool is the default path: don't take payment if there's no free bot slot.
   // (Self-bot advanced users bring their own bot, so they bypass this gate.)
