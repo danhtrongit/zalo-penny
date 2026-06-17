@@ -9,6 +9,10 @@ const rawSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 chars"),
   YESCALE_API_KEY: z.string().min(1, "YESCALE_API_KEY is required"),
+  // Gemini model served via the YeScale proxy. Overridable via env so model
+  // availability changes (a model retired, or a key that lacks access to one
+  // returning HTTP 400) are a config change, not a code change + redeploy.
+  GEMINI_MODEL: z.string().min(1).default("gemini-2.5-flash-lite"),
   SEPAY_MERCHANT_ID: z.string().min(1, "SEPAY_MERCHANT_ID is required"),
   SEPAY_SECRET_KEY: z.string().min(1, "SEPAY_SECRET_KEY is required"),
   SEPAY_ENV: z.enum(["sandbox", "production"]).default("sandbox"),
@@ -70,6 +74,7 @@ export const env = {
   jwtSecret: raw.JWT_SECRET,
   databaseUrl: raw.DATABASE_URL,
   yescaleApiKey: raw.YESCALE_API_KEY,
+  geminiModel: raw.GEMINI_MODEL,
   logLevel: raw.LOG_LEVEL,
   rateLimit: {
     windowMs: raw.RATE_LIMIT_WINDOW_MS,

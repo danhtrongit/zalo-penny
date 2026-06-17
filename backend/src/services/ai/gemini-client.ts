@@ -5,10 +5,12 @@ import {
   GenerateContentOptions,
 } from "./types";
 
-const API_URL =
-  "https://api.yescale.io/v1beta/models/gemini-2.5-flash-lite:generateContent";
-const STREAM_API_URL =
-  "https://api.yescale.io/v1beta/models/gemini-2.5-flash-lite:streamGenerateContent?alt=sse";
+// Model is env-driven (env.geminiModel, default gemini-2.5-flash-lite) so it is
+// not hard-coded: a YeScale key that lacks access to a given model returns HTTP
+// 400 for every request, and swapping the model must be a config change.
+const MODEL = env.geminiModel;
+const API_URL = `https://api.yescale.io/v1beta/models/${MODEL}:generateContent`;
+const STREAM_API_URL = `https://api.yescale.io/v1beta/models/${MODEL}:streamGenerateContent?alt=sse`;
 
 // Guard against the upstream hanging indefinitely (Node's fetch has no default
 // timeout). The whole message-handling path awaits these calls, so a hung
@@ -27,8 +29,8 @@ function buildRequestBody(
       temperature: options.temperature ?? 0.7,
       maxOutputTokens: options.maxOutputTokens ?? maxOutputTokens,
       thinkingConfig: {
-        // Default to no extended thinking — on flash-lite it adds seconds of
-        // latency with little benefit for expense parsing / short chat replies.
+        // Default to no extended thinking — it adds seconds of latency with
+        // little benefit for expense parsing / short chat replies.
         // Callers that need reasoning can still opt in via options.thinkingBudget.
         thinkingBudget: options.thinkingBudget ?? 0,
       },
