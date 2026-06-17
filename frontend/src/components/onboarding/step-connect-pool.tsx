@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Copy, Check, ExternalLink, RefreshCw } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "sonner";
-import { isMobile } from "@/lib/is-mobile";
 
 interface PoolInfo {
   status: string;
@@ -92,12 +91,17 @@ export function StepConnectPool({ onLinked }: Props) {
         <div className="space-y-1">
           <h2 className="font-heading text-lg font-bold">Kết nối bot của bạn</h2>
           <p className="text-sm text-muted-foreground">
-            Quét QR để mở chat với bot, rồi gửi MÃ LIÊN KẾT bên dưới cho bot.
+            Bấm nút bên dưới để mở Zalo, rồi gửi MÃ LIÊN KẾT cho bot.
           </p>
         </div>
 
-        {pool.qrImageUrl && (
-          <img src={pool.qrImageUrl} alt="QR bot" className="mx-auto size-48 rounded-xl border object-contain" />
+        {pool.botLink && (
+          <Button asChild className="w-full" size="lg">
+            <a href={pool.botLink} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="mr-1.5 size-4" />
+              Mở Zalo &amp; kết nối
+            </a>
+          </Button>
         )}
 
         <div className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-center">
@@ -110,13 +114,11 @@ export function StepConnectPool({ onLinked }: Props) {
           {copied ? "Đã chép" : "Chép mã liên kết"}
         </Button>
 
-        {pool.botLink && isMobile() && (
-          <Button asChild className="w-full" size="lg">
-            <a href={pool.botLink} target="_blank" rel="noopener noreferrer">
-              Mở chat với bot
-              <ExternalLink className="ml-1.5 size-3.5" />
-            </a>
-          </Button>
+        {pool.qrImageUrl && (
+          <div className="space-y-2 text-center">
+            <p className="text-xs text-muted-foreground">Hoặc quét QR bằng Zalo trên máy khác</p>
+            <img src={pool.qrImageUrl} alt="QR bot" className="mx-auto size-36 rounded-xl border object-contain" />
+          </div>
         )}
 
         <div className="flex items-center justify-center gap-2 rounded-lg bg-muted/30 p-2.5 text-xs text-muted-foreground">

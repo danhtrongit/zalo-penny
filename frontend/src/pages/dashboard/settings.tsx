@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { PageHead } from "@/components/page-head";
 import api from "@/lib/api";
 import { parseApiError } from "@/lib/api-error";
@@ -14,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Bot, Check, Wifi, WifiOff, PiggyBank, Handshake, Briefcase, Home, Dumbbell, Laugh, type LucideIcon } from "lucide-react";
+import { StepConnectPool } from "@/components/onboarding/step-connect-pool";
 
 const personas: { value: string; label: string; desc: string; icon: LucideIcon }[] = [
   { value: "FRIEND", label: "Bạn thân", desc: "Thoải mái", icon: Handshake },
@@ -47,9 +47,17 @@ type PoolStatus = {
 
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
-  const navigate = useNavigate();
   const [botToken, setBotToken] = useState("");
-  const [botStatus, setBotStatus] = useState<{ config: any; running: boolean; polling: boolean; mode: string; pool?: PoolStatus } | null>(null);
+  const [botStatus, setBotStatus] = useState<{
+    config: any;
+    running: boolean;
+    polling: boolean;
+    mode: string;
+    ownedBotHealthy?: boolean;
+    migratedFromOwned?: boolean;
+    pool?: PoolStatus;
+  } | null>(null);
+  const [migrating, setMigrating] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [verifyState, setVerifyState] = useState<VerifyState | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -143,6 +151,20 @@ export default function SettingsPage() {
     setVerifyState(null);
   };
 
+  const refetchStatus = async () => setBotStatus((await api.get("/bot/status")).data);
+
+  const handleMigrate = async () => {
+    setMigrating(true);
+    try {
+      await api.post("/bot/migrate-to-pool");
+      toast.success("Đã tạo kết nối bot mới. Hãy gửi mã liên kết trên Zalo để hoàn tất.");
+      await refetchStatus();
+    } catch (err) {
+      toast.error(parseApiError(err, "Không thể chuyển bot"));
+      setMigrating(false);
+    }
+  };
+
   const handleDisconnectBot = async () => {
     try {
       await api.post("/bot/disconnect");
@@ -198,6 +220,18 @@ export default function SettingsPage() {
               Cần gói subscription để kết nối bot.
             </div>
           )}
+          {botStatus?.config && botStatus.ownedBotHealthy === false && !botStatus.pool && !migrating && (
+            <div className="space-y-2 rounded-xl border-2 border-red-300 bg-red-50 p-4">
+              <div className="flex items-center gap-2 text-red-700">
+                <WifiOff className="size-4" />
+                <p className="text-sm font-semibold">Bot cá nhân của bạn đang lỗi (token hết hạn)</p>
+              </div>
+              <p className="text-xs text-red-700/80">
+                Chuyển sang bot dùng chung ổn định — toàn bộ dữ liệu chi tiêu của bạn được giữ nguyên.
+              </p>
+              <Button size="sm" onClick={handleMigrate}>Chuyển sang bot mới</Button>
+            </div>
+          )}
           {botStatus?.pool ? (
             botStatus.pool.status === "LINKED" ? (
               <div className="flex items-center gap-2.5 rounded-lg border p-3">
@@ -210,15 +244,7 @@ export default function SettingsPage() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-2 rounded-lg border-2 border-amber-300 bg-amber-50 p-3">
-                <p className="text-sm font-medium">Chưa liên kết bot</p>
-                <p className="text-xs text-muted-foreground">
-                  Quét QR và gửi mã liên kết để hoàn tất kết nối bot được cấp.
-                </p>
-                <Button size="sm" className="w-full" onClick={() => navigate("/onboarding")}>
-                  Hoàn tất kết nối
-                </Button>
-              </div>
+              <StepConnectPool onLinked={refetchStatus} />
             )
           ) : (botStatus?.running || botStatus?.polling) ? (
             <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
