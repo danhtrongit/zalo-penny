@@ -7,6 +7,7 @@ import * as verification from "../services/bot-verification.service";
 import { assignBotToUser } from "../services/bot-pool.service";
 import { getOwnedBotHealth } from "../services/bot-health.service";
 import * as zaloApi from "../utils/zalo-api";
+import { ZaloApiError } from "../utils/zalo-api";
 import { logger } from "../utils/logger";
 
 /**
@@ -243,5 +244,93 @@ export const botStatus = async (req: AuthRequest, res: Response) => {
     pool: assignment
       ? { status: assignment.status, linkCode: assignment.linkCode, ...assignment.botConfig }
       : null,
+  });
+};
+
+/**
+ * POST /api/bot/migrate-to-pool — move a user off a dead personal (OWNED) bot
+ * onto a shared pool bot. Data is keyed by userId, so nothing is lost. The new
+ * pool bot still needs the one-time link code sent on Zalo to finish (returned
+ * here so the UI can show it). Idempotent.
+ */
+export const migrateToPool = async (req: AuthRequest, res: Response) => {
+  const userId = req.userId!;
+
+  // Idempotent: already migrated (or already a pool user) → just return it.
+  const existing = await prisma.botAssignment.findUnique({
+    where: { userId },
+    select: { botConfigId: true, linkCode: true, status: true },
+  });
+  if (existing) {
+    const pool = await prisma.botConfig.findUnique({
+      where: { id: existing.botConfigId },
+      select: { id: true, label: true, botLink: true, qrImageUrl: true },
+    });
+    res.json({
+      ok: true,
+      pool: {
+        botConfigId: pool?.id,
+        label: pool?.label ?? null,
+        botLink: pool?.botLink ?? null,
+        qrImageUrl: pool?.qrImageUrl ?? null,
+        linkCode: existing.linkCode,
+        status: existing.status,
+      },
+    });
+    return;
+  }
+
+  const config = await prisma.botConfig.findUnique({
+    where: { userId },
+    select: { id: true, botToken: true },
+  });
+  if (!config) {
+    throw new HttpError(400, "Bạn không có bot cá nhân để chuyển");
+  }
+
+  // Guard: only migrate a genuinely broken bot unless the user forces it.
+  const force = (req.body as { force?: boolean } | undefined)?.force === true;
+  if (!force) {
+    let healthy = true;
+    try {
+      await zaloApi.getMe(config.botToken);
+      healthy = true;
+    } catch (err) {
+      healthy = !(err instanceof ZaloApiError && err.errorCode === 401);
+    }
+    if (healthy) {
+      throw new HttpError(409, "Bot cá nhân vẫn hoạt động bình thường, không cần chuyển");
+    }
+  }
+
+  // Assign FIRST so a full pool never strands the user (OWNED bot untouched).
+  const assignment = await assignBotToUser(userId);
+  if (!assignment) {
+    throw new HttpError(409, "Hiện đã đủ người dùng, vui lòng thử lại sau");
+  }
+
+  // Deactivate the old OWNED bot (kept inactive for audit).
+  botManager.stopBot(config.id);
+  try {
+    await zaloApi.deleteWebhook(config.botToken);
+  } catch (err) {
+    logger.warn({ err, userId }, "deleteWebhook failed during migration (dead token expected)");
+  }
+  await prisma.botConfig.update({ where: { userId }, data: { isActive: false } });
+
+  const pool = await prisma.botConfig.findUnique({
+    where: { id: assignment.botConfigId },
+    select: { id: true, label: true, botLink: true, qrImageUrl: true },
+  });
+  res.json({
+    ok: true,
+    pool: {
+      botConfigId: pool?.id,
+      label: pool?.label ?? null,
+      botLink: pool?.botLink ?? null,
+      qrImageUrl: pool?.qrImageUrl ?? null,
+      linkCode: assignment.linkCode,
+      status: assignment.status,
+    },
   });
 };
