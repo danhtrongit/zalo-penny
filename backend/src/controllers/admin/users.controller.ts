@@ -3,6 +3,7 @@ import prisma from "../../config/prisma";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 import { HttpError } from "../../middlewares/error.middleware";
 import { logAdminAction } from "../../services/admin-audit.service";
+import { deleteUserCompletely } from "../../services/user-deletion.service";
 
 export const list = async (req: AuthRequest, res: Response) => {
   const { page, limit, search } = req.query as unknown as {
@@ -141,4 +142,32 @@ export const changeRole = async (req: AuthRequest, res: Response) => {
   });
 
   res.json(updated);
+};
+
+export const remove = async (req: AuthRequest, res: Response) => {
+  const id = req.params.id as string;
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, role: true, phone: true, name: true, email: true },
+  });
+  if (!user) throw new HttpError(404, "Không tìm thấy người dùng");
+
+  if (id === req.userId) {
+    throw new HttpError(400, "Không thể tự xoá tài khoản của chính mình");
+  }
+  if (user.role === "ADMIN") {
+    throw new HttpError(400, "Không thể xoá tài khoản admin. Hãy hạ quyền về USER trước.");
+  }
+
+  const counts = await deleteUserCompletely(id);
+
+  await logAdminAction({
+    adminId: req.userId!,
+    action: "USER_DELETE",
+    payload: { targetUserId: id, phone: user.phone, name: user.name, email: user.email, counts },
+    summary: `Deleted user ${id} (${user.phone})`,
+  });
+
+  res.json({ ok: true, deleted: counts });
 };
