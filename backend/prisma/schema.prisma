@@ -66,6 +66,7 @@ enum AdminAction {
   BOT_CREATE
   BOT_UPDATE
   BOT_DELETE
+  USER_DELETE
 }
 
 enum BotKind {

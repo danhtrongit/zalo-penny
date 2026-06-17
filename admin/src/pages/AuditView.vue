@@ -46,6 +46,7 @@ const actionOptions = [
   { label: "BOT_CREATE", value: "BOT_CREATE" },
   { label: "BOT_UPDATE", value: "BOT_UPDATE" },
   { label: "BOT_DELETE", value: "BOT_DELETE" },
+  { label: "USER_DELETE", value: "USER_DELETE" },
 ];
 
 const columns: DataTableColumns<AuditRow> = [

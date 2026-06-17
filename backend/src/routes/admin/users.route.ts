@@ -28,5 +28,6 @@ router.patch(
   validate({ params: userIdParams, body: changeRoleBody }),
   asyncHandler(ctrl.changeRole)
 );
+router.delete("/:id", validate({ params: userIdParams }), asyncHandler(ctrl.remove));
 
 export default router;
