@@ -106,6 +106,30 @@ async function unlock() {
   }
 }
 
+// Delete user (danger zone)
+const showDelete = ref(false);
+const deleteConfirmPhone = ref("");
+const deleting = ref(false);
+
+function openDelete() {
+  deleteConfirmPhone.value = "";
+  showDelete.value = true;
+}
+
+async function confirmDelete() {
+  deleting.value = true;
+  try {
+    await api.delete(`/admin/users/${userId}`);
+    message.success("Đã xoá người dùng và toàn bộ dữ liệu");
+    showDelete.value = false;
+    router.push("/users");
+  } catch (err) {
+    message.error(apiError(err, "Không thể xoá người dùng"));
+  } finally {
+    deleting.value = false;
+  }
+}
+
 // Upgrade modal
 const showUpgrade = ref(false);
 const upgradeSaving = ref(false);
@@ -266,6 +290,17 @@ onMounted(load);
                   <NButton v-else size="small" type="error" ghost @click="openLock">Khoá</NButton>
                 </NSpace>
               </div>
+              <div v-if="detail.role === 'USER'" class="row">
+                <span class="label">Nguy hiểm</span>
+                <NButton
+                  v-if="detail && detail.role === 'USER'"
+                  size="small"
+                  type="error"
+                  @click="openDelete"
+                >
+                  Xoá người dùng
+                </NButton>
+              </div>
               <div v-if="detail.isLocked" class="row">
                 <span class="label">Lý do khoá</span>
                 <span class="value">{{ detail.lockedReason ?? "—" }}</span>
@@ -294,6 +329,35 @@ onMounted(load);
           <NButton @click="showLock = false">Huỷ</NButton>
           <NButton type="error" :loading="lockSaving" @click="confirmLock">Khoá</NButton>
         </NSpace>
+      </template>
+    </NModal>
+
+    <!-- Delete modal -->
+    <NModal v-model:show="showDelete" preset="dialog" type="error" title="Xoá người dùng vĩnh viễn">
+      <template #default>
+        <p>
+          Hành động này <strong>không thể hoàn tác</strong>. Toàn bộ dữ liệu của người dùng
+          (giao dịch, ngân sách, hoá đơn, hội thoại, bot, gói &amp; thanh toán) sẽ bị xoá.
+        </p>
+        <p style="margin-top: 8px">
+          Nhập số điện thoại <strong>{{ detail?.phone }}</strong> để xác nhận:
+        </p>
+        <NInput
+          v-model:value="deleteConfirmPhone"
+          placeholder="Số điện thoại của người dùng"
+          style="margin-top: 8px"
+        />
+      </template>
+      <template #action>
+        <NButton @click="showDelete = false">Huỷ</NButton>
+        <NButton
+          type="error"
+          :loading="deleting"
+          :disabled="deleteConfirmPhone !== detail?.phone"
+          @click="confirmDelete"
+        >
+          Xoá vĩnh viễn
+        </NButton>
       </template>
     </NModal>
 
