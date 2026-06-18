@@ -9,6 +9,7 @@ import {
   normalizeIntent,
   rememberProcessedMessage,
   rememberUserMessage,
+  clearPendingDelete,
 } from "../conversation-state.service";
 import { buildSystemPrompt } from "../persona.service";
 import {
@@ -23,12 +24,13 @@ import { getOrCreateZaloUser, startOnboarding } from "./onboarding";
 import { tryLinkPoolUser } from "./link";
 import { handleCommand } from "./command";
 import { handleExpense } from "./expense";
-import { handleDelete } from "./delete";
+import { handleDelete, executePendingDelete, cancelPendingDelete } from "./delete";
+import { handleEdit } from "./edit";
 import { handleReport } from "./report";
 import { handleHistory } from "./history";
 import { handleChat } from "./chat";
 import { handleReceiptMedia, messageHasMedia } from "./receipt";
-import { looksLikeExpense, looksLikeLoginRequest } from "./parsers";
+import { looksLikeExpense, looksLikeLoginRequest, parseConfirmation } from "./parsers";
 import { enforceFreeTier } from "../usage.service";
 
 type BotConfigLite = Pick<
@@ -163,6 +165,25 @@ export async function handleMessage(
     await rememberUserMessage(conversation, text);
     await zaloApi.sendChatAction(botToken, chatId);
 
+    // Resolve a pending delete confirmation before any other handling.
+    if (conversation.state.pendingDelete) {
+      const answer = parseConfirmation(text);
+      if (answer === "yes") {
+        await executePendingDelete(botToken, chatId, userId, conversation);
+        await rememberProcessedMessage(conversation, message.message_id);
+        await completeMessageProcessing(processingKey);
+        return;
+      }
+      if (answer === "no") {
+        await cancelPendingDelete(botToken, chatId, conversation);
+        await rememberProcessedMessage(conversation, message.message_id);
+        await completeMessageProcessing(processingKey);
+        return;
+      }
+      // Not a yes/no → abandon the pending delete and handle normally.
+      await clearPendingDelete(conversation);
+    }
+
     if (text.startsWith("/")) {
       await handleCommand(botToken, chatId, text, userId, zaloUser, conversation);
       await rememberProcessedMessage(conversation, message.message_id);
@@ -268,16 +289,11 @@ export async function handleMessage(
           result.response
         );
         break;
+      case "EDIT":
+        await handleEdit(botToken, chatId, userId, conversation, result.editTarget);
+        break;
       case "DELETE":
-        await handleDelete(
-          botToken,
-          chatId,
-          userId,
-          systemPrompt,
-          conversation,
-          result.deleteTarget,
-          result.response
-        );
+        await handleDelete(botToken, chatId, userId, conversation, result.deleteTarget);
         break;
       case "REPORT":
         await handleReport(

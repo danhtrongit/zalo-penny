@@ -35,6 +35,22 @@ export function looksLikeLoginRequest(text: string): boolean {
   );
 }
 
+/**
+ * Classify a short reply as a yes/no confirmation (for the delete-confirm gate).
+ * Returns null when it isn't clearly either, so the caller can fall through to
+ * normal handling. Negative is checked first — "đừng xoá" (dung xoa) must not be
+ * mistaken for the affirmative "xoá".
+ */
+export function parseConfirmation(text: string): "yes" | "no" | null {
+  const t = normalize(text).trim();
+  if (!t) return null;
+  if (/^(huy|khong|thoi|khoi|bo qua|no|dung xoa|dung lai|dung co)\b/.test(t)) return "no";
+  if (/^(u|uh|um|co|oke|ok|okay|okie|yes|y|chuan|xac nhan|dong y|dung roi|xoa di|xoa|dc|duoc)\b/.test(t)) {
+    return "yes";
+  }
+  return null;
+}
+
 export function parseExpenseByRegex(text: string): ParsedExpense[] {
   const normalized = normalize(text);
 

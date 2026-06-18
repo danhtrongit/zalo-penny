@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -26,22 +26,11 @@ const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  const location = useLocation();
   if (loading) return <div className="flex h-svh items-center justify-center text-sm text-muted-foreground">Loading...</div>;
   if (!user) return <Navigate to="/login" />;
-
-  const conn = user.botConnection;
-  const connected = conn ? conn.isActive || conn.status === "LINKED" : false;
-  // ACTIVE subscribers, and free users who have claimed a pool bot (botConnection
-  // present but not yet linked), both need to finish connecting their bot.
-  const needsOnboarding =
-    (user.subscription?.status === "ACTIVE" || !!conn) && !connected;
-  const onboardingSafe =
-    location.pathname === "/onboarding" ||
-    location.pathname === "/dashboard/contact";
-  if (needsOnboarding && !onboardingSafe) {
-    return <Navigate to="/onboarding" replace />;
-  }
+  // No forced onboarding. Users reach the dashboard directly and connect their
+  // Zalo bot from Settings; /onboarding stays an opt-in flow (after payment /
+  // free activation). The old guard trapped any account whose bot wasn't LINKED.
   return <>{children}</>;
 }
 

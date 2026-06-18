@@ -1,79 +1,96 @@
 import prisma from "../../config/prisma";
-import * as aiService from "../ai";
 import { logger } from "../../utils/logger";
-import { ConversationSession } from "../conversation-state.service";
+import {
+  ConversationSession,
+  setPendingDelete,
+  clearPendingDelete,
+} from "../conversation-state.service";
 import { sendTrackedMessage } from "./send";
 import { formatMoney } from "./helpers";
 import { DeleteTarget } from "./types";
+import { resolveTransactionTarget } from "./tx-target";
 
+/**
+ * Delete is destructive, so we never delete immediately. Resolve the target,
+ * stash it as a pending delete, and ask the user to confirm. The confirmation
+ * reply is handled by executePendingDelete (wired from the message handler).
+ */
 export async function handleDelete(
   botToken: string,
   chatId: string,
   userId: string,
-  systemPrompt: string,
   conversation: ConversationSession,
-  deleteTarget?: DeleteTarget,
-  preResponse?: string
+  deleteTarget?: DeleteTarget
 ) {
   try {
-    const where: Record<string, unknown> = { userId };
-    const conditions: string[] = [];
-
-    if (deleteTarget?.amount) {
-      where.amount = deleteTarget.amount;
-      conditions.push(`amount=${deleteTarget.amount}`);
-    }
-
-    if (deleteTarget?.description) {
-      where.description = {
-        contains: deleteTarget.description,
-        mode: "insensitive",
-      };
-      conditions.push(`desc~"${deleteTarget.description}"`);
-    }
-
-    const candidates = await prisma.transaction.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    });
-
-    if (candidates.length === 0) {
-      const notFoundPrompt =
-        "Người dùng muốn xoá giao dịch nhưng không tìm thấy khoản nào khớp. Trả lời theo persona.";
-      const response = await aiService.generateChatResponse(notFoundPrompt, systemPrompt);
-      await sendTrackedMessage(botToken, chatId, conversation, response, "DELETE");
+    const target = await resolveTransactionTarget(userId, deleteTarget, conversation);
+    if (!target) {
+      await sendTrackedMessage(
+        botToken,
+        chatId,
+        conversation,
+        "Mình không tìm thấy giao dịch nào khớp để xoá. Bạn nhắn rõ khoản cần xoá nhé.",
+        "DELETE"
+      );
       return;
     }
 
-    const toDelete = candidates[0];
-    await prisma.transaction.delete({ where: { id: toDelete.id } });
-
-    logger.info(
-      {
-        id: toDelete.id,
-        description: toDelete.description,
-        amount: toDelete.amount,
-        matchConditions: conditions,
-      },
-      "Transaction deleted"
-    );
-
-    let response = preResponse;
-    if (!response) {
-      const deletePrompt = `Đã xoá giao dịch "${toDelete.description}" ${formatMoney(toDelete.amount)}. Xác nhận ngắn gọn theo persona.`;
-      response = await aiService.generateChatResponse(deletePrompt, systemPrompt);
-    }
-
-    await sendTrackedMessage(botToken, chatId, conversation, response, "CHAT");
-  } catch (err) {
-    logger.error({ err }, "Delete handling error");
+    await setPendingDelete(conversation, {
+      id: target.id,
+      description: target.description,
+      amount: target.amount,
+    });
     await sendTrackedMessage(
       botToken,
       chatId,
       conversation,
-      "Có lỗi khi xoá. Bạn thử lại nhé!",
+      `Bạn muốn xoá "${target.description}" ${formatMoney(target.amount)}? Nhắn "xác nhận" để xoá hoặc "huỷ" để giữ lại.`,
+      "DELETE"
+    );
+  } catch (err) {
+    logger.error({ err }, "Delete handling error");
+    await sendTrackedMessage(botToken, chatId, conversation, "Có lỗi khi xoá. Bạn thử lại nhé!", "CHAT");
+  }
+}
+
+/** User declined the delete confirmation — keep the transaction. */
+export async function cancelPendingDelete(
+  botToken: string,
+  chatId: string,
+  conversation: ConversationSession
+) {
+  await clearPendingDelete(conversation);
+  await sendTrackedMessage(botToken, chatId, conversation, "Ok, mình giữ lại giao dịch nhé.", "CHAT");
+}
+
+/** Carry out a delete the user has confirmed. Clears the pending state first. */
+export async function executePendingDelete(
+  botToken: string,
+  chatId: string,
+  userId: string,
+  conversation: ConversationSession
+) {
+  const pending = conversation.state.pendingDelete;
+  if (!pending) return;
+  try {
+    const tx = await prisma.transaction.findFirst({ where: { id: pending.id, userId } });
+    await clearPendingDelete(conversation);
+    if (!tx) {
+      await sendTrackedMessage(botToken, chatId, conversation, "Giao dịch này không còn nữa.", "DELETE");
+      return;
+    }
+    await prisma.transaction.delete({ where: { id: tx.id } });
+    logger.info({ id: tx.id }, "Transaction deleted (confirmed)");
+    await sendTrackedMessage(
+      botToken,
+      chatId,
+      conversation,
+      `Đã xoá "${tx.description}" ${formatMoney(tx.amount)}.`,
       "CHAT"
     );
+  } catch (err) {
+    logger.error({ err }, "Confirmed delete error");
+    await clearPendingDelete(conversation);
+    await sendTrackedMessage(botToken, chatId, conversation, "Có lỗi khi xoá. Bạn thử lại nhé!", "CHAT");
   }
 }

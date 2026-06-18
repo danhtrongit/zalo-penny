@@ -283,7 +283,7 @@ export default function SettingsPage() {
           ) : (
             <div className="flex gap-2">
               <Input placeholder="Bot Token..." value={botToken} onChange={(e) => setBotToken(e.target.value)} disabled={!hasActiveSub} />
-              <Button size="sm" onClick={handleConnectBot} disabled={connecting || !hasActiveSub}>
+              <Button onClick={handleConnectBot} disabled={connecting || !hasActiveSub}>
                 {connecting ? "..." : "Kết nối"}
               </Button>
             </div>
@@ -351,7 +351,7 @@ export default function SettingsPage() {
         <CardContent>
           <div className="flex gap-2">
             <Input type="number" placeholder="Ví dụ: 5000000" value={budgetAmount} onChange={(e) => setBudgetAmount(e.target.value)} />
-            <Button size="sm" onClick={handleSaveBudget} disabled={savingBudget}>
+            <Button onClick={handleSaveBudget} disabled={savingBudget}>
               {savingBudget ? "..." : "Lưu"}
             </Button>
           </div>

@@ -19,11 +19,29 @@ interface ConversationTurn {
   at: string;
 }
 
+export interface StoredTransaction {
+  id: string;
+  description: string;
+  amount: number;
+  category: string;
+}
+
+export interface PendingDelete {
+  id: string;
+  description: string;
+  amount: number;
+}
+
 interface ConversationMemory {
   history: ConversationTurn[];
   pendingIntent: ConversationIntent | null;
   awaitingUserReply: boolean;
   recentMessageIds: string[];
+  // The transaction(s) created by the user's most recent message, so "sửa/xoá
+  // cái vừa ghi" resolves to a concrete row instead of re-guessing from text.
+  lastTransactions: StoredTransaction[];
+  // A delete awaiting the user's yes/no confirmation.
+  pendingDelete: PendingDelete | null;
 }
 
 export interface ConversationSession {
@@ -34,6 +52,7 @@ export interface ConversationSession {
 
 const MAX_HISTORY_TURNS = 12;
 const MAX_RECENT_MESSAGE_IDS = 30;
+const MAX_LAST_TX = 5;
 // 30 min idle expires only the volatile follow-up flags (a stale clarifying
 // loop shouldn't resurrect); the transcript itself is kept until
 // HISTORY_STALE_AFTER_MS so the bot still remembers earlier messages.
@@ -46,6 +65,8 @@ function createEmptyState(): ConversationMemory {
     pendingIntent: null,
     awaitingUserReply: false,
     recentMessageIds: [],
+    lastTransactions: [],
+    pendingDelete: null,
   };
 }
 
@@ -64,6 +85,27 @@ function isConversationTurn(value: unknown): value is ConversationTurn {
     (turn.role === "user" || turn.role === "assistant") &&
     typeof turn.text === "string" &&
     typeof turn.at === "string"
+  );
+}
+
+function isStoredTransaction(value: unknown): value is StoredTransaction {
+  if (!value || typeof value !== "object") return false;
+  const t = value as Record<string, unknown>;
+  return (
+    typeof t.id === "string" &&
+    typeof t.description === "string" &&
+    typeof t.amount === "number" &&
+    typeof t.category === "string"
+  );
+}
+
+function isPendingDelete(value: unknown): value is PendingDelete {
+  if (!value || typeof value !== "object") return false;
+  const t = value as Record<string, unknown>;
+  return (
+    typeof t.id === "string" &&
+    typeof t.description === "string" &&
+    typeof t.amount === "number"
   );
 }
 
@@ -98,12 +140,20 @@ function normalizeState(rawState: unknown): ConversationMemory {
         .slice(-MAX_RECENT_MESSAGE_IDS)
     : [];
 
+  const lastTransactions = Array.isArray(state.lastTransactions)
+    ? state.lastTransactions.filter(isStoredTransaction).slice(-MAX_LAST_TX)
+    : [];
+
+  const pendingDelete = isPendingDelete(state.pendingDelete) ? state.pendingDelete : null;
+
   return {
     history,
     pendingIntent,
     awaitingUserReply:
       state.awaitingUserReply === true && pendingIntent !== null,
     recentMessageIds,
+    lastTransactions,
+    pendingDelete,
   };
 }
 
@@ -231,6 +281,36 @@ export async function rememberAssistantMessage(
     awaitingUserReply && intent ? intent : null;
   session.state.awaitingUserReply =
     awaitingUserReply && intent !== null;
+  await persistSession(session);
+}
+
+/** Record the transactions the user just created (for "sửa/xoá cái vừa ghi"). */
+export async function rememberTransactions(
+  session: ConversationSession,
+  txs: StoredTransaction[]
+) {
+  if (!txs.length) return;
+  session.state.lastTransactions = txs.slice(-MAX_LAST_TX);
+  await persistSession(session);
+}
+
+/** The single most-recent transaction the user entered, if any. */
+export function lastTransaction(session: ConversationSession): StoredTransaction | null {
+  const list = session.state.lastTransactions;
+  return list.length ? list[list.length - 1] : null;
+}
+
+export async function setPendingDelete(
+  session: ConversationSession,
+  target: PendingDelete
+) {
+  session.state.pendingDelete = target;
+  await persistSession(session);
+}
+
+export async function clearPendingDelete(session: ConversationSession) {
+  if (!session.state.pendingDelete) return;
+  session.state.pendingDelete = null;
   await persistSession(session);
 }
 

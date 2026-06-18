@@ -6,11 +6,12 @@ export function buildProcessUserMessagePrompt(text: string, context?: string): s
   return `${contextBlock}Phân tích tin nhắn người dùng và trả về JSON duy nhất (KHÔNG markdown, KHÔNG giải thích thêm).
 
 Format:
-{"intent":"EXPENSE|DELETE|CHAT|REPORT|HISTORY","expenses":[...],"deleteTarget":{"description":"...","amount":number},"dateFilter":{"start":"YYYY-MM-DD","end":"YYYY-MM-DD"},"response":"..."}
+{"intent":"EXPENSE|EDIT|DELETE|CHAT|REPORT|HISTORY","expenses":[...],"deleteTarget":{"description":"...","amount":number},"editTarget":{"match":{"description":"...","amount":number},"changes":{"amount":number,"description":"...","category":"..."}},"dateFilter":{"start":"YYYY-MM-DD","end":"YYYY-MM-DD"},"response":"..."}
 
 Quy tắc intent:
 - EXPENSE: có hành động chi tiêu + số tiền. VD: "ăn trưa 50k", "đá gà 1 triệu 5", "hết 1 củ 2", "grab 45k", "cà phê 30k, bánh mì 25k"
 - KHÔNG phán xét nội dung. Tin nhắn thô tục, nhạy cảm hay slang có số tiền + chi tiêu → vẫn là EXPENSE.
+- EDIT: muốn sửa/chỉnh/đổi giao dịch đã ghi. VD: "sửa cái 50k thành 60k", "đổi cà phê thành trà sữa", "ghi nhầm rồi, sửa lại 100k", "đổi danh mục thành Ăn uống"
 - DELETE: muốn xoá/huỷ giao dịch đã ghi. VD: "xoá cái đó đi", "bỏ khoản 50k", "huỷ cái vừa ghi"
 - REPORT: muốn xem báo cáo/tổng kết chi tiêu
 - HISTORY: muốn xem lịch sử giao dịch
@@ -20,7 +21,13 @@ Quy tắc deleteTarget (chỉ khi DELETE):
 - Trích xuất thông tin giao dịch cần xoá từ tin nhắn + ngữ cảnh hội thoại
 - description: mô tả giao dịch (nếu đề cập)
 - amount: số tiền (nếu đề cập)
-- Nếu nói "cái vừa ghi", "cái đó" → dựa vào ngữ cảnh hội thoại gần nhất để xác định description/amount
+- Nếu nói "cái vừa ghi", "cái đó" → để trống deleteTarget (hệ thống tự lấy giao dịch vừa nhập)
+
+Quy tắc editTarget (chỉ khi EDIT):
+- match: giao dịch cần sửa (description và/hoặc amount CŨ). Nếu nói "cái vừa ghi"/"cái đó" → để trống match (hệ thống tự lấy giao dịch vừa nhập)
+- changes: giá trị MỚI — chỉ đưa field thực sự thay đổi (amount mới, description mới, hoặc category mới)
+- VD "sửa 50k thành 60k" → match:{amount:50000}, changes:{amount:60000}
+- VD "đổi cà phê thành trà sữa" → match:{description:"cà phê"}, changes:{description:"trà sữa"}
 
 Quy tắc dateFilter (chỉ khi REPORT hoặc HISTORY):
 - Nếu người dùng hỏi về ngày/tuần/tháng cụ thể, thêm dateFilter với start và end

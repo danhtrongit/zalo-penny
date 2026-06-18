@@ -1,7 +1,7 @@
 import prisma from "../../config/prisma";
 import * as aiService from "../ai";
 import { logger } from "../../utils/logger";
-import { ConversationSession } from "../conversation-state.service";
+import { ConversationSession, rememberTransactions } from "../conversation-state.service";
 import { sendTrackedMessage } from "./send";
 import { formatMoney, shouldAwaitFollowUp } from "./helpers";
 import { parseExpenseByRegex } from "./parsers";
@@ -57,8 +57,9 @@ export async function handleExpense(
       return;
     }
 
+    const created = [];
     for (const exp of expenses) {
-      await prisma.transaction.create({
+      const tx = await prisma.transaction.create({
         data: {
           userId,
           amount: exp.amount,
@@ -68,7 +69,10 @@ export async function handleExpense(
           source: "TEXT",
         },
       });
+      created.push({ id: tx.id, description: tx.description, amount: tx.amount, category: tx.category });
     }
+    // Remember what was just entered so "sửa/xoá cái vừa ghi" targets it.
+    await rememberTransactions(conversation, created);
 
     const total = expenses.reduce((sum, e) => sum + e.amount, 0);
     logger.info({ count: expenses.length, total }, "Expenses saved");
