@@ -1,6 +1,7 @@
 import prisma from "../../config/prisma";
 import * as zaloApi from "../../utils/zalo-api";
 import { logger } from "../../utils/logger";
+import { extractLinkCode } from "./link-code";
 
 /**
  * Pool bots are shared by up to N app-users, so an incoming Zalo message can't
@@ -19,7 +20,18 @@ export async function tryLinkPoolUser(
   text: string,
   chatId: string
 ): Promise<string | null> {
-  const code = text.trim().toUpperCase();
+  // Be forgiving about how the user typed/pasted the code (case, missing dash,
+  // stray spaces, or just the 4-char core). Null => not plausibly a code at all.
+  const code = extractLinkCode(text);
+  if (!code) {
+    await zaloApi.sendMessage(
+      botToken,
+      chatId,
+      "Chào bạn! Để bắt đầu, hãy gửi MÃ LIÊN KẾT hiển thị trên web cho mình nhé — mã có dạng PENNY-XXXX (ví dụ: PENNY-ABCD)."
+    );
+    return null;
+  }
+
   const assignment = await prisma.botAssignment.findFirst({
     where: { botConfigId, status: "PENDING_LINK", linkCode: code },
   });
@@ -28,7 +40,7 @@ export async function tryLinkPoolUser(
     await zaloApi.sendMessage(
       botToken,
       chatId,
-      "Chào bạn! Để bắt đầu, hãy gửi đúng MÃ LIÊN KẾT hiển thị trên web (dạng PENNY-XXXX) cho mình nhé."
+      "Mình chưa nhận ra mã này. Bạn kiểm tra lại MÃ LIÊN KẾT trên web (dạng PENNY-XXXX) rồi gửi lại giúp mình nhé."
     );
     return null;
   }
