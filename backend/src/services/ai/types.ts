@@ -71,6 +71,10 @@ export interface ProcessedMessage {
     description?: string;
     amount?: number;
   };
+  editTarget?: {
+    match?: { description?: string; amount?: number };
+    changes?: { amount?: number; description?: string; category?: string };
+  };
   dateFilter?: {
     start: string;
     end: string;

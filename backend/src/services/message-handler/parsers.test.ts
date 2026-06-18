@@ -1,5 +1,30 @@
 import { describe, it, expect } from "vitest";
-import { looksLikeExpense, parseExpenseByRegex, looksLikeLoginRequest } from "./parsers";
+import {
+  looksLikeExpense,
+  parseExpenseByRegex,
+  looksLikeLoginRequest,
+  parseConfirmation,
+} from "./parsers";
+
+describe("parseConfirmation", () => {
+  it("recognizes affirmatives", () => {
+    for (const t of ["ừ", "có", "ok", "đúng rồi", "xác nhận", "xoá đi", "được"]) {
+      expect(parseConfirmation(t)).toBe("yes");
+    }
+  });
+
+  it("recognizes negatives", () => {
+    for (const t of ["huỷ", "thôi", "không", "đừng xoá", "bỏ qua"]) {
+      expect(parseConfirmation(t)).toBe("no");
+    }
+  });
+
+  it("returns null for anything that isn't a yes/no", () => {
+    for (const t of ["cà phê 30k", "báo cáo tháng này", "xin chào"]) {
+      expect(parseConfirmation(t)).toBeNull();
+    }
+  });
+});
 
 describe("looksLikeLoginRequest", () => {
   it("matches the login phrase with or without diacritics", () => {

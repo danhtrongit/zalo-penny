@@ -3,7 +3,7 @@ import prisma from "../../config/prisma";
 import * as aiService from "../ai";
 import * as zaloApi from "../../utils/zalo-api";
 import { logger } from "../../utils/logger";
-import { ConversationSession } from "../conversation-state.service";
+import { ConversationSession, rememberTransactions } from "../conversation-state.service";
 import { sendTrackedMessage } from "./send";
 import { formatMoney } from "./helpers";
 import { ZaloMessage } from "../../utils/zalo-api";
@@ -325,6 +325,9 @@ export async function handleReceiptMedia(
       receiptId: receipt.id,
     },
   });
+  await rememberTransactions(conversation, [
+    { id: tx.id, description: tx.description, amount: tx.amount, category: tx.category },
+  ]);
 
   logger.info(
     {

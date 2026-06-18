@@ -14,3 +14,8 @@ export interface DeleteTarget {
   description?: string;
   amount?: number;
 }
+
+export interface EditTarget {
+  match?: { description?: string; amount?: number };
+  changes?: { amount?: number; description?: string; category?: string };
+}
