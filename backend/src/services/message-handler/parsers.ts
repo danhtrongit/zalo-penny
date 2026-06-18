@@ -23,6 +23,18 @@ export function looksLikeExpense(text: string): boolean {
   return /(?:het|ton|mat|mua|an|uong|tra|chi|tieu|ghi|di )/.test(normalized);
 }
 
+/**
+ * Deterministic match for a login/dashboard request typed without a slash
+ * ("đăng nhập", "login", "mở dashboard"). Anchored to the start so it doesn't
+ * hijack ordinary chat that merely contains the word. Kept off the AI path.
+ */
+export function looksLikeLoginRequest(text: string): boolean {
+  const t = normalize(text).trim();
+  return /^(dang nhap|dangnhap|login|log in|mo dashboard|vao dashboard|dashboard|mo web|vao web)\b/.test(
+    t
+  );
+}
+
 export function parseExpenseByRegex(text: string): ParsedExpense[] {
   const normalized = normalize(text);
 

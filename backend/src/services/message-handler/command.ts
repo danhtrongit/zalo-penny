@@ -4,6 +4,7 @@ import { sendTrackedMessage } from "./send";
 import { startOnboarding } from "./onboarding";
 import { handleReport } from "./report";
 import { handleHistory } from "./history";
+import { signMagicToken } from "../auth.service";
 
 export async function handleCommand(
   botToken: string,
@@ -35,22 +36,15 @@ export async function handleCommand(
       );
       break;
     case "/report":
-      await handleReport(botToken, chatId, userId, "", conversation);
+      await handleReport(botToken, chatId, userId, conversation, "");
       break;
     case "/recent":
-      await handleHistory(botToken, chatId, userId, "", conversation);
+      await handleHistory(botToken, chatId, userId, conversation, "");
       break;
-    case "/login": {
-      const link = `${env.frontendUrl}/dashboard`;
-      await sendTrackedMessage(
-        botToken,
-        chatId,
-        conversation,
-        `Mở Dashboard tại đây: ${link}`,
-        "CHAT"
-      );
+    case "/login":
+    case "/dangnhap":
+      await sendLoginLink(botToken, chatId, conversation, userId);
       break;
-    }
     default:
       await sendTrackedMessage(
         botToken,
@@ -60,4 +54,22 @@ export async function handleCommand(
         "CHAT"
       );
   }
+}
+
+/** Send a one-tap magic-login link to the web dashboard (valid ~10 minutes). */
+async function sendLoginLink(
+  botToken: string,
+  chatId: string,
+  conversation: ConversationSession,
+  userId: string
+) {
+  const token = signMagicToken(userId);
+  const link = `${env.frontendUrl}/login?token=${token}`;
+  await sendTrackedMessage(
+    botToken,
+    chatId,
+    conversation,
+    `🔐 Mở Dashboard (tự động đăng nhập, liên kết có hiệu lực 10 phút):\n${link}`,
+    "CHAT"
+  );
 }

@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -12,12 +14,29 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login, user, loading: authLoading } = useAuth();
+  const { login, loginWithToken, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const exchanged = useRef(false);
 
   useEffect(() => {
     if (!authLoading && user) navigate("/dashboard", { replace: true });
   }, [authLoading, user, navigate]);
+
+  // Magic-link from the Zalo bot: ?token=... → exchange for a session, one tap.
+  useEffect(() => {
+    if (exchanged.current) return;
+    const magic = searchParams.get("token");
+    if (!magic) return;
+    exchanged.current = true;
+    loginWithToken(magic)
+      .then(() => navigate("/dashboard", { replace: true }))
+      .catch(() => {
+        toast.error("Liên kết đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+        searchParams.delete("token");
+        setSearchParams(searchParams, { replace: true });
+      });
+  }, [searchParams, loginWithToken, navigate, setSearchParams]);
 
   if (!authLoading && user) return <Navigate to="/dashboard" replace />;
 
@@ -62,9 +81,8 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Mật khẩu</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

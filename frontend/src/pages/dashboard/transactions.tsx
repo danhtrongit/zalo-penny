@@ -157,11 +157,11 @@ export default function TransactionsPage() {
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label className="text-xs">Mô tả</Label>
-              <Input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} className="text-sm" />
+              <Input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Số tiền (VND)</Label>
-              <Input type="number" value={editForm.amount} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} className="text-sm" />
+              <Input type="number" value={editForm.amount} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Danh mục</Label>
@@ -174,7 +174,7 @@ export default function TransactionsPage() {
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Ngày</Label>
-              <Input type="date" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} className="text-sm" />
+              <Input type="date" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} />
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">

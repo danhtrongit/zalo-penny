@@ -36,6 +36,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (phone: string, password: string) => Promise<void>;
+  loginWithToken: (magicToken: string) => Promise<void>;
   register: (phone: string, password: string, name: string, email?: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -79,6 +80,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   };
 
+  // Exchange a chat magic-link token for a session token (one-tap login).
+  const loginWithToken = async (magicToken: string) => {
+    const { data } = await api.post("/auth/magic", { token: magicToken });
+    localStorage.setItem("penny_token", data.token);
+    setToken(data.token);
+    setUser(data.user);
+  };
+
   const register = async (phone: string, password: string, name: string, email?: string) => {
     const { data } = await api.post("/auth/register", {
       phone,
@@ -99,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, login, register, logout, refreshUser }}
+      value={{ user, token, loading, login, loginWithToken, register, logout, refreshUser }}
     >
       {children}
     </AuthContext.Provider>

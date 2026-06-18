@@ -28,7 +28,7 @@ import { handleReport } from "./report";
 import { handleHistory } from "./history";
 import { handleChat } from "./chat";
 import { handleReceiptMedia, messageHasMedia } from "./receipt";
-import { looksLikeExpense } from "./parsers";
+import { looksLikeExpense, looksLikeLoginRequest } from "./parsers";
 import { enforceFreeTier } from "../usage.service";
 
 type BotConfigLite = Pick<
@@ -170,6 +170,15 @@ export async function handleMessage(
       return;
     }
 
+    // Free-text "đăng nhập"/"login" → same as /login (deterministic, no AI cost,
+    // exempt from the free-tier gate just like slash commands).
+    if (looksLikeLoginRequest(text)) {
+      await handleCommand(botToken, chatId, "/login", userId, zaloUser, conversation);
+      await rememberProcessedMessage(conversation, message.message_id);
+      await completeMessageProcessing(processingKey);
+      return;
+    }
+
     const persona = await prisma.persona.findUnique({ where: { userId } });
     const systemPrompt = buildSystemPrompt(
       persona || {
@@ -275,8 +284,8 @@ export async function handleMessage(
           botToken,
           chatId,
           userId,
-          systemPrompt,
           conversation,
+          text,
           result.dateFilter
         );
         break;
@@ -285,8 +294,8 @@ export async function handleMessage(
           botToken,
           chatId,
           userId,
-          systemPrompt,
           conversation,
+          text,
           result.dateFilter
         );
         break;

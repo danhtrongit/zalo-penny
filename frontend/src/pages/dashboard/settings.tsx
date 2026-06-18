@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHead } from "@/components/page-head";
 import api from "@/lib/api";
 import { parseApiError } from "@/lib/api-error";
@@ -12,7 +13,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Bot, Check, Wifi, WifiOff, PiggyBank, Handshake, Briefcase, Home, Dumbbell, Laugh, type LucideIcon } from "lucide-react";
+import { Bot, Check, Wifi, WifiOff, PiggyBank, Handshake, Briefcase, Home, Dumbbell, Laugh, LogOut, type LucideIcon } from "lucide-react";
 import { StepConnectPool } from "@/components/onboarding/step-connect-pool";
 
 const personas: { value: string; label: string; desc: string; icon: LucideIcon }[] = [
@@ -46,7 +47,8 @@ type PoolStatus = {
 } | null;
 
 export default function SettingsPage() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [botToken, setBotToken] = useState("");
   const [botStatus, setBotStatus] = useState<{
     config: any;
@@ -280,7 +282,7 @@ export default function SettingsPage() {
             </div>
           ) : (
             <div className="flex gap-2">
-              <Input placeholder="Bot Token..." value={botToken} onChange={(e) => setBotToken(e.target.value)} disabled={!hasActiveSub} className="text-sm" />
+              <Input placeholder="Bot Token..." value={botToken} onChange={(e) => setBotToken(e.target.value)} disabled={!hasActiveSub} />
               <Button size="sm" onClick={handleConnectBot} disabled={connecting || !hasActiveSub}>
                 {connecting ? "..." : "Kết nối"}
               </Button>
@@ -298,7 +300,7 @@ export default function SettingsPage() {
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
             <Label className="text-xs">Tên xưng hô</Label>
-            <Input value={persona.displayName} onChange={(e) => setPersona({ ...persona, displayName: e.target.value })} placeholder="Penny gọi bạn là..." className="text-sm" />
+            <Input value={persona.displayName} onChange={(e) => setPersona({ ...persona, displayName: e.target.value })} placeholder="Penny gọi bạn là..." />
           </div>
 
           <RadioGroup value={persona.style} onValueChange={(v) => setPersona({ ...persona, style: v })} className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -348,13 +350,25 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
-            <Input type="number" placeholder="Ví dụ: 5000000" value={budgetAmount} onChange={(e) => setBudgetAmount(e.target.value)} className="text-sm" />
+            <Input type="number" placeholder="Ví dụ: 5000000" value={budgetAmount} onChange={(e) => setBudgetAmount(e.target.value)} />
             <Button size="sm" onClick={handleSaveBudget} disabled={savingBudget}>
               {savingBudget ? "..." : "Lưu"}
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Account */}
+      <Button
+        variant="destructive"
+        className="w-full"
+        onClick={() => {
+          logout();
+          navigate("/login", { replace: true });
+        }}
+      >
+        <LogOut className="mr-1.5 size-4" /> Đăng xuất
+      </Button>
     </div>
   );
 }
