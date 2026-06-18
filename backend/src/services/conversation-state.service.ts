@@ -34,7 +34,11 @@ export interface ConversationSession {
 
 const MAX_HISTORY_TURNS = 12;
 const MAX_RECENT_MESSAGE_IDS = 30;
+// 30 min idle expires only the volatile follow-up flags (a stale clarifying
+// loop shouldn't resurrect); the transcript itself is kept until
+// HISTORY_STALE_AFTER_MS so the bot still remembers earlier messages.
 const STALE_AFTER_MS = 30 * 60 * 1000;
+const HISTORY_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 
 function createEmptyState(): ConversationMemory {
   return {
@@ -122,9 +126,27 @@ function appendTurn(
   }
 }
 
-function isStale(lastMessageAt?: Date | null): boolean {
-  if (!lastMessageAt) return true;
-  return Date.now() - lastMessageAt.getTime() > STALE_AFTER_MS;
+/**
+ * Decide what state to load given the persisted record and the current time.
+ * Pure (now injected) so the staleness rules are unit-testable.
+ *  - no record / >24h idle → fresh empty state (drop transcript)
+ *  - >30min idle           → keep transcript, clear volatile follow-up flags
+ *  - otherwise             → full state
+ */
+export function resolveLoadedState(
+  record: { state: unknown; lastMessageAt?: Date | null } | null,
+  now: number
+): ConversationMemory {
+  const idleMs = record?.lastMessageAt ? now - record.lastMessageAt.getTime() : Infinity;
+  if (!record || idleMs > HISTORY_STALE_AFTER_MS) {
+    return createEmptyState();
+  }
+  const state = normalizeState(record.state);
+  if (idleMs > STALE_AFTER_MS) {
+    state.pendingIntent = null;
+    state.awaitingUserReply = false;
+  }
+  return state;
 }
 
 async function persistSession(session: ConversationSession) {
@@ -186,10 +208,7 @@ export async function loadConversationSession(
   return {
     botConfigId,
     zaloUserId,
-    state:
-      record && !isStale(record.lastMessageAt)
-        ? normalizeState(record.state)
-        : createEmptyState(),
+    state: resolveLoadedState(record, Date.now()),
   };
 }
 
@@ -249,7 +268,7 @@ export async function rememberProcessedMessage(
 
 export function buildConversationContext(
   session: ConversationSession,
-  maxTurns = 8
+  maxTurns = MAX_HISTORY_TURNS
 ): string {
   const recentTurns = session.state.history.slice(-maxTurns);
   if (recentTurns.length === 0) return "";

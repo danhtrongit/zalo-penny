@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -12,6 +13,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { register, user, loading: authLoading } = useAuth();
@@ -41,6 +43,16 @@ export default function RegisterPage() {
     // Phone validation: starts with 0, 10-11 digits
     if (!/^0\d{9,10}$/.test(cleanedPhone)) {
       setError("Số điện thoại không hợp lệ (bắt đầu bằng 0, 10-11 chữ số)");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Mật khẩu tối thiểu 6 ký tự");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Mật khẩu xác nhận không khớp");
       return;
     }
 
@@ -92,12 +104,22 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Mật khẩu</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="Tối thiểu 6 ký tự"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+              <PasswordInput
+                id="confirmPassword"
+                placeholder="Nhập lại mật khẩu"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
               />

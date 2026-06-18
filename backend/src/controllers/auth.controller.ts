@@ -1,6 +1,11 @@
 import { Response } from "express";
 import prisma from "../config/prisma";
-import { hashPassword, verifyPassword, signToken } from "../services/auth.service";
+import {
+  hashPassword,
+  verifyPassword,
+  signToken,
+  verifyMagicToken,
+} from "../services/auth.service";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import { HttpError } from "../middlewares/error.middleware";
 
@@ -48,6 +53,27 @@ export const login = async (req: AuthRequest, res: Response) => {
     },
     token,
   });
+};
+
+// Exchange a short-lived chat magic-link token for a normal session token.
+export const magic = async (req: AuthRequest, res: Response) => {
+  const { token } = req.body as { token: string };
+
+  let userId: string;
+  try {
+    ({ userId } = verifyMagicToken(token));
+  } catch {
+    throw new HttpError(401, "Liên kết đăng nhập không hợp lệ hoặc đã hết hạn");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, phone: true, email: true, name: true, role: true, createdAt: true },
+  });
+  if (!user) throw new HttpError(401, "Không tìm thấy người dùng");
+
+  const sessionToken = signToken({ userId: user.id, role: user.role });
+  res.json({ user, token: sessionToken });
 };
 
 export const me = async (req: AuthRequest, res: Response) => {

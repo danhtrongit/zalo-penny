@@ -20,5 +20,10 @@ export const loginBody = z.object({
   password: z.string().min(1).max(128),
 });
 
+export const magicBody = z.object({
+  token: z.string().min(10).max(2000),
+});
+
 export type RegisterInput = z.infer<typeof registerBody>;
 export type LoginInput = z.infer<typeof loginBody>;
+export type MagicInput = z.infer<typeof magicBody>;

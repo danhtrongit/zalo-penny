@@ -1,5 +1,21 @@
 import { describe, it, expect } from "vitest";
-import { looksLikeExpense, parseExpenseByRegex } from "./parsers";
+import { looksLikeExpense, parseExpenseByRegex, looksLikeLoginRequest } from "./parsers";
+
+describe("looksLikeLoginRequest", () => {
+  it("matches the login phrase with or without diacritics", () => {
+    expect(looksLikeLoginRequest("đăng nhập")).toBe(true);
+    expect(looksLikeLoginRequest("dang nhap")).toBe(true);
+    expect(looksLikeLoginRequest("Login")).toBe(true);
+    expect(looksLikeLoginRequest("đăng nhập web")).toBe(true);
+    expect(looksLikeLoginRequest("mở dashboard")).toBe(true);
+  });
+
+  it("does not hijack ordinary chat or expenses", () => {
+    expect(looksLikeLoginRequest("cà phê 30k")).toBe(false);
+    expect(looksLikeLoginRequest("chào Penny")).toBe(false);
+    expect(looksLikeLoginRequest("báo cáo tháng này")).toBe(false);
+  });
+});
 
 describe("looksLikeExpense", () => {
   it("matches short messages with k-shorthand", () => {
