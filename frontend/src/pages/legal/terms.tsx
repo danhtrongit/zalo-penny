@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { PageHead } from "@/components/page-head";
 
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
+      <PageHead title="Điều khoản sử dụng" description="Điều khoản sử dụng dịch vụ Penny." canonical="/terms" />
       <Link to="/">
         <Button variant="ghost" className="mb-8">← Trang chủ</Button>
       </Link>

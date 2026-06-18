@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { PageHead } from "@/components/page-head";
 
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
+      <PageHead title="Quyền riêng tư" description="Chính sách quyền riêng tư của Penny." canonical="/privacy" />
       <Link to="/">
         <Button variant="ghost" className="mb-8">← Trang chủ</Button>
       </Link>

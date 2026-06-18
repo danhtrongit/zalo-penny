@@ -6,24 +6,57 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Check } from "lucide-react";
+import { Check, ShieldCheck } from "lucide-react";
+import { PageHead } from "@/components/page-head";
+import { SiteHeader } from "@/components/marketing/site-header";
+import { SiteFooter } from "@/components/marketing/site-footer";
 
-const plans = [
+const paidPlan = {
+  name: "6 Tháng",
+  price: 99000,
+  priceLabel: "99.000đ",
+  slug: "6-month",
+  save: "≈ 16.500đ/tháng · thanh toán một lần",
+  features: [
+    "Nhắn tin không giới hạn",
+    "Ghi chi tiêu & hỏi đáp với AI",
+    "Quét ảnh hoá đơn & nhập PDF",
+    "Báo cáo nâng cao theo ngày/tuần/tháng",
+    "Nhắc ghi chép mỗi ngày",
+    "Ưu tiên hỗ trợ",
+  ],
+};
+
+const faqs = [
+  { q: "Thanh toán thế nào?", a: "Thanh toán một lần qua cổng Sepay (chuyển khoản/QR). Gói có hiệu lực 6 tháng." },
+  { q: "Có tự động gia hạn không?", a: "Không. Gói không tự gia hạn — hết hạn bạn chủ động mua lại nếu muốn." },
+  { q: "Gói miễn phí khác gì trả phí?", a: "Miễn phí cho 10 tin nhắn mỗi ngày. Gói trả phí mở khoá nhắn tin không giới hạn và nhắc ghi chép hằng ngày." },
+  { q: "Sau khi mua thì làm gì?", a: "Bạn được cấp bot và kết nối Zalo ngay trong vài bước, rồi bắt đầu nhắn tin để ghi chi tiêu." },
+];
+
+const jsonLd = [
   {
-    name: "6 Tháng",
-    price: 99000,
-    priceLabel: "99,000đ",
-    slug: "6-month",
-    popular: true,
-    save: "Chỉ ~16,500đ/tháng",
-    features: [
-      "Bot Zalo cá nhân",
-      "Nhắn tin không giới hạn",
-      "Ghi chi tiêu & hỏi đáp với AI",
-      "Hỗ trợ ảnh hoá đơn & nhập PDF",
-      "Báo cáo nâng cao",
-      "Ưu tiên hỗ trợ",
-    ],
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: "Penny 6 tháng",
+    description: "Trợ lý chi tiêu AI trên Zalo — nhắn tin không giới hạn, quét hoá đơn, báo cáo chi tiết.",
+    brand: { "@type": "Brand", name: "Penny" },
+    offers: {
+      "@type": "Offer",
+      price: "99000",
+      priceCurrency: "VND",
+      availability: "https://schema.org/InStock",
+      url: "https://pennybot.vn/pricing",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
   },
 ];
 
@@ -55,24 +88,17 @@ export default function PricingPage() {
       navigate("/register");
       return;
     }
-
     setLoading(slug);
     try {
       const { data } = await api.post("/subscriptions", { planSlug: slug });
-
-      // DEV mode: backend auto-approves payment, navigate directly
       if (data.payment?.status === "PAID") {
         toast.success("Đăng ký gói thành công!");
         await refreshUser();
         navigate("/dashboard/settings");
         return;
       }
-
-      // Production: redirect to Sepay checkout page
       if (data.checkoutData?.checkoutUrl) {
         const { checkoutUrl, ...params } = data.checkoutData;
-
-        // Build a form and submit it to Sepay (POST redirect)
         const form = document.createElement("form");
         form.method = "POST";
         form.action = checkoutUrl;
@@ -88,8 +114,6 @@ export default function PricingPage() {
         form.submit();
         return;
       }
-
-      // Fallback: unexpected response
       toast.error("Không thể xử lý thanh toán. Vui lòng thử lại.");
     } catch (err: any) {
       toast.error(err.response?.data?.error || "Không thể đăng ký gói");
@@ -99,89 +123,95 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-svh py-16">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mb-12 text-center">
+    <div className="min-h-svh">
+      <PageHead
+        title="Bảng giá"
+        description="Penny miễn phí 10 tin nhắn/ngày, hoặc 99.000đ cho 6 tháng nhắn tin không giới hạn. Thanh toán một lần, không tự gia hạn."
+        canonical="/pricing"
+        jsonLd={jsonLd}
+      />
+      <SiteHeader />
+
+      <section className="mx-auto max-w-3xl px-6 py-16">
+        <div className="text-center">
           <h1 className="font-heading text-4xl font-bold">Chọn gói phù hợp</h1>
-          <p className="mt-4 text-muted-foreground">
-            Bắt đầu sử dụng Penny với gói phù hợp nhu cầu của bạn
-          </p>
-          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-            Bạn có thể <span className="font-medium text-foreground">dùng miễn phí</span> với
-            10 tin nhắn mỗi ngày — không cần thanh toán. Gói trả phí mở khoá nhắn{" "}
-            <span className="font-medium text-foreground">không giới hạn</span> và nhắc ghi
-            chép mỗi ngày.
+          <p className="mt-3 text-muted-foreground">
+            Bắt đầu miễn phí, nâng cấp khi cần. Không tự động gia hạn.
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
-          <Card className="border-dashed">
+        <div className="mt-10 grid items-stretch gap-6 md:grid-cols-2">
+          <Card className="flex flex-col border-dashed">
             <CardHeader>
-              <Badge variant="secondary" className="mb-2 w-fit">
-                Miễn phí
-              </Badge>
+              <Badge variant="secondary" className="mb-2 w-fit">Miễn phí</Badge>
               <CardTitle className="text-2xl">Dùng thử</CardTitle>
               <p className="text-4xl font-bold">0đ</p>
-              <p className="text-sm text-muted-foreground">Không giới hạn thời gian</p>
+              <p className="text-sm text-muted-foreground">10 tin nhắn mỗi ngày · không giới hạn thời gian</p>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-1 flex-col gap-4">
               <ul className="space-y-2">
-                {[
-                  "10 tin nhắn mỗi ngày",
-                  "Ghi chi tiêu & hỏi đáp với AI",
-                  "Báo cáo cơ bản",
-                  "Nâng cấp bất cứ lúc nào",
-                ].map((f) => (
+                {["10 tin nhắn mỗi ngày", "Ghi chi tiêu & hỏi đáp với AI", "Báo cáo cơ bản", "Nâng cấp bất cứ lúc nào"].map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm">
-                    <Check className="size-4 text-primary" />
-                    {f}
+                    <Check className="size-4 shrink-0 text-primary" /> {f}
                   </li>
                 ))}
               </ul>
               <Button
-                className="w-full"
+                className="mt-auto w-full"
                 variant="outline"
                 disabled={loading === "free"}
                 onClick={handleFree}
               >
-                {loading === "free" ? "Đang xử lý..." : "Bắt đầu miễn phí"}
+                {loading === "free" ? "Đang xử lý..." : "Dùng miễn phí"}
               </Button>
             </CardContent>
           </Card>
 
-          {plans.map((plan) => (
-            <Card
-              key={plan.slug}
-              className={plan.popular ? "border-primary shadow-lg scale-105" : ""}
-            >
-              <CardHeader>
-                {plan.popular && <Badge className="mb-2 w-fit">Phổ biến nhất</Badge>}
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <p className="text-4xl font-bold">{plan.priceLabel}</p>
-                {plan.save && <p className="text-sm text-primary font-medium">{plan.save}</p>}
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-2">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm">
-                      <Check className="size-4 text-primary" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  className="w-full"
-                  variant={plan.popular ? "default" : "outline"}
-                  disabled={loading === plan.slug}
-                  onClick={() => handleSelect(plan.slug)}
-                >
-                  {loading === plan.slug ? "Đang xử lý..." : "Chọn gói này"}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          <Card className="flex flex-col border-primary ring-1 ring-primary/20">
+            <CardHeader>
+              <Badge className="mb-2 w-fit">Phổ biến</Badge>
+              <CardTitle className="text-2xl">{paidPlan.name}</CardTitle>
+              <p className="text-4xl font-bold">{paidPlan.priceLabel}</p>
+              <p className="text-sm font-medium text-primary">{paidPlan.save}</p>
+            </CardHeader>
+            <CardContent className="flex flex-1 flex-col gap-4">
+              <ul className="space-y-2">
+                {paidPlan.features.map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-sm">
+                    <Check className="size-4 shrink-0 text-primary" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                className="mt-auto w-full"
+                disabled={loading === paidPlan.slug}
+                onClick={() => handleSelect(paidPlan.slug)}
+              >
+                {loading === paidPlan.slug ? "Đang xử lý..." : "Mua gói 6 tháng"}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+
+        <p className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-muted-foreground">
+          <ShieldCheck className="size-4 text-primary" />
+          Thanh toán an toàn qua Sepay · Thanh toán một lần · Không tự động gia hạn
+        </p>
+
+        <div className="mt-14">
+          <h2 className="text-center font-heading text-2xl font-bold">Câu hỏi thường gặp</h2>
+          <div className="mt-6 space-y-3">
+            {faqs.map((f) => (
+              <div key={f.q} className="rounded-xl border border-border bg-card p-4">
+                <p className="font-medium">{f.q}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <SiteFooter />
     </div>
   );
 }
