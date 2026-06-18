@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, MessageSquare, MapPin, Phone, Building2, FileBadge, Globe } from "lucide-react";
+import { PageHead } from "@/components/page-head";
 
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
+      <PageHead title="Liên hệ" description="Liên hệ hỗ trợ Penny: email support@pennybot.vn, hotline 0974 287 428." canonical="/contact" />
       <Link to="/">
         <Button variant="ghost" className="mb-8">← Trang chủ</Button>
       </Link>

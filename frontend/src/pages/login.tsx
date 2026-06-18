@@ -8,6 +8,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PageHead } from "@/components/page-head";
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("");
@@ -56,6 +57,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-svh items-center justify-center p-6">
+      <PageHead title="Đăng nhập" canonical="/login" noIndex />
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-heading">Đăng nhập</CardTitle>
