@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Copy, Check, ExternalLink, RefreshCw, LifeBuoy } from "lucide-react";
@@ -22,12 +23,16 @@ interface Props {
 // Show the "still stuck?" help link only after the user has had a real chance to
 // complete the hand-off (they leave to Zalo and come back).
 const HELP_DELAY_MS = 60_000;
+// Give the user a beat to register that the code was copied before whisking them
+// to Zalo.
+const REDIRECT_SECONDS = 5;
 
 export function StepConnectPool({ onLinked }: Props) {
   const [pool, setPool] = useState<PoolInfo | null>(null);
   const [fetched, setFetched] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const linkedRef = useRef(false);
 
@@ -72,6 +77,17 @@ export function StepConnectPool({ onLinked }: Props) {
     };
   }, [fetchStatus]);
 
+  // Drive the redirect countdown: tick down once a second, then hand off to Zalo.
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown <= 0) {
+      if (pool?.botLink) window.location.href = pool.botLink;
+      return;
+    }
+    const t = setTimeout(() => setCountdown((n) => (n === null ? null : n - 1)), 1000);
+    return () => clearTimeout(t);
+  }, [countdown, pool?.botLink]);
+
   const copyCode = async () => {
     if (!pool) return;
     try {
@@ -84,19 +100,42 @@ export function StepConnectPool({ onLinked }: Props) {
     }
   };
 
-  // One-tap hand-off: copy the code inside the click gesture (required by mobile
-  // browsers), then jump to Zalo in the same tab so returning resumes this page.
-  const openZalo = async () => {
-    if (!pool?.botLink) return;
+  // "Truy cập BOT": copy the code inside the click gesture (required by mobile
+  // browsers), confirm it, then count down before opening Zalo so the user knows
+  // the code is on their clipboard.
+  const goToBot = async () => {
+    if (!pool?.botLink || countdown !== null) return;
     try {
       await navigator.clipboard.writeText(pool.linkCode);
-      toast.success("Đã chép mã — vào Zalo, dán rồi gửi nhé");
+      toast.success("Đã sao chép mã liên kết");
     } catch {
       // Clipboard blocked in this webview — the visible code + "Chép mã" button
-      // below remain as the fallback. Still proceed to open Zalo.
+      // remain as the fallback. Still proceed with the redirect.
     }
-    window.location.href = pool.botLink;
+    setCountdown(REDIRECT_SECONDS);
   };
+
+  const goNow = () => {
+    if (pool?.botLink) window.location.href = pool.botLink;
+  };
+
+  const renderAccess = (label: string, variant: "default" | "outline" = "default") =>
+    countdown === null ? (
+      <Button onClick={goToBot} variant={variant} className="w-full" size="lg">
+        <ExternalLink className="mr-1.5 size-4" />
+        {label}
+      </Button>
+    ) : (
+      <div className="space-y-2">
+        <div className="flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-2.5 text-sm font-medium text-emerald-800">
+          <RefreshCw className="size-4 animate-spin" />
+          Đang chuyển tới Zalo sau {countdown}s…
+        </div>
+        <Button onClick={goNow} variant="outline" className="w-full" size="sm">
+          Chuyển ngay
+        </Button>
+      </div>
+    );
 
   const supportLink = (
     <Link
@@ -149,6 +188,26 @@ export function StepConnectPool({ onLinked }: Props) {
     </Button>
   );
 
+  // Desktop: render the QR straight from the bot link (no admin upload needed).
+  // Old pool bots without a link still fall back to the uploaded image.
+  const desktopQr = pool.botLink ? (
+    <div className="space-y-2 text-center">
+      <div className="mx-auto inline-block rounded-xl border bg-white p-3">
+        <QRCodeSVG value={pool.botLink} size={176} />
+      </div>
+      <p className="text-xs text-muted-foreground">Quét bằng Zalo trên điện thoại</p>
+    </div>
+  ) : pool.qrImageUrl ? (
+    <div className="space-y-2 text-center">
+      <img
+        src={pool.qrImageUrl}
+        alt="QR bot"
+        className="mx-auto size-44 rounded-xl border object-contain"
+      />
+      <p className="text-xs text-muted-foreground">Quét bằng Zalo trên điện thoại</p>
+    </div>
+  ) : null;
+
   const waiting = (
     <div className="flex items-center justify-center gap-2 rounded-lg bg-muted/30 p-2.5 text-xs text-muted-foreground">
       <RefreshCw className="size-3 animate-spin" />
@@ -173,7 +232,7 @@ export function StepConnectPool({ onLinked }: Props) {
             <ol className="space-y-1.5 text-sm">
               <li className="flex gap-2">
                 <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">1</span>
-                <span>Bấm <b>“Mở Zalo &amp; gửi mã”</b> — mã sẽ tự được sao chép.</span>
+                <span>Bấm <b>“Truy cập BOT”</b> — mã tự sao chép &amp; tự mở Zalo.</span>
               </li>
               <li className="flex gap-2">
                 <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">2</span>
@@ -185,40 +244,17 @@ export function StepConnectPool({ onLinked }: Props) {
               </li>
             </ol>
 
-            {pool.botLink && (
-              <Button onClick={openZalo} className="w-full" size="lg">
-                <ExternalLink className="mr-1.5 size-4" />
-                Mở Zalo &amp; gửi mã
-              </Button>
-            )}
+            {pool.botLink && renderAccess("Truy cập BOT")}
 
             {codeBox}
             {copyButton}
           </>
         ) : (
           <>
-            {pool.qrImageUrl && (
-              <div className="space-y-2 text-center">
-                <img
-                  src={pool.qrImageUrl}
-                  alt="QR bot"
-                  className="mx-auto size-44 rounded-xl border object-contain"
-                />
-                <p className="text-xs text-muted-foreground">Quét bằng Zalo trên điện thoại</p>
-              </div>
-            )}
-
+            {desktopQr}
             {codeBox}
             {copyButton}
-
-            {pool.botLink && (
-              <Button asChild variant="outline" className="w-full" size="lg">
-                <a href={pool.botLink} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="mr-1.5 size-4" />
-                  Hoặc mở Zalo trên máy này
-                </a>
-              </Button>
-            )}
+            {pool.botLink && renderAccess("Truy cập BOT trên máy này", "outline")}
           </>
         )}
 

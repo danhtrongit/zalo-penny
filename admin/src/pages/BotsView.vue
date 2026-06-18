@@ -26,14 +26,11 @@ const bots = ref<BotPoolItem[]>([]);
 const awaiting = ref(0);
 const loading = ref(false);
 
-const MAX_QR_BYTES = 300 * 1024;
-
 interface BotForm {
   label: string;
   botToken: string;
   capacity: number;
   botLink: string;
-  qrImageUrl: string;
   isActive: boolean;
 }
 
@@ -43,7 +40,6 @@ function emptyForm(): BotForm {
     botToken: "",
     capacity: 5,
     botLink: "",
-    qrImageUrl: "",
     isActive: true,
   };
 }
@@ -145,34 +141,9 @@ function openEdit(r: BotPoolItem) {
     botToken: "",
     capacity: r.capacity,
     botLink: r.botLink ?? "",
-    qrImageUrl: r.qrImageUrl ?? "",
     isActive: r.isActive,
   });
   showModal.value = true;
-}
-
-function onQrChange(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (file.size > MAX_QR_BYTES) {
-    message.error("Ảnh QR vượt quá 300KB");
-    input.value = "";
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = () => {
-    form.qrImageUrl = typeof reader.result === "string" ? reader.result : "";
-  };
-  reader.onerror = () => {
-    message.error("Không đọc được ảnh QR");
-  };
-  reader.readAsDataURL(file);
-  input.value = "";
-}
-
-function clearQr() {
-  form.qrImageUrl = "";
 }
 
 async function save() {
@@ -184,14 +155,17 @@ async function save() {
     message.error("Vui lòng nhập bot token");
     return;
   }
+  if (!form.botLink.trim()) {
+    message.error("Vui lòng nhập link bot (dùng để tạo QR)");
+    return;
+  }
   saving.value = true;
   try {
     if (editingId.value) {
       const payload: Record<string, unknown> = {
         label: form.label.trim(),
         capacity: form.capacity,
-        botLink: form.botLink.trim() || null,
-        qrImageUrl: form.qrImageUrl || null,
+        botLink: form.botLink.trim(),
         isActive: form.isActive,
       };
       if (form.botToken.trim()) {
@@ -204,8 +178,7 @@ async function save() {
         label: form.label.trim(),
         botToken: form.botToken.trim(),
         capacity: form.capacity,
-        botLink: form.botLink.trim() || null,
-        qrImageUrl: form.qrImageUrl || null,
+        botLink: form.botLink.trim(),
         isActive: form.isActive,
       });
       message.success("Đã thêm bot");
@@ -262,17 +235,8 @@ onMounted(load);
         <NFormItem label="Sức chứa">
           <NInputNumber v-model:value="form.capacity" :min="1" style="width: 100%" />
         </NFormItem>
-        <NFormItem label="Link bot (tuỳ chọn)">
-          <NInput v-model:value="form.botLink" placeholder="https://…" />
-        </NFormItem>
-        <NFormItem label="Ảnh QR (≤ 300KB)">
-          <div class="qr-field">
-            <input type="file" accept="image/*" @change="onQrChange" />
-            <div v-if="form.qrImageUrl" class="qr-preview">
-              <img :src="form.qrImageUrl" alt="QR" />
-              <NButton size="tiny" tertiary @click="clearQr">Xoá ảnh</NButton>
-            </div>
-          </div>
+        <NFormItem label="Link bot (tạo QR & nút truy cập tự động)" required>
+          <NInput v-model:value="form.botLink" placeholder="https://zalo.me/<id>?src=qr" />
         </NFormItem>
         <NFormItem label="Kích hoạt">
           <NSwitch v-model:value="form.isActive" />
@@ -289,24 +253,3 @@ onMounted(load);
     </NModal>
   </div>
 </template>
-
-<style scoped>
-.qr-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-}
-.qr-preview {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.qr-preview img {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-}
-</style>
