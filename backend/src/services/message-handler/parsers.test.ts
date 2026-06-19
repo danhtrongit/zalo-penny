@@ -4,7 +4,37 @@ import {
   parseExpenseByRegex,
   looksLikeLoginRequest,
   parseConfirmation,
+  normalizeParsedExpense,
 } from "./parsers";
+
+describe("normalizeParsedExpense", () => {
+  const today = "2026-06-19";
+
+  it("passes a well-formed expense through", () => {
+    const out = normalizeParsedExpense(
+      { description: "cà phê", amount: 35000, category: "Ăn uống", date: "2026-06-18" },
+      today
+    );
+    expect(out).toEqual({ description: "cà phê", amount: 35000, category: "Ăn uống", date: "2026-06-18" });
+  });
+
+  it("falls back to today when date is missing or invalid (the crash)", () => {
+    expect(normalizeParsedExpense({ description: "ăn thịt", amount: 5000000 }, today)?.date).toBe(today);
+    expect(normalizeParsedExpense({ description: "x", amount: 20000, date: "hôm nay" }, today)?.date).toBe(today);
+  });
+
+  it("falls back to category 'Khác' when missing", () => {
+    expect(
+      normalizeParsedExpense({ description: "ăn thịt", amount: 5000000, category: undefined }, today)?.category
+    ).toBe("Khác");
+  });
+
+  it("returns null when the amount is not a positive number", () => {
+    expect(normalizeParsedExpense({ description: "x", amount: 0 }, today)).toBeNull();
+    expect(normalizeParsedExpense({ description: "x" }, today)).toBeNull();
+    expect(normalizeParsedExpense({ description: "x", amount: "abc" }, today)).toBeNull();
+  });
+});
 
 describe("parseConfirmation", () => {
   it("recognizes affirmatives", () => {

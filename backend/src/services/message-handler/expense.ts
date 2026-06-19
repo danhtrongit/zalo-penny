@@ -4,7 +4,7 @@ import { logger } from "../../utils/logger";
 import { ConversationSession, rememberTransactions } from "../conversation-state.service";
 import { sendTrackedMessage } from "./send";
 import { formatMoney, shouldAwaitFollowUp } from "./helpers";
-import { parseExpenseByRegex } from "./parsers";
+import { parseExpenseByRegex, normalizeParsedExpense } from "./parsers";
 import { ParsedExpense } from "./types";
 
 export async function handleExpense(
@@ -44,6 +44,13 @@ export async function handleExpense(
         logger.debug({ expenses }, "Regex fallback parsed");
       }
     }
+
+    // Sanitize before persisting — the AI sometimes omits/malforms date or
+    // category, which produced "Invalid Date" and crashed the create.
+    const today = new Date().toISOString().slice(0, 10);
+    expenses = (expenses ?? [])
+      .map((e) => normalizeParsedExpense(e as unknown as Record<string, unknown>, today))
+      .filter((e): e is ParsedExpense => e !== null);
 
     if (!Array.isArray(expenses) || expenses.length === 0) {
       await sendTrackedMessage(

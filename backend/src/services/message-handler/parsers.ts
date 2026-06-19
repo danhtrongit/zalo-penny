@@ -23,6 +23,33 @@ export function looksLikeExpense(text: string): boolean {
   return /(?:het|ton|mat|mua|an|uong|tra|chi|tieu|ghi|di )/.test(normalized);
 }
 
+const VALID_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Sanitize an AI/regex-parsed expense before persisting. The model sometimes
+ * omits or malforms `date` (→ "Invalid Date") or `category`, which crashed
+ * prisma.transaction.create. Returns null when there is no usable amount.
+ */
+export function normalizeParsedExpense(
+  raw: Record<string, unknown>,
+  today: string
+): ParsedExpense | null {
+  const amount = typeof raw.amount === "number" ? raw.amount : Number(raw.amount);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+
+  const description =
+    typeof raw.description === "string" && raw.description.trim()
+      ? raw.description.trim().slice(0, 100)
+      : "Chi tiêu";
+  const category =
+    typeof raw.category === "string" && raw.category.trim() ? raw.category.trim() : "Khác";
+  const rawDate = typeof raw.date === "string" ? raw.date : "";
+  const date =
+    VALID_DATE.test(rawDate) && !Number.isNaN(new Date(rawDate).getTime()) ? rawDate : today;
+
+  return { description, amount: Math.round(amount), category, date };
+}
+
 /**
  * Deterministic match for a login/dashboard request typed without a slash
  * ("đăng nhập", "login", "mở dashboard"). Anchored to the start so it doesn't

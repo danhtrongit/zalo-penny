@@ -257,7 +257,10 @@ export async function handleMessage(
     );
     let intent = normalizeIntent(result.intent) || "CHAT";
 
-    if (intent !== "EXPENSE" && looksLikeExpense(text)) {
+    // Only rescue expenses the AI mislabeled as generic CHAT. Do NOT override a
+    // deliberate DELETE/EDIT/REPORT (e.g. "xoá cái ăn thịt 5 củ" contains money
+    // but is a delete, not a new expense).
+    if (intent === "CHAT" && looksLikeExpense(text)) {
       logger.debug(
         { aiIntent: result.intent, reason: "looksLikeExpense" },
         "processUserMessage override"
