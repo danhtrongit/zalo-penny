@@ -19,7 +19,7 @@ export default function ContactPage() {
       <h1 className="font-heading text-xl font-bold sm:text-2xl">Liên hệ & Hỗ trợ</h1>
 
       {/* Penny Greeting */}
-      <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/50">
+      <Card className="overflow-hidden border-primary/20 bg-secondary/40">
         <CardContent className="flex items-center gap-4 p-4">
           <img src={pennyLogo} alt="Penny" className="size-16 shrink-0" />
           <div>
