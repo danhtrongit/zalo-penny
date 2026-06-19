@@ -149,7 +149,7 @@ export default function ReportsPage() {
             </Card>
           </div>
 
-          {report?.budget && (
+          {report?.budget && report.budget.amount > 0 && (
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 text-muted-foreground">

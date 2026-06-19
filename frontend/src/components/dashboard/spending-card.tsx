@@ -64,7 +64,7 @@ export function SpendingCard({
           stacked ? "mt-16" : ""
         }`}
         style={{
-          background: "linear-gradient(135deg, #0e8c7c 0%, #6ec046 100%)",
+          background: "#0e8c7c",
         }}
       >
         {/* Header */}

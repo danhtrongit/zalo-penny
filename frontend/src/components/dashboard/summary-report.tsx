@@ -54,7 +54,7 @@ function SummaryDonut({ title, data, loading }: SummaryDonutProps) {
   const top = chartData.slice(0, 3);
 
   return (
-    <Card className="overflow-hidden border-0 bg-gradient-to-br from-[#f6fbf8] to-[#e8f1e2] shadow-none">
+    <Card className="overflow-hidden border-0 bg-secondary shadow-none">
       <CardContent className="p-3">
         <div className="flex items-baseline justify-between">
           <h3 className="text-[11px] font-bold uppercase tracking-wide text-[#588e7a]">

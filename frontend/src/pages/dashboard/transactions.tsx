@@ -38,6 +38,7 @@ export default function TransactionsPage() {
   const [filterCategory, setFilterCategory] = useState("");
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [editForm, setEditForm] = useState({ description: "", amount: "", category: "", date: "" });
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchTransactions = async () => {
     const params: Record<string, string> = { page: String(page), limit: "20" };
@@ -68,10 +69,16 @@ export default function TransactionsPage() {
     } catch { toast.error("Không thể cập nhật"); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Xác nhận xóa?")) return;
-    try { await api.delete(`/transactions/${id}`); toast.success("Đã xóa"); fetchTransactions(); }
-    catch { toast.error("Không thể xóa"); }
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await api.delete(`/transactions/${deleteId}`);
+      toast.success("Đã xóa");
+      setDeleteId(null);
+      fetchTransactions();
+    } catch {
+      toast.error("Không thể xóa");
+    }
   };
 
   return (
@@ -80,7 +87,7 @@ export default function TransactionsPage() {
       {/* Header with back button */}
       <div className="flex items-center gap-3">
         <Link to="/dashboard">
-          <Button variant="ghost" size="icon" className="size-8">
+          <Button variant="ghost" size="icon" className="size-8" aria-label="Quay lại">
             <ArrowLeft className="size-4" />
           </Button>
         </Link>
@@ -120,10 +127,10 @@ export default function TransactionsPage() {
               </div>
               <div className="flex shrink-0 items-center gap-1">
                 <span className="text-sm font-semibold text-destructive">-{formatMoney(tx.amount)}</span>
-                <Button variant="ghost" size="icon" className="size-7" onClick={() => handleEdit(tx)}>
+                <Button variant="ghost" size="icon" className="size-7" aria-label="Sửa giao dịch" onClick={() => handleEdit(tx)}>
                   <Pencil className="size-3" />
                 </Button>
-                <Button variant="ghost" size="icon" className="size-7" onClick={() => handleDelete(tx.id)}>
+                <Button variant="ghost" size="icon" className="size-7" aria-label="Xoá giao dịch" onClick={() => setDeleteId(tx.id)}>
                   <Trash2 className="size-3" />
                 </Button>
               </div>
@@ -180,6 +187,22 @@ export default function TransactionsPage() {
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setEditing(null)}>Hủy</Button>
             <Button onClick={handleSave}>Lưu</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
+      <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Xoá giao dịch?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Giao dịch sẽ bị xoá vĩnh viễn và không thể khôi phục.
+          </p>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteId(null)}>Huỷ</Button>
+            <Button variant="destructive" onClick={confirmDelete}>Xoá</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
