@@ -309,7 +309,8 @@ export async function handleReceiptMedia(
     return;
   }
 
-  const txDate = extraction.date ? new Date(extraction.date) : new Date();
+  const parsedDate = extraction.date ? new Date(extraction.date) : new Date();
+  const txDate = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
   const description = extraction.merchant
     ? `${extraction.description} (${extraction.merchant})`
     : extraction.description;
