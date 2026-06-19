@@ -6,8 +6,14 @@ import {
 } from "../conversation-state.service";
 import { sendTrackedMessage } from "./send";
 import { formatMoney } from "./helpers";
+import { vnDateStr } from "../../utils/vn-time";
 import { EditTarget } from "./types";
 import { resolveTransactionTarget } from "./tx-target";
+
+function ddmm(date: Date): string {
+  const [, mm, dd] = vnDateStr(date).split("-");
+  return `${dd}/${mm}`;
+}
 
 export async function handleEdit(
   botToken: string,
@@ -62,7 +68,7 @@ export async function handleEdit(
       botToken,
       chatId,
       conversation,
-      `Đã sửa: "${before.description}" ${formatMoney(before.amount)} → "${updated.description}" ${formatMoney(updated.amount)} [${updated.category}]`,
+      `Đã sửa (${ddmm(updated.date)}): "${before.description}" ${formatMoney(before.amount)} → "${updated.description}" ${formatMoney(updated.amount)} [${updated.category}]`,
       "CHAT"
     );
   } catch (err) {

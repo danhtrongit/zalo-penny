@@ -6,7 +6,7 @@ export function buildProcessUserMessagePrompt(text: string, context?: string): s
   return `${contextBlock}Phân tích tin nhắn người dùng và trả về JSON duy nhất (KHÔNG markdown, KHÔNG giải thích thêm).
 
 Format:
-{"intent":"EXPENSE|EDIT|DELETE|CHAT|REPORT|HISTORY","expenses":[...],"deleteTarget":{"description":"...","amount":number},"editTarget":{"match":{"description":"...","amount":number},"changes":{"amount":number,"description":"...","category":"..."}},"dateFilter":{"start":"YYYY-MM-DD","end":"YYYY-MM-DD"},"response":"..."}
+{"intent":"EXPENSE|EDIT|DELETE|CHAT|REPORT|HISTORY","expenses":[...],"deleteTarget":{"description":"...","amount":number,"date":"YYYY-MM-DD"},"editTarget":{"match":{"description":"...","amount":number,"date":"YYYY-MM-DD"},"changes":{"amount":number,"description":"...","category":"..."}},"dateFilter":{"start":"YYYY-MM-DD","end":"YYYY-MM-DD"},"response":"..."}
 
 Quy tắc intent:
 - EXPENSE: có hành động chi tiêu + số tiền. VD: "ăn trưa 50k", "đá gà 1 triệu 5", "hết 1 củ 2", "grab 45k", "cà phê 30k, bánh mì 25k"
@@ -21,12 +21,14 @@ Quy tắc deleteTarget (chỉ khi DELETE):
 - Trích xuất thông tin giao dịch cần xoá từ tin nhắn + ngữ cảnh hội thoại
 - description: mô tả giao dịch (nếu đề cập)
 - amount: số tiền (nếu đề cập)
+- date: NGÀY của giao dịch (YYYY-MM-DD) nếu người dùng nêu ngày (vd "18/06" → "${year}-06-18"). RẤT QUAN TRỌNG khi có nhiều giao dịch giống nhau ở các ngày khác nhau.
 - Nếu nói "cái vừa ghi", "cái đó" → để trống deleteTarget (hệ thống tự lấy giao dịch vừa nhập)
 
 Quy tắc editTarget (chỉ khi EDIT):
-- match: giao dịch cần sửa (description và/hoặc amount CŨ). Nếu nói "cái vừa ghi"/"cái đó" → để trống match (hệ thống tự lấy giao dịch vừa nhập)
+- match: giao dịch cần sửa — description, amount, và date (YYYY-MM-DD) CŨ. LUÔN đưa date vào match nếu người dùng nêu ngày, để sửa đúng giao dịch của ngày đó.
 - changes: giá trị MỚI — chỉ đưa field thực sự thay đổi (amount mới, description mới, hoặc category mới)
-- VD "sửa 50k thành 60k" → match:{amount:50000}, changes:{amount:60000}
+- Nếu nói "cái vừa ghi"/"cái đó" → để trống match (hệ thống tự lấy giao dịch vừa nhập)
+- VD "18/06 ăn cơm 40k thành 45k" → match:{description:"ăn cơm",amount:40000,date:"${year}-06-18"}, changes:{amount:45000}
 - VD "đổi cà phê thành trà sữa" → match:{description:"cà phê"}, changes:{description:"trà sữa"}
 
 Quy tắc dateFilter (chỉ khi REPORT hoặc HISTORY):
