@@ -7,8 +7,14 @@ import {
 } from "../conversation-state.service";
 import { sendTrackedMessage } from "./send";
 import { formatMoney } from "./helpers";
+import { vnDateStr } from "../../utils/vn-time";
 import { DeleteTarget } from "./types";
 import { resolveTransactionTarget } from "./tx-target";
+
+function ddmm(date: Date): string {
+  const [, mm, dd] = vnDateStr(date).split("-");
+  return `${dd}/${mm}`;
+}
 
 /**
  * Delete is destructive, so we never delete immediately. Resolve the target,
@@ -44,7 +50,7 @@ export async function handleDelete(
       botToken,
       chatId,
       conversation,
-      `Bạn muốn xoá "${target.description}" ${formatMoney(target.amount)}? Nhắn "xác nhận" để xoá hoặc "huỷ" để giữ lại.`,
+      `Bạn muốn xoá (${ddmm(target.date)}) "${target.description}" ${formatMoney(target.amount)}? Nhắn "xác nhận" để xoá hoặc "huỷ" để giữ lại.`,
       "DELETE"
     );
   } catch (err) {
@@ -85,7 +91,7 @@ export async function executePendingDelete(
       botToken,
       chatId,
       conversation,
-      `Đã xoá "${tx.description}" ${formatMoney(tx.amount)}.`,
+      `Đã xoá (${ddmm(tx.date)}) "${tx.description}" ${formatMoney(tx.amount)}.`,
       "CHAT"
     );
   } catch (err) {

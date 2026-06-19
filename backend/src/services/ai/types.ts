@@ -70,9 +70,10 @@ export interface ProcessedMessage {
   deleteTarget?: {
     description?: string;
     amount?: number;
+    date?: string;
   };
   editTarget?: {
-    match?: { description?: string; amount?: number };
+    match?: { description?: string; amount?: number; date?: string };
     changes?: { amount?: number; description?: string; category?: string };
   };
   dateFilter?: {

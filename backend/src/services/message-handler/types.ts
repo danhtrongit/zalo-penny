@@ -13,9 +13,10 @@ export interface DateFilter {
 export interface DeleteTarget {
   description?: string;
   amount?: number;
+  date?: string;
 }
 
 export interface EditTarget {
-  match?: { description?: string; amount?: number };
+  match?: { description?: string; amount?: number; date?: string };
   changes?: { amount?: number; description?: string; category?: string };
 }
