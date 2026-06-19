@@ -129,3 +129,31 @@
     @apply font-sans;
     }
 }
+
+/* Scroll-reveal + coin-drop — motion only when the user allows it. */
+.reveal {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  /* opacity-only: a CSS transform would override the coin's SVG translate() */
+  .jar-coin-drop {
+    animation: jar-coin-drop 0.45s ease-out;
+  }
+  @keyframes jar-coin-drop {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
