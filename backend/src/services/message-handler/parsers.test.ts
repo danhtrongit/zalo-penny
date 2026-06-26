@@ -5,7 +5,85 @@ import {
   looksLikeLoginRequest,
   parseConfirmation,
   normalizeParsedExpense,
+  parseBulkExpenses,
+  looksLikeBulkList,
 } from "./parsers";
+
+describe("parseBulkExpenses (multi-date list paste)", () => {
+  const today = "2026-06-25";
+
+  it("extracts one expense per priced line, dated by its header (real paste)", () => {
+    const text = [
+      "16/6",
+      "100k nc cam cty",
+      "",
+      "17/6",
+      "35k hủ tiếu",
+      "50k ảnh thẻ",
+      "10k ck tư",
+      "",
+      "20/6",
+      "17k tra tắc",
+      "20k ck tư",
+      "",
+      "21/6",
+      "55k đồ kê lap",
+      "95k ăn vặt",
+    ].join("\n");
+
+    const out = parseBulkExpenses(text, today);
+    expect(out.map((e) => [e.amount, e.date])).toEqual([
+      [100000, "2026-06-16"],
+      [35000, "2026-06-17"],
+      [50000, "2026-06-17"],
+      [10000, "2026-06-17"],
+      [17000, "2026-06-20"],
+      [20000, "2026-06-20"],
+      [55000, "2026-06-21"],
+      [95000, "2026-06-21"],
+    ]);
+    expect(out[0].description).toBe("nc cam cty");
+    expect(out[1].description).toBe("hủ tiếu");
+  });
+
+  it("skips lines with no amount and dates the priced one by its header", () => {
+    const text = [
+      "1/6",
+      "xanh sm",
+      "đi be",
+      "",
+      "3/6",
+      "ship thuốc từ bv",
+      "mẹ ck dì5 cho (ko tinh)",
+      "",
+      "6/6",
+      "nước suó 19k",
+    ].join("\n");
+
+    const out = parseBulkExpenses(text, today);
+    expect(out).toHaveLength(1);
+    expect(out[0]).toMatchObject({ amount: 19000, date: "2026-06-06", description: "nước suó" });
+  });
+
+  it("handles a date and item on the same line", () => {
+    const out = parseBulkExpenses("16/6 100k nc cam", today);
+    expect(out).toEqual([{ amount: 100000, description: "nc cam", category: "Khác", date: "2026-06-16" }]);
+  });
+
+  it("falls back to today before any date header", () => {
+    expect(parseBulkExpenses("cà phê 35k\ntrà 20k", today).map((e) => e.date)).toEqual([today, today]);
+  });
+});
+
+describe("looksLikeBulkList", () => {
+  it("is true for multi-line money lists", () => {
+    expect(looksLikeBulkList("16/6\n100k nc cam\n35k hủ tiếu")).toBe(true);
+    expect(looksLikeBulkList("cà phê 35k\ntrà 20k")).toBe(true);
+  });
+  it("is false for a single expense", () => {
+    expect(looksLikeBulkList("ăn trưa 50k")).toBe(false);
+  });
+});
 
 describe("normalizeParsedExpense", () => {
   const today = "2026-06-19";
