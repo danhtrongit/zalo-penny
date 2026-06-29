@@ -106,3 +106,7 @@ export const botUpdateBody = botCreateBody.partial().refine(
 );
 
 export const botIdParams = z.object({ id: z.string().min(1).max(64) });
+
+export const commissionUpdateBody = z.object({
+  pct: z.number().int().min(0).max(100),
+});

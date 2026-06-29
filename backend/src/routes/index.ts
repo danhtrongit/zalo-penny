@@ -10,6 +10,7 @@ import transactionRoute from "./transaction.route";
 import budgetRoute from "./budget.route";
 import personaRoute from "./persona.route";
 import reportRoute from "./report.route";
+import referralRoute from "./referral.route";
 import adminRoute from "./admin";
 
 const router = Router();
@@ -25,6 +26,7 @@ router.use("/transactions", transactionRoute);
 router.use("/budgets", budgetRoute);
 router.use("/persona", personaRoute);
 router.use("/reports", reportRoute);
+router.use("/referral", referralRoute);
 router.use("/admin", adminRoute);
 
 export default router;

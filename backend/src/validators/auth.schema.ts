@@ -13,6 +13,7 @@ export const registerBody = z.object({
   password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự").max(128),
   name: z.string().trim().min(1).max(120),
   email: z.string().email().max(255).optional().or(z.literal("").transform(() => undefined)),
+  referralCode: z.string().trim().max(40).optional().or(z.literal("").transform(() => undefined)),
 });
 
 export const loginBody = z.object({

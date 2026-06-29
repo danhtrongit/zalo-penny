@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Bot, Check, Wifi, WifiOff, PiggyBank, Handshake, Briefcase, Home, Dumbbell, Laugh, LogOut, type LucideIcon } from "lucide-react";
 import { StepConnectPool } from "@/components/onboarding/step-connect-pool";
+import { ReferralCard } from "@/components/dashboard/referral-card";
 
 const personas: { value: string; label: string; desc: string; icon: LucideIcon }[] = [
   { value: "FRIEND", label: "Bạn thân", desc: "Thoải mái", icon: Handshake },
@@ -357,6 +358,9 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Referral */}
+      <ReferralCard />
 
       {/* Account */}
       <Button

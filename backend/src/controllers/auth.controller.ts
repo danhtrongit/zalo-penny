@@ -8,23 +8,32 @@ import {
 } from "../services/auth.service";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import { HttpError } from "../middlewares/error.middleware";
+import { resolveReferrer, ensureUserReferralCode } from "../services/referral.service";
 
 export const register = async (req: AuthRequest, res: Response) => {
-  const { phone, password, name, email } = req.body as {
+  const { phone, password, name, email, referralCode } = req.body as {
     phone: string;
     password: string;
     name: string;
     email?: string;
+    referralCode?: string;
   };
 
   const existing = await prisma.user.findUnique({ where: { phone } });
   if (existing) throw new HttpError(409, "Số điện thoại đã được đăng ký");
 
+  // Attribute the signup to a referrer if a valid code was entered. Unknown
+  // codes are silently ignored — they must never block registration.
+  const referredById = await resolveReferrer(referralCode);
+
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
-    data: { phone, passwordHash, name, email: email || null },
+    data: { phone, passwordHash, name, email: email || null, referredById },
     select: { id: true, phone: true, email: true, name: true, role: true, createdAt: true },
   });
+
+  // Give every new user their own shareable code right away.
+  await ensureUserReferralCode(user.id);
 
   const token = signToken({ userId: user.id, role: user.role });
 

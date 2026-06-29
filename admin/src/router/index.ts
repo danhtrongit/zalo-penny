@@ -25,6 +25,7 @@ const router = createRouter({
         { path: "send", name: "send", component: () => import("@/pages/SendToUsersView.vue") },
         { path: "reminders", name: "reminders", component: () => import("@/pages/RemindersView.vue") },
         { path: "audit", name: "audit", component: () => import("@/pages/AuditView.vue") },
+        { path: "settings", name: "settings", component: () => import("@/pages/SettingsView.vue") },
       ],
     },
     { path: "/:pathMatch(.*)*", redirect: "/" },

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,10 +15,18 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { register, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Prefill the referral code from a shared invite link (?ref=CODE).
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) setReferralCode(ref.trim());
+  }, [searchParams]);
 
   // New / non-paying users go buy a plan first; admins and active subscribers
   // go straight to the dashboard.
@@ -59,7 +67,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await register(cleanedPhone, password, name, email || undefined);
+      await register(cleanedPhone, password, name, email || undefined, referralCode.trim() || undefined);
       navigate("/pricing");
     } catch (err: any) {
       setError(err.response?.data?.error || "Đăng ký thất bại");
@@ -134,6 +142,19 @@ export default function RegisterPage() {
                 placeholder="email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="referralCode">
+                Mã giới thiệu <span className="text-muted-foreground text-xs">(không bắt buộc)</span>
+              </Label>
+              <Input
+                id="referralCode"
+                placeholder="VD: ABC23XY"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                autoCapitalize="characters"
+                className="uppercase"
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>

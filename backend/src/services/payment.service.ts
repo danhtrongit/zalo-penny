@@ -4,6 +4,7 @@ import { env } from "../config/env";
 import { logger } from "../utils/logger";
 import { HttpError } from "../middlewares/error.middleware";
 import { assignBotToUser } from "./bot-pool.service";
+import { recordReferralCommission } from "./referral.service";
 
 export interface SepayIpnPayload {
   notification_type?: string;
@@ -125,6 +126,20 @@ export async function activateSubscriptionFromIpn(payload: SepayIpnPayload) {
     logger.error(
       { err, userId: subscription.userId },
       "Bot auto-assign failed on IPN activation"
+    );
+  }
+
+  // Pay the referrer (if any). Never let this fail the IPN — SePay must get 200.
+  try {
+    await recordReferralCommission({
+      referredUserId: subscription.userId,
+      amount: subscription.plan.price,
+      subscriptionId: subscription.id,
+    });
+  } catch (err) {
+    logger.error(
+      { err, userId: subscription.userId, subscriptionId: subscription.id },
+      "Referral commission failed on IPN activation"
     );
   }
 

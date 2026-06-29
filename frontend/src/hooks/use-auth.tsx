@@ -37,7 +37,13 @@ interface AuthContextType {
   loading: boolean;
   login: (phone: string, password: string) => Promise<void>;
   loginWithToken: (magicToken: string) => Promise<void>;
-  register: (phone: string, password: string, name: string, email?: string) => Promise<void>;
+  register: (
+    phone: string,
+    password: string,
+    name: string,
+    email?: string,
+    referralCode?: string
+  ) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -88,12 +94,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   };
 
-  const register = async (phone: string, password: string, name: string, email?: string) => {
+  const register = async (
+    phone: string,
+    password: string,
+    name: string,
+    email?: string,
+    referralCode?: string
+  ) => {
     const { data } = await api.post("/auth/register", {
       phone,
       password,
       name,
       ...(email ? { email } : {}),
+      ...(referralCode ? { referralCode } : {}),
     });
     localStorage.setItem("penny_token", data.token);
     setToken(data.token);

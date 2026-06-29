@@ -8,6 +8,7 @@ import notificationsRoute from "./notifications.route";
 import statsRoute from "./stats.route";
 import botsRoute from "./bots.route";
 import remindersRoute from "./reminders.route";
+import settingsRoute from "./settings.route";
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use("/notifications", notificationsRoute);
 router.use("/stats", statsRoute);
 router.use("/bots", botsRoute);
 router.use("/reminders", remindersRoute);
+router.use("/settings", settingsRoute);
 
 export default router;
