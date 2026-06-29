@@ -6,6 +6,7 @@ import { logger } from "../../utils/logger";
 import { ConversationSession, rememberTransactions } from "../conversation-state.service";
 import { sendTrackedMessage } from "./send";
 import { formatMoney } from "./helpers";
+import { shouldBlockDuplicateReceipt } from "./receipt-dedup";
 import { ZaloMessage } from "../../utils/zalo-api";
 import { ReceiptExtraction } from "../ai";
 
@@ -196,14 +197,20 @@ export async function handleReceiptMedia(
     include: { transactions: true },
     orderBy: { createdAt: "desc" },
   });
-  if (exact) {
-    const tx = exact.transactions[0];
-    const reply = tx
-      ? `Hoá đơn này mình ghi rồi nè: ${tx.description} - ${formatMoney(tx.amount)} (${tx.date.toLocaleDateString(
-          "vi-VN"
-        )}). Không ghi trùng đâu nhé! 😉`
-      : "Hoá đơn này mình đã nhận trước đó rồi, không ghi trùng đâu nha!";
-    await sendTrackedMessage(botToken, chatId, conversation, reply, "RECEIPT");
+  // Block only a TRUE duplicate — a prior upload that actually recorded a
+  // transaction. An orphan receipt (earlier OCR failed → nothing saved) must
+  // fall through so the user can retry, instead of being told "đã nhận rồi".
+  if (shouldBlockDuplicateReceipt(exact)) {
+    const tx = exact!.transactions[0];
+    await sendTrackedMessage(
+      botToken,
+      chatId,
+      conversation,
+      `Hoá đơn này mình ghi rồi nè: ${tx.description} - ${formatMoney(tx.amount)} (${tx.date.toLocaleDateString(
+        "vi-VN"
+      )}). Không ghi trùng đâu nhé! 😉`,
+      "RECEIPT"
+    );
     return;
   }
 
